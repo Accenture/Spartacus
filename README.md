@@ -16,6 +16,7 @@ When a process that is vulnerable to DLL Hijacking is asking for a DLL to be loa
 * Spartacus will create proxy DLLs for all missing DLLs that were identified. For instance, if an application is vulnerable to DLL Hijacking via `version.dll`, Spartacus will create a `version.dll.cpp` file for you with all the exports included in it. Then you can insert your payload/execution technique and compile.
 * Able to process large PML files and store all DLLs of interest in an output CSV file. Local benchmark processed a 3GB file with 8 million events in 45 seconds.
 * `[Defence]` Monitoring mode trying to identify running applications proxying calls, as in "DLL Hijacking in progress". This is just to get any low hanging fruit and should not be relied upon.
+* Able to create proxies for export functions in order to avoid using `DllMain`. This technique was inspired and implemented from the walkthrough described at https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain, by [Shantanu Khandelwal](https://twitter.com/shantanukhande). For this to work [Ghidra](https://github.com/NationalSecurityAgency/ghidra) is required.
 
 # Table of Contents
 
@@ -84,6 +85,11 @@ When a process that is vulnerable to DLL Hijacking is asking for a DLL to be loa
 | `--detect`                | Try to identify DLLs that are proxying calls (like 'DLL Hijacking in progress'). This isn't a feature to be relied upon, it's there to get the low hanging fruit. |
 | `--verbose`               | Enable verbose output. |
 | `--debug`                 | Enable debug output. |
+| `--generate-proxy`        | Switch to indicate that Spartacus will be creating proxy functions for all identified export functions. |
+| `--ghidra`                | Used only with --generate-proxy. Absolute path to Ghidra's 'analyzeHeadless.bat' file. |
+| `--dll`                   | Used only with --generate-proxy. Absolute path to the DLL you want to proxy. |
+| `--output-dir`            | Used only with --generate-proxy. Absolute path to the directory where the solution of the proxy will be stored. This directory should not exist, and will be auto-created. |
+| `--only-proxy`            | Used only with --generate-proxy. Comma separated string to indicate functions to clone. Such as 'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA' |
 
 ## Examples
 
@@ -121,6 +127,18 @@ Run in monitoring mode and try to detect any applications that is proxying DLL c
 
 ```
 --detect
+```
+
+Create proxies for all identified export functions.
+
+```
+--generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose
+```
+
+Create a proxy only for a specific export function.
+
+```
+--generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose --only-proxy "ExpandEnvironmentStringsForUserW"
 ```
 
 ## Proxy DLL Template
@@ -170,3 +188,4 @@ Whether it's a typo, a bug, or a new feature, Spartacus is very open to contribu
 # Credits
 
 * https://github.com/eronnen/procmon-parser/
+* https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain

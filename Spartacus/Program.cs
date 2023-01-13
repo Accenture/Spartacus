@@ -47,6 +47,14 @@ Usage: Spartacus.exe [options]
                         Use this to include those directories in the output.
 --detect                Try to identify DLLs that are proxying calls (like 'DLL Hijacking in progress').
                         This isn't a feature to be relied upon, it's there to get the low hanging fruit.
+--generate-proxy        Switch to indicate that Spartacus will be creating proxy functions for all identified
+                        export functions.
+--ghidra                Used only with --generate-proxy. Absolute path to Ghidra's 'analyzeHeadless.bat' file.
+--dll                   Used only with --generate-proxy. Absolute path to the DLL you want to proxy.
+--output-dir            Used only with --generate-proxy. Absolute path to the directory where the solution of
+                        the proxy will be stored. This directory should not exist, and will be auto-created.
+--only-proxy            Used only with --generate-proxy. Comma separated string to indicate functions to
+                        clone. Such as 'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA'
 --verbose               Enable verbose output.
 --debug                 Enable debug output.
 
@@ -75,6 +83,14 @@ Parse an existing PML event log output, save output to CSV, and generate proxy D
 Run in monitoring mode and try to detect any applications that is proxying DLL calls.
 
     --detect
+
+Create proxies for all identified export functions.
+
+    --generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose
+
+Create a proxy only for a specific export function.
+
+    --generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose --only-proxy ""ExpandEnvironmentStringsForUserW""
 ";
                 Logger.Info(help, true, false);
 
