@@ -114,6 +114,12 @@ Run in monitoring mode and try to detect any applications that is proxying DLL c
                     Detect detector = new Detect();
                     detector.Run();
                 }
+                else if (RuntimeData.GenerateProxy)
+                {
+                    Logger.Info("Starting proxy DLL generation");
+                    ProxyDLLGenerator generator = new ProxyDLLGenerator();
+                    generator.Run();
+                }
                 else
                 {
                     Manager manager = new Manager();

@@ -117,14 +117,89 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="dllmain.cpp" xml:space="preserve">
+    <value>#pragma once
+
+%_PRAGMA_COMMENTS_%
+
+#include "windows.h"
+#include "ios"
+#include "fstream"
+
+%_TYPEDEF_%
+
+HMODULE hModule = LoadLibrary(L"%_REAL_DLL_%");
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+{
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
+}
+
+VOID DebugToFile(LPCSTR szInput)
+{
+    std::ofstream log("spartacus-proxy.log", std::ios_base::app | std::ios_base::out);
+    log &lt;&lt; szInput;
+    log &lt;&lt; "\n";
+}
+
+%_FUNCTIONS_%</value>
+  </data>
+  <data name="ExportFunctionDefinitionsINI.java" xml:space="preserve">
+    <value>/*
+ *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
+ *  One would ask "Why don't you save this output as JSON? Wouldn't that be easier?" And the answer is "yes, it would be",
+ *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
+ */
+
+import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.Charset;
+
+import ghidra.app.script.GhidraScript;
+import ghidra.program.model.listing.*;
+import ghidra.program.model.data.*;
+
+public class ExportFunctionDefinitionsINI extends GhidraScript {
+
+	@Override
+	public void run() throws Exception {
+
+		//String iniData = "";
+        List&lt;String&gt; iniData = new ArrayList&lt;String&gt;();
+        Listing listing = currentProgram.getListing();
+        FunctionIterator iter = listing.getFunctions(true);
+        while (iter.hasNext() &amp;&amp; !monitor.isCancelled()) {
+            Function f = iter.next();
+            
+            iniData.add("[" + f.getName() + "]");
+            iniData.add("return=" + f.getReturnType().getName());
+            iniData.add("signature=" + f.getSignature().getPrototypeString());
+            
+            ParameterDefinition[] functionParameters = f.getSignature().getArguments();
+            for (int i = 0; i &lt; functionParameters.length; i++) {
+                iniData.add("parameters[" + functionParameters[i].getOrdinal() + "]=" + functionParameters[i].getName() + "|" + functionParameters[i].getDataType().getName());
+            }
+        }
+        
+        Files.write(Paths.get("%EXPORT_TO%"), iniData, Charset.defaultCharset());
+	}
+}</value>
+  </data>
   <data name="proxy.dll.cpp" xml:space="preserve">
     <value>#pragma once
 
 %_PRAGMA_COMMENTS_%
 
 #include &lt;windows.h&gt;
-#include &lt;string&gt;
-#include &lt;atlstr.h&gt;  
 
 VOID Payload() {
     // Run your payload here.
@@ -146,5 +221,199 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     }
     return TRUE;
 }</value>
+  </data>
+  <data name="proxy.sln" xml:space="preserve">
+    <value>Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "proxy", "proxy.vcxproj", "{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Debug|x64.ActiveCfg = Debug|x64
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Debug|x64.Build.0 = Debug|x64
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Debug|x86.ActiveCfg = Debug|Win32
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Debug|x86.Build.0 = Debug|Win32
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Release|x64.ActiveCfg = Release|x64
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Release|x64.Build.0 = Release|x64
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Release|x86.ActiveCfg = Release|Win32
+		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D766E4B4-286A-400F-AEF0-4FE4441221C5}
+	EndGlobalSection
+EndGlobal</value>
+  </data>
+  <data name="proxy.vcxproj" xml:space="preserve">
+    <value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
+  &lt;ItemGroup Label="ProjectConfigurations"&gt;
+    &lt;ProjectConfiguration Include="Debug|Win32"&gt;
+      &lt;Configuration&gt;Debug&lt;/Configuration&gt;
+      &lt;Platform&gt;Win32&lt;/Platform&gt;
+    &lt;/ProjectConfiguration&gt;
+    &lt;ProjectConfiguration Include="Release|Win32"&gt;
+      &lt;Configuration&gt;Release&lt;/Configuration&gt;
+      &lt;Platform&gt;Win32&lt;/Platform&gt;
+    &lt;/ProjectConfiguration&gt;
+    &lt;ProjectConfiguration Include="Debug|x64"&gt;
+      &lt;Configuration&gt;Debug&lt;/Configuration&gt;
+      &lt;Platform&gt;x64&lt;/Platform&gt;
+    &lt;/ProjectConfiguration&gt;
+    &lt;ProjectConfiguration Include="Release|x64"&gt;
+      &lt;Configuration&gt;Release&lt;/Configuration&gt;
+      &lt;Platform&gt;x64&lt;/Platform&gt;
+    &lt;/ProjectConfiguration&gt;
+  &lt;/ItemGroup&gt;
+  &lt;PropertyGroup Label="Globals"&gt;
+    &lt;VCProjectVersion&gt;16.0&lt;/VCProjectVersion&gt;
+    &lt;Keyword&gt;Win32Proj&lt;/Keyword&gt;
+    &lt;ProjectGuid&gt;{6fced408-75b2-4ef9-9e5f-3ec58b19249b}&lt;/ProjectGuid&gt;
+    &lt;RootNamespace&gt;proxy&lt;/RootNamespace&gt;
+    &lt;WindowsTargetPlatformVersion&gt;10.0&lt;/WindowsTargetPlatformVersion&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" /&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration"&gt;
+    &lt;ConfigurationType&gt;DynamicLibrary&lt;/ConfigurationType&gt;
+    &lt;UseDebugLibraries&gt;true&lt;/UseDebugLibraries&gt;
+    &lt;PlatformToolset&gt;v143&lt;/PlatformToolset&gt;
+    &lt;CharacterSet&gt;Unicode&lt;/CharacterSet&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration"&gt;
+    &lt;ConfigurationType&gt;DynamicLibrary&lt;/ConfigurationType&gt;
+    &lt;UseDebugLibraries&gt;false&lt;/UseDebugLibraries&gt;
+    &lt;PlatformToolset&gt;v143&lt;/PlatformToolset&gt;
+    &lt;WholeProgramOptimization&gt;true&lt;/WholeProgramOptimization&gt;
+    &lt;CharacterSet&gt;Unicode&lt;/CharacterSet&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration"&gt;
+    &lt;ConfigurationType&gt;DynamicLibrary&lt;/ConfigurationType&gt;
+    &lt;UseDebugLibraries&gt;true&lt;/UseDebugLibraries&gt;
+    &lt;PlatformToolset&gt;v143&lt;/PlatformToolset&gt;
+    &lt;CharacterSet&gt;Unicode&lt;/CharacterSet&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration"&gt;
+    &lt;ConfigurationType&gt;DynamicLibrary&lt;/ConfigurationType&gt;
+    &lt;UseDebugLibraries&gt;false&lt;/UseDebugLibraries&gt;
+    &lt;PlatformToolset&gt;v143&lt;/PlatformToolset&gt;
+    &lt;WholeProgramOptimization&gt;true&lt;/WholeProgramOptimization&gt;
+    &lt;CharacterSet&gt;Unicode&lt;/CharacterSet&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" /&gt;
+  &lt;ImportGroup Label="ExtensionSettings"&gt;
+  &lt;/ImportGroup&gt;
+  &lt;ImportGroup Label="Shared"&gt;
+  &lt;/ImportGroup&gt;
+  &lt;ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"&gt;
+    &lt;Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" /&gt;
+  &lt;/ImportGroup&gt;
+  &lt;ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"&gt;
+    &lt;Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" /&gt;
+  &lt;/ImportGroup&gt;
+  &lt;ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"&gt;
+    &lt;Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" /&gt;
+  &lt;/ImportGroup&gt;
+  &lt;ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'"&gt;
+    &lt;Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" /&gt;
+  &lt;/ImportGroup&gt;
+  &lt;PropertyGroup Label="UserMacros" /&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"&gt;
+    &lt;TargetName&gt;%_NAME_%&lt;/TargetName&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'"&gt;
+    &lt;TargetName&gt;%_NAME_%&lt;/TargetName&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"&gt;
+    &lt;ClCompile&gt;
+      &lt;WarningLevel&gt;Level3&lt;/WarningLevel&gt;
+      &lt;SDLCheck&gt;true&lt;/SDLCheck&gt;
+      &lt;PreprocessorDefinitions&gt;WIN32;_DEBUG;VERSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)&lt;/PreprocessorDefinitions&gt;
+      &lt;ConformanceMode&gt;true&lt;/ConformanceMode&gt;
+      &lt;PrecompiledHeader&gt;NotUsing&lt;/PrecompiledHeader&gt;
+      &lt;PrecompiledHeaderFile&gt;pch.h&lt;/PrecompiledHeaderFile&gt;
+    &lt;/ClCompile&gt;
+    &lt;Link&gt;
+      &lt;SubSystem&gt;Windows&lt;/SubSystem&gt;
+      &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt;
+      &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
+    &lt;/Link&gt;
+  &lt;/ItemDefinitionGroup&gt;
+  &lt;ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"&gt;
+    &lt;ClCompile&gt;
+      &lt;WarningLevel&gt;Level3&lt;/WarningLevel&gt;
+      &lt;FunctionLevelLinking&gt;true&lt;/FunctionLevelLinking&gt;
+      &lt;IntrinsicFunctions&gt;true&lt;/IntrinsicFunctions&gt;
+      &lt;SDLCheck&gt;true&lt;/SDLCheck&gt;
+      &lt;PreprocessorDefinitions&gt;WIN32;NDEBUG;VERSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)&lt;/PreprocessorDefinitions&gt;
+      &lt;ConformanceMode&gt;true&lt;/ConformanceMode&gt;
+      &lt;PrecompiledHeader&gt;NotUsing&lt;/PrecompiledHeader&gt;
+      &lt;PrecompiledHeaderFile&gt;pch.h&lt;/PrecompiledHeaderFile&gt;
+    &lt;/ClCompile&gt;
+    &lt;Link&gt;
+      &lt;SubSystem&gt;Windows&lt;/SubSystem&gt;
+      &lt;EnableCOMDATFolding&gt;true&lt;/EnableCOMDATFolding&gt;
+      &lt;OptimizeReferences&gt;true&lt;/OptimizeReferences&gt;
+      &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt;
+      &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
+    &lt;/Link&gt;
+  &lt;/ItemDefinitionGroup&gt;
+  &lt;ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"&gt;
+    &lt;ClCompile&gt;
+      &lt;WarningLevel&gt;Level3&lt;/WarningLevel&gt;
+      &lt;SDLCheck&gt;true&lt;/SDLCheck&gt;
+      &lt;PreprocessorDefinitions&gt;_DEBUG;VERSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)&lt;/PreprocessorDefinitions&gt;
+      &lt;ConformanceMode&gt;true&lt;/ConformanceMode&gt;
+      &lt;PrecompiledHeader&gt;NotUsing&lt;/PrecompiledHeader&gt;
+      &lt;PrecompiledHeaderFile&gt;pch.h&lt;/PrecompiledHeaderFile&gt;
+      &lt;RuntimeLibrary&gt;MultiThreaded&lt;/RuntimeLibrary&gt;
+    &lt;/ClCompile&gt;
+    &lt;Link&gt;
+      &lt;SubSystem&gt;Windows&lt;/SubSystem&gt;
+      &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt;
+      &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
+      &lt;ModuleDefinitionFile&gt;proxy.def&lt;/ModuleDefinitionFile&gt;
+    &lt;/Link&gt;
+  &lt;/ItemDefinitionGroup&gt;
+  &lt;ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'"&gt;
+    &lt;ClCompile&gt;
+      &lt;WarningLevel&gt;Level3&lt;/WarningLevel&gt;
+      &lt;FunctionLevelLinking&gt;true&lt;/FunctionLevelLinking&gt;
+      &lt;IntrinsicFunctions&gt;true&lt;/IntrinsicFunctions&gt;
+      &lt;SDLCheck&gt;true&lt;/SDLCheck&gt;
+      &lt;PreprocessorDefinitions&gt;NDEBUG;VERSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)&lt;/PreprocessorDefinitions&gt;
+      &lt;ConformanceMode&gt;true&lt;/ConformanceMode&gt;
+      &lt;PrecompiledHeader&gt;NotUsing&lt;/PrecompiledHeader&gt;
+      &lt;PrecompiledHeaderFile&gt;pch.h&lt;/PrecompiledHeaderFile&gt;
+      &lt;RuntimeLibrary&gt;MultiThreaded&lt;/RuntimeLibrary&gt;
+    &lt;/ClCompile&gt;
+    &lt;Link&gt;
+      &lt;SubSystem&gt;Windows&lt;/SubSystem&gt;
+      &lt;EnableCOMDATFolding&gt;true&lt;/EnableCOMDATFolding&gt;
+      &lt;OptimizeReferences&gt;true&lt;/OptimizeReferences&gt;
+      &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt;
+      &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
+      &lt;ModuleDefinitionFile&gt;proxy.def&lt;/ModuleDefinitionFile&gt;
+    &lt;/Link&gt;
+  &lt;/ItemDefinitionGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;ClCompile Include="dllmain.cpp" /&gt;
+  &lt;/ItemGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;None Include="proxy.def" /&gt;
+  &lt;/ItemGroup&gt;
+  &lt;Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /&gt;
+  &lt;ImportGroup Label="ExtensionTargets"&gt;
+  &lt;/ImportGroup&gt;
+&lt;/Project&gt;</value>
   </data>
 </root>

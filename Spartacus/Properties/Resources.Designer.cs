@@ -65,9 +65,63 @@ namespace Spartacus.Properties {
         ///
         ///%_PRAGMA_COMMENTS_%
         ///
+        ///#include &quot;windows.h&quot;
+        ///#include &quot;ios&quot;
+        ///#include &quot;fstream&quot;
+        ///
+        ///%_TYPEDEF_%
+        ///
+        ///HMODULE hModule = LoadLibrary(L&quot;%_REAL_DLL_%&quot;);
+        ///
+        ///BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+        ///{
+        ///    switch (ul_reason_for_call)
+        ///    {
+        ///    case DLL_PROCESS_ATTACH:
+        ///    case DLL_THREAD_ATTACH:
+        ///    case DLL_THREAD_DETACH:
+        ///    case DLL_PROCESS_DETACH:
+        ///        break;
+        ///    }
+        ///    return TRUE;
+        ///}
+        ///
+        ///VOID DebugToFile(LPCSTR szInput)
+        ///{
+        ///    std::ofstream [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string dllmain_cpp {
+            get {
+                return ResourceManager.GetString("dllmain.cpp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /*
+        /// *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
+        /// *  One would ask &quot;Why don&apos;t you save this output as JSON? Wouldn&apos;t that be easier?&quot; And the answer is &quot;yes, it would be&quot;,
+        /// *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
+        /// */
+        ///
+        ///import java.util.*;
+        ///import java.nio.file.Files;
+        ///import java.nio.file.Paths;
+        ///import java.nio.charset.Charset;
+        ///
+        ///import ghidra.app.script.GhidraScri [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ExportFunctionDefinitionsINI_java {
+            get {
+                return ResourceManager.GetString("ExportFunctionDefinitionsINI.java", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #pragma once
+        ///
+        ///%_PRAGMA_COMMENTS_%
+        ///
         ///#include &lt;windows.h&gt;
-        ///#include &lt;string&gt;
-        ///#include &lt;atlstr.h&gt;  
         ///
         ///VOID Payload() {
         ///    // Run your payload here.
@@ -93,6 +147,48 @@ namespace Spartacus.Properties {
         internal static string proxy_dll_cpp {
             get {
                 return ResourceManager.GetString("proxy.dll.cpp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Microsoft Visual Studio Solution File, Format Version 12.00
+        ///# Visual Studio Version 17
+        ///VisualStudioVersion = 17.4.33213.308
+        ///MinimumVisualStudioVersion = 10.0.40219.1
+        ///Project(&quot;{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}&quot;) = &quot;proxy&quot;, &quot;proxy.vcxproj&quot;, &quot;{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}&quot;
+        ///EndProject
+        ///Global
+        ///	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        ///		Debug|x64 = Debug|x64
+        ///		Debug|x86 = Debug|x86
+        ///		Release|x64 = Release|x64
+        ///		Release|x86 = Release|x86
+        ///	EndGlobalSection
+        ///	GlobalSectio [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string proxy_sln {
+            get {
+                return ResourceManager.GetString("proxy.sln", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;Project DefaultTargets=&quot;Build&quot; xmlns=&quot;http://schemas.microsoft.com/developer/msbuild/2003&quot;&gt;
+        ///  &lt;ItemGroup Label=&quot;ProjectConfigurations&quot;&gt;
+        ///    &lt;ProjectConfiguration Include=&quot;Debug|Win32&quot;&gt;
+        ///      &lt;Configuration&gt;Debug&lt;/Configuration&gt;
+        ///      &lt;Platform&gt;Win32&lt;/Platform&gt;
+        ///    &lt;/ProjectConfiguration&gt;
+        ///    &lt;ProjectConfiguration Include=&quot;Release|Win32&quot;&gt;
+        ///      &lt;Configuration&gt;Release&lt;/Configuration&gt;
+        ///      &lt;Platform&gt;Win32&lt;/Platform&gt;
+        ///    &lt;/ProjectConfiguration&gt;
+        ///    &lt;ProjectCon [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string proxy_vcxproj {
+            get {
+                return ResourceManager.GetString("proxy.vcxproj", resourceCulture);
             }
         }
     }

@@ -179,7 +179,7 @@ namespace Spartacus.ProcMon
             Int32 stringCount = reader.ReadInt32();
             Logger.Verbose("Found " + stringCount + " strings...");
 
-            Logger.Verbose("Reading string offesets...");
+            Logger.Verbose("Reading string offsets...");
             Int32[] stringOffsets = new Int32[stringCount];
             for (int i = 0; i < stringOffsets.Length; i++)
             {

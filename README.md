@@ -1,4 +1,4 @@
-# Spartacus DLL Hijacking
+# Spartacus DLL Hijacking ![version](https://img.shields.io/github/v/tag/Accenture/Spartacus?label=version&style=flat-square)
 
 ## Why "Spartacus"?
 

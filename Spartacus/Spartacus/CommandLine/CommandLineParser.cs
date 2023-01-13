@@ -26,7 +26,12 @@ namespace Spartacus.Spartacus.CommandLine
             { "verbose", "switch" },
             { "debug", "switch" },
             { "all", "switch" },
-            { "detect", "switch" }
+            { "detect", "switch" },
+            { "generate-proxy", "switch" },
+            { "ghidra", "" },
+            { "dll", "" },
+            { "output-dir", "" },
+            { "only-proxy", "" },
         };
 
         private Dictionary<string, string> Arguments = new Dictionary<string, string>();
@@ -148,6 +153,24 @@ namespace Spartacus.Spartacus.CommandLine
                         {
                             RuntimeData.DetectProxyingDLLs = (argument.Value.Length > 0);
                         }
+                        break;
+                    case "generate-proxy":
+                        if (argument.Value.ToLower() != "false")
+                        {
+                            RuntimeData.GenerateProxy = (argument.Value.Length > 0);
+                        }
+                        break;
+                    case "ghidra":
+                        RuntimeData.GhidraHeadlessPath = argument.Value;
+                        break;
+                    case "dll":
+                        RuntimeData.DLL = argument.Value;
+                        break;
+                    case "output-dir":
+                        RuntimeData.OutputDirectory = argument.Value;
+                        break;
+                    case "only-proxy":
+                        RuntimeData.OnlyProxy = argument.Value.Trim().Split(',').ToList();
                         break;
                     default:
                         throw new Exception("Unknown argument: " + argument.Key);
@@ -293,6 +316,56 @@ namespace Spartacus.Spartacus.CommandLine
             }
         }
 
+        private void SanitiseDllProxyGeneration()
+        {
+            // Ghidra path.
+            if (String.IsNullOrEmpty(RuntimeData.GhidraHeadlessPath))
+            {
+                throw new Exception("--ghidra is missing");
+            }
+            else if (!File.Exists(RuntimeData.GhidraHeadlessPath))
+            {
+                throw new Exception("--ghidra file does not exist: " + RuntimeData.GhidraHeadlessPath);
+            }
+
+            // Dll path.
+            if (String.IsNullOrEmpty(RuntimeData.DLL))
+            {
+                throw new Exception("--dll is missing");
+            }
+            else if (!File.Exists(RuntimeData.DLL))
+            {
+                throw new Exception("--dll file does not exist: " + RuntimeData.DLL);
+            }
+
+            // Output directory.
+            if (String.IsNullOrEmpty(RuntimeData.OutputDirectory))
+            {
+                throw new Exception("--output-dir is missing");
+            }
+            else if (Directory.Exists(RuntimeData.OutputDirectory))
+            {
+                throw new Exception("--output-dir already exists: " + RuntimeData.OutputDirectory);
+            }
+
+            // Proxy specific functions only.
+            if (RuntimeData.OnlyProxy.Count > 0)
+            {
+                RuntimeData.OnlyProxy = RuntimeData.OnlyProxy
+                    .Select(s => s.Trim().ToLower())                                    // Trim and lowercase.
+                    .Where(s => !string.IsNullOrWhiteSpace(s))                          // Remove empty
+                    .Where(word => word.All(c => char.IsLetter(c)))                     // Remove items with non-alpha characters
+                    .Distinct()                                                         // Remove duplicates
+                    .ToList();
+
+                // If after cleaning up, we have no values left, abort.
+                if (RuntimeData.OnlyProxy.Count == 0)
+                {
+                    throw new Exception("--only-proxy has invalid values");
+                }
+            }
+        }
+
         private void SanitiseRuntimeData()
         {
             // If Debug is enabled, force-enable Verbose.
@@ -304,6 +377,10 @@ namespace Spartacus.Spartacus.CommandLine
             if (RuntimeData.DetectProxyingDLLs)
             {
                 // Not much here yet.
+            }
+            else if (RuntimeData.GenerateProxy)
+            {
+                SanitiseDllProxyGeneration();
             }
             else
             {

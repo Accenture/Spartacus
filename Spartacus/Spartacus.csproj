@@ -89,7 +89,9 @@
     <Compile Include="Spartacus\Detect.cs" />
     <Compile Include="Spartacus\EventProcessor.cs" />
     <Compile Include="Spartacus\Manager.cs" />
+    <Compile Include="Spartacus\Models\FunctionSignature.cs" />
     <Compile Include="Spartacus\PEFileExports.cs" />
+    <Compile Include="Spartacus\ProxyDLLGenerator.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="ProcMon\ProcMonConfig.cs" />
     <Compile Include="ProcMon\ProcMonConstants.cs" />

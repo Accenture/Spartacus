@@ -33,5 +33,15 @@ namespace Spartacus.Spartacus.CommandLine
         public static bool IncludeAllDLLs = false;
 
         public static bool DetectProxyingDLLs = false;
+
+        public static bool GenerateProxy = false;
+
+        public static string GhidraHeadlessPath = "";
+
+        public static string DLL = "";
+
+        public static string OutputDirectory = "";
+
+        public static List<string> OnlyProxy = new List<string>();
     }
 }
