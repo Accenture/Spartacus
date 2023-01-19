@@ -1,5 +1,9 @@
 # Spartacus Changelog
 
+## v1.1.1
+
+* `[Fix]` Allow digits/symbols in --only-proxy command
+
 ## v1.1.0
 
 * `[New]` Implement new functionality to create proxies for functions other than DllMain, as described here: https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain
