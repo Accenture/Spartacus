@@ -354,7 +354,6 @@ namespace Spartacus.Spartacus.CommandLine
                 RuntimeData.OnlyProxy = RuntimeData.OnlyProxy
                     .Select(s => s.Trim().ToLower())                                    // Trim and lowercase.
                     .Where(s => !string.IsNullOrWhiteSpace(s))                          // Remove empty
-                    .Where(word => word.All(c => char.IsLetter(c)))                     // Remove items with non-alpha characters
                     .Distinct()                                                         // Remove duplicates
                     .ToList();
 
