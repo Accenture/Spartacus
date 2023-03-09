@@ -222,6 +222,106 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     return TRUE;
 }</value>
   </data>
+  <data name="proxy.rc" xml:space="preserve">
+    <value>// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United Kingdom) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION %FILEVERSION_MAJOR%,%FILEVERSION_MINOR%,%FILEVERSION_REVISION%,%FILEVERSION_BUILD%
+ PRODUCTVERSION %PRODUCTVERSION_MAJOR%,%PRODUCTVERSION_MINOR%,%PRODUCTVERSION_REVISION%,%PRODUCTVERSION_BUILD%
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080904b0"
+        BEGIN
+            VALUE "CompanyName", "%COMPANYNAME%"
+            VALUE "FileDescription", "%FILEDESCRIPTION%"
+            VALUE "FileVersion", "%FILEVERSION%"
+            VALUE "InternalName", "%INTERNALNAME%"
+            VALUE "LegalCopyright", "%LEGALCOPYRIGHT%"
+            VALUE "OriginalFilename", "%ORIGINALNAME%"
+            VALUE "ProductName", "%PRODUCTNAME%"
+            VALUE "ProductVersion", "%PRODUCTVERSION%"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x809, 1200
+    END
+END
+
+#endif    // English (United Kingdom) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED</value>
+  </data>
   <data name="proxy.sln" xml:space="preserve">
     <value>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
@@ -404,6 +504,10 @@ EndGlobal</value>
       &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
       &lt;ModuleDefinitionFile&gt;proxy.def&lt;/ModuleDefinitionFile&gt;
     &lt;/Link&gt;
+    &lt;PostBuildEvent&gt;
+      &lt;Command&gt;powershell.exe -c (Get-ChildItem "$(TargetPath)").LastWriteTime = (Get-ChildItem "%SOURCEDLL%").LastWriteTime
+powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem "%SOURCEDLL%").CreationTime&lt;/Command&gt;
+    &lt;/PostBuildEvent&gt;
   &lt;/ItemDefinitionGroup&gt;
   &lt;ItemGroup&gt;
     &lt;ClCompile Include="dllmain.cpp" /&gt;
@@ -411,9 +515,32 @@ EndGlobal</value>
   &lt;ItemGroup&gt;
     &lt;None Include="proxy.def" /&gt;
   &lt;/ItemGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;ClInclude Include="resource.h" /&gt;
+  &lt;/ItemGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;ResourceCompile Include="proxy.rc" /&gt;
+  &lt;/ItemGroup&gt;
   &lt;Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /&gt;
   &lt;ImportGroup Label="ExtensionTargets"&gt;
   &lt;/ImportGroup&gt;
 &lt;/Project&gt;</value>
+  </data>
+  <data name="resource.h" xml:space="preserve">
+    <value>//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by proxy.rc
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        101
+#define _APS_NEXT_COMMAND_VALUE         40001
+#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_SYMED_VALUE           101
+#endif
+#endif
+</value>
   </data>
 </root>

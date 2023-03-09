@@ -147,12 +147,22 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>proxy.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>powershell.exe -c (Get-ChildItem "$(TargetPath)").LastWriteTime = (Get-ChildItem "%SOURCEDLL%").LastWriteTime
+powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem "%SOURCEDLL%").CreationTime</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="proxy.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="proxy.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

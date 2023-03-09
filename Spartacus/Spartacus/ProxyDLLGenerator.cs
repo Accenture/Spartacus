@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using static Spartacus.Spartacus.Models.FunctionSignature;
@@ -209,7 +210,22 @@ namespace Spartacus.Spartacus
             string proxySln = Resources.ResourceManager.GetString("proxy.sln");
 
             Logger.Info("Generating proxy.vcxproj");
-            string proxyVCXProj = Resources.ResourceManager.GetString("proxy.vcxproj").Replace("%_NAME_%", projectName);
+            string proxyVCXProj = Resources.ResourceManager.GetString("proxy.vcxproj")
+                .Replace("%_NAME_%", projectName)
+                .Replace("%SOURCEDLL%", dllPath);
+
+            Logger.Info("Generating proxy.rc");
+            string proxyRC = "";
+            try
+            {
+                proxyRC = GenerateProxyRC(dllPath);
+            } catch (Exception e)
+            {
+                Logger.Error("Could not get file version information: " + e.Message);
+            }
+
+            Logger.Info("Generating resource.h");
+            string resourceH = Resources.ResourceManager.GetString("resource.h");
 
             Logger.Info("Saving proxy.def...");
             File.WriteAllText(Path.Combine(outputDirectory, "proxy.def"), proxyDefinitions);
@@ -223,7 +239,61 @@ namespace Spartacus.Spartacus
             Logger.Info("Saving proxy.vcxproj");
             File.WriteAllText(Path.Combine(outputDirectory, "proxy.vcxproj"), proxyVCXProj);
 
+            Logger.Info("Saving resource.h");
+            File.WriteAllText(Path.Combine(outputDirectory, "resource.h"), resourceH);
+
+            Logger.Info("Saving proxy.rc");
+            // We are writing the data to this file as Unicode (UTF16 LE BOM), otherwise characters like the copyright symbol won't display correctly.
+            using (var f = File.Create(Path.Combine(outputDirectory, "proxy.rc")))
+            {
+                using (StreamWriter sw = new StreamWriter(f, Encoding.Unicode))
+                {
+                    sw.Write(proxyRC);
+                }
+            }
+
             return true;
+        }
+
+        private string GenerateProxyRC(string dllPath)
+        {
+            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(dllPath);
+
+            string proxyRC = Resources.ResourceManager.GetString("proxy.rc")
+                .Replace("%COMPANYNAME%", versionInfo.CompanyName)
+                .Replace("%FILEDESCRIPTION%", versionInfo.FileDescription)
+                .Replace("%INTERNALNAME%", versionInfo.InternalName)
+                .Replace("%LEGALCOPYRIGHT%", versionInfo.LegalCopyright)
+                .Replace("%ORIGINALNAME%", versionInfo.OriginalFilename)
+                .Replace("%PRODUCTNAME%", versionInfo.ProductName)
+                .Replace("%PRODUCTVERSION%", versionInfo.ProductVersion)
+                .Replace("%PRODUCTVERSION_MAJOR%", versionInfo.ProductMajorPart.ToString())
+                .Replace("%PRODUCTVERSION_MINOR%", versionInfo.ProductMinorPart.ToString())
+                .Replace("%PRODUCTVERSION_BUILD%", versionInfo.ProductBuildPart.ToString())
+                .Replace("%PRODUCTVERSION_REVISION%", versionInfo.ProductPrivatePart.ToString());
+
+            string fileVersion = versionInfo.FileVersion.Split(' ')[0];
+            proxyRC = proxyRC.Replace("%FILEVERSION%", fileVersion);
+
+            // For some reason FileVersion doesn't always match what is displayed when you view the file's properties.
+            string[] fileVersionParts = fileVersion.Split('.');
+
+            if (fileVersionParts.Length != 4)
+            {
+                fileVersionParts = new string[4];
+                fileVersionParts[0] = versionInfo.ProductMajorPart.ToString();
+                fileVersionParts[1] = versionInfo.ProductMinorPart.ToString();
+                fileVersionParts[2] = versionInfo.ProductBuildPart.ToString();
+                fileVersionParts[3] = versionInfo.ProductPrivatePart.ToString();
+            }
+
+            proxyRC = proxyRC
+                .Replace("%FILEVERSION_MAJOR%", fileVersionParts[0])
+                .Replace("%FILEVERSION_MINOR%", fileVersionParts[1])
+                .Replace("%FILEVERSION_BUILD%", fileVersionParts[2])
+                .Replace("%FILEVERSION_REVISION%", fileVersionParts[3]);
+
+            return proxyRC;
         }
 
         private void RunGhidra(string headlessAnalyserPath, string projectPath, string scriptPath, string dllPath)

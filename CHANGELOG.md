@@ -1,5 +1,9 @@
 # Spartacus Changelog
 
+## v1.2.0
+
+* `[New]` Implement replication of `VERSIONINFO` and timestomping to match source file during solution compilation. (Issue #1)
+
 ## v1.1.1
 
 * `[Fix]` Allow digits/symbols in --only-proxy command

@@ -151,6 +151,32 @@ namespace Spartacus.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to // Microsoft Visual C++ generated resource script.
+        /////
+        ///#include &quot;resource.h&quot;
+        ///
+        ///#define APSTUDIO_READONLY_SYMBOLS
+        ////////////////////////////////////////////////////////////////////////////////
+        /////
+        ///// Generated from the TEXTINCLUDE 2 resource.
+        /////
+        ///#include &quot;winres.h&quot;
+        ///
+        ////////////////////////////////////////////////////////////////////////////////
+        ///#undef APSTUDIO_READONLY_SYMBOLS
+        ///
+        ////////////////////////////////////////////////////////////////////////////////
+        ///// English (United Kingdom) resources
+        ///
+        ///#if  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string proxy_rc {
+            get {
+                return ResourceManager.GetString("proxy.rc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Microsoft Visual Studio Solution File, Format Version 12.00
         ///# Visual Studio Version 17
         ///VisualStudioVersion = 17.4.33213.308
@@ -189,6 +215,29 @@ namespace Spartacus.Properties {
         internal static string proxy_vcxproj {
             get {
                 return ResourceManager.GetString("proxy.vcxproj", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to //{{NO_DEPENDENCIES}}
+        ///// Microsoft Visual C++ generated include file.
+        ///// Used by proxy.rc
+        ///
+        ///// Next default values for new objects
+        ///// 
+        ///#ifdef APSTUDIO_INVOKED
+        ///#ifndef APSTUDIO_READONLY_SYMBOLS
+        ///#define _APS_NEXT_RESOURCE_VALUE        101
+        ///#define _APS_NEXT_COMMAND_VALUE         40001
+        ///#define _APS_NEXT_CONTROL_VALUE         1001
+        ///#define _APS_NEXT_SYMED_VALUE           101
+        ///#endif
+        ///#endif
+        ///.
+        /// </summary>
+        internal static string resource_h {
+            get {
+                return ResourceManager.GetString("resource.h", resourceCulture);
             }
         }
     }

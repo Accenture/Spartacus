@@ -141,6 +141,8 @@ Create a proxy only for a specific export function.
 --generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose --only-proxy "ExpandEnvironmentStringsForUserW"
 ```
 
+**Note**: When generating proxies for export functions, the solution that is created also replicates `VERSIONINFO` and timestomps the target DLL to match the date of the source one (using PowerShell).
+
 ## Proxy DLL Template
 
 Below is the template that is used when generating proxy DLLs, the generated `#pragma` statements are inserted by replacing the `%_PRAGMA_COMMENTS_%` string.
