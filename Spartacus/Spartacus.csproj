@@ -53,7 +53,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
@@ -63,7 +63,7 @@
     <Optimize>true</Optimize>
     <DebugType>none</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
@@ -78,6 +78,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modes\DLL\ModeDLL.cs" />
+    <Compile Include="Modes\ModeBase.cs" />
+    <Compile Include="ProcMon\ProcMonManager.cs" />
     <Compile Include="ProcMon\ProcMonPML.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -92,6 +95,8 @@
     <Compile Include="Spartacus\Models\FunctionSignature.cs" />
     <Compile Include="Spartacus\PEFileExports.cs" />
     <Compile Include="Spartacus\ProxyDLLGenerator.cs" />
+    <Compile Include="Utils\CurrentUserACL.cs" />
+    <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="ProcMon\ProcMonConfig.cs" />
     <Compile Include="ProcMon\ProcMonConstants.cs" />

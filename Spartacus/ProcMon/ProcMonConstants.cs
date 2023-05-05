@@ -99,10 +99,12 @@ namespace Spartacus.ProcMon
         {
             VolumeDismount = 0,
             VolumeMount = 1,
+            ProcessCreate = 1,
             FASTIO_MDL_WRITE_COMPLETE = 2,
             WriteFile2 = 3,
             FASTIO_MDL_READ_COMPLETE = 4,
             ReadFile2 = 5,
+            LoadImage = 5,
             QueryOpen = 6,
             FASTIO_CHECK_IF_POSSIBLE = 7,
             IRP_MJ_12 = 8,

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spartacus.Modes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +9,51 @@ namespace Spartacus.Spartacus.CommandLine
 {
     class RuntimeData
     {
+        public enum SpartacusMode
+        {
+            NONE = 0,
+            DLL = 1,
+        };
+
+        public static SpartacusMode Mode = SpartacusMode.NONE;
+
+        public static bool Verbose = false;
+
+        public static bool Debug = false;
+
+        public static ModeBase ModeObject = null;
+
+        public static string PMLFile = "";
+
+        public static string PMCFile = "";
+
+        public static string CSVFile = "";
+
+        public static string ProcMonExecutable = "";
+
+        public static bool IsExistingLog = false;
+
+        public static bool InjectBackingFileIntoConfig = false;
+
+        public static bool All = false;
+
+
+
+
+
+
+
+
+
+
+        // OLD.
         public static string ProcMonConfigFile = "";
 
         public static string ProcMonLogFile = "";
 
         public static string CsvOutputFile = "";
 
-        public static string ProcMonExecutable = "";
+        
 
         public static string ExportsOutputDirectory = "";
 
@@ -24,11 +63,9 @@ namespace Spartacus.Spartacus.CommandLine
 
         public static List<string> TrackExecutables = new List<string>();
 
-        public static bool Verbose = false;
+        
 
-        public static bool Debug = false;
-
-        public static bool InjectBackingFileIntoConfig = false;
+        
 
         public static bool IncludeAllDLLs = false;
 

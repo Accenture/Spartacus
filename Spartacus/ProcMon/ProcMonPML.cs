@@ -91,14 +91,44 @@ namespace Spartacus.ProcMon
 
             int sizeOfStackTrace = logEvent.CapturedStackTraceDepth * pVoidSize;
 
-            /* Check the comment about speeding this up from above. */
-            //stream.Seek(sizeOfStackTrace, SeekOrigin.Current);
-            //stream.Seek(pVoidSize * 5 + 0x14, SeekOrigin.Current);
-            //reader.ReadInt32(); // Should be 0
-            stream.Seek(sizeOfStackTrace + (pVoidSize * 5 + 0x14) + 4, SeekOrigin.Current);
-            byte stringSize = reader.ReadByte();
-            reader.ReadBytes(3); // Not relevant for now.
-            string eventPath = Encoding.ASCII.GetString(reader.ReadBytes(stringSize));
+            // The data following this part depend on the EventClassType.
+            string eventPath = "";
+            byte stringSize;
+            switch ((EventClassType)logEvent.EventClass)
+            {
+                case EventClassType.Process:
+                    switch ((EventFileSystemOperation)logEvent.OperationType)
+                    {
+                        case EventFileSystemOperation.ProcessCreate:
+                            // The 2nd "+4+ is the PID.
+                            stream.Seek(sizeOfStackTrace + pVoidSize + 4 + 4 + 30, SeekOrigin.Current);
+                            int pathSize = reader.ReadUInt16();
+                            reader.ReadBytes(28);
+                            eventPath = Encoding.Unicode.GetString(reader.ReadBytes(pathSize * 2));
+                            break;
+                        case EventFileSystemOperation.LoadImage:
+                            stream.Seek(sizeOfStackTrace + pVoidSize + 4, SeekOrigin.Current);
+                            stringSize = reader.ReadByte();
+                            reader.ReadBytes(3); // Not relevant for now.
+                            eventPath = Encoding.ASCII.GetString(reader.ReadBytes(stringSize));
+                            break;
+                    }
+                    break;
+                case EventClassType.File_System:
+                    /* Check the comment about speeding this up from above. */
+                    //stream.Seek(sizeOfStackTrace, SeekOrigin.Current);
+                    //stream.Seek(pVoidSize * 5 + 0x14, SeekOrigin.Current);
+                    //reader.ReadInt32(); // Should be 0
+
+                    stream.Seek(sizeOfStackTrace + (pVoidSize * 5 + 0x14) + 4, SeekOrigin.Current);
+                    stringSize = reader.ReadByte();
+                    reader.ReadBytes(3); // Not relevant for now.
+                    eventPath = Encoding.ASCII.GetString(reader.ReadBytes(stringSize));
+
+                    break;
+                case EventClassType.Registry:
+                    break;
+            }
 
             return new PMLEvent()
             {
