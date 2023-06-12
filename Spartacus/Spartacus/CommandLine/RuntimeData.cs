@@ -13,6 +13,7 @@ namespace Spartacus.Spartacus.CommandLine
         {
             NONE = 0,
             DLL = 1,
+            DETECT = 2,
         };
 
         public static SpartacusMode Mode = SpartacusMode.NONE;

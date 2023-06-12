@@ -78,6 +78,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modes\DETECT\ModeDetect.cs" />
     <Compile Include="Modes\DLL\ModeDLL.cs" />
     <Compile Include="Modes\ModeBase.cs" />
     <Compile Include="ProcMon\ProcMonManager.cs" />

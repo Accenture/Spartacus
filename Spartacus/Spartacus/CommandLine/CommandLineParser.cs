@@ -1,4 +1,5 @@
-﻿using Spartacus.Modes.DLL;
+﻿using Spartacus.Modes.DETECT;
+using Spartacus.Modes.DLL;
 using Spartacus.ProcMon;
 using Spartacus.Properties;
 using System;
@@ -195,7 +196,7 @@ namespace Spartacus.Spartacus.CommandLine
             return mode.ToLower() switch
             {
                 "dll" => RuntimeData.SpartacusMode.DLL,
-                //"detect" => RuntimeData.SpartacusMode.DETECT,
+                "detect" => RuntimeData.SpartacusMode.DETECT,
                 //"proxy" => RuntimeData.SpartacusMode.PROXY,
                 //"acl" => RuntimeData.SpartacusMode.ACL,
                 _ => RuntimeData.SpartacusMode.NONE,
@@ -214,6 +215,9 @@ namespace Spartacus.Spartacus.CommandLine
             {
                 case RuntimeData.SpartacusMode.DLL:
                     RuntimeData.ModeObject = new ModeDLL();
+                    break;
+                case RuntimeData.SpartacusMode.DETECT:
+                    RuntimeData.ModeObject = new ModeDetect();
                     break;
                 default:
                     throw new Exception("--mode is not valid");
