@@ -90,9 +90,9 @@ namespace Spartacus.Properties {
         ///{
         ///    std::ofstream [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string dllmain_cpp {
+        internal static string _dllmain_cpp {
             get {
-                return ResourceManager.GetString("dllmain.cpp", resourceCulture);
+                return ResourceManager.GetString("_dllmain.cpp", resourceCulture);
             }
         }
         
@@ -110,9 +110,9 @@ namespace Spartacus.Properties {
         ///
         ///import ghidra.app.script.GhidraScri [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string ExportFunctionDefinitionsINI_java {
+        internal static string _ExportFunctionDefinitionsINI_java {
             get {
-                return ResourceManager.GetString("ExportFunctionDefinitionsINI.java", resourceCulture);
+                return ResourceManager.GetString("_ExportFunctionDefinitionsINI.java", resourceCulture);
             }
         }
         
@@ -144,9 +144,9 @@ namespace Spartacus.Properties {
         ///    return TRUE;
         ///}.
         /// </summary>
-        internal static string proxy_dll_cpp {
+        internal static string _proxy_dll_cpp {
             get {
-                return ResourceManager.GetString("proxy.dll.cpp", resourceCulture);
+                return ResourceManager.GetString("_proxy.dll.cpp", resourceCulture);
             }
         }
         
@@ -170,9 +170,9 @@ namespace Spartacus.Properties {
         ///
         ///#if  [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string proxy_rc {
+        internal static string _proxy_rc {
             get {
-                return ResourceManager.GetString("proxy.rc", resourceCulture);
+                return ResourceManager.GetString("_proxy.rc", resourceCulture);
             }
         }
         
@@ -192,9 +192,9 @@ namespace Spartacus.Properties {
         ///	EndGlobalSection
         ///	GlobalSectio [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string proxy_sln {
+        internal static string _proxy_sln {
             get {
-                return ResourceManager.GetString("proxy.sln", resourceCulture);
+                return ResourceManager.GetString("_proxy.sln", resourceCulture);
             }
         }
         
@@ -212,9 +212,9 @@ namespace Spartacus.Properties {
         ///    &lt;/ProjectConfiguration&gt;
         ///    &lt;ProjectCon [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string proxy_vcxproj {
+        internal static string _proxy_vcxproj {
             get {
-                return ResourceManager.GetString("proxy.vcxproj", resourceCulture);
+                return ResourceManager.GetString("_proxy.vcxproj", resourceCulture);
             }
         }
         
@@ -235,9 +235,43 @@ namespace Spartacus.Properties {
         ///#endif
         ///.
         /// </summary>
-        internal static string resource_h {
+        internal static string _resource_h {
             get {
-                return ResourceManager.GetString("resource.h", resourceCulture);
+                return ResourceManager.GetString("_resource.h", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #pragma once
+        ///
+        ///%_PRAGMA_COMMENTS_%
+        ///
+        ///#include &lt;windows.h&gt;
+        ///
+        ///VOID Payload() {
+        ///    // Run your payload here.
+        ///}
+        ///
+        ///BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+        ///{
+        ///    switch (fdwReason)
+        ///    {
+        ///    case DLL_PROCESS_ATTACH:
+        ///        Payload();
+        ///        break;
+        ///    case DLL_THREAD_ATTACH:
+        ///        break;
+        ///    case DLL_THREAD_DETACH:
+        ///        break;
+        ///    case DLL_PROCESS_DETACH:
+        ///        break;
+        ///    }
+        ///    return TRUE;
+        ///}.
+        /// </summary>
+        internal static string TemplateProxyDLL_cpp {
+            get {
+                return ResourceManager.GetString("TemplateProxyDLL.cpp", resourceCulture);
             }
         }
     }

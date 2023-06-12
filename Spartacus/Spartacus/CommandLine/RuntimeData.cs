@@ -37,7 +37,9 @@ namespace Spartacus.Spartacus.CommandLine
 
         public static bool All = false;
 
+        public static string ExportsDirectory = "";
 
+        public static string TemplateProxyDLL = "";
 
 
 

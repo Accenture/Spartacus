@@ -1,4 +1,5 @@
 ﻿using Spartacus.ProcMon;
+using Spartacus.Properties;
 using Spartacus.Spartacus;
 using Spartacus.Spartacus.CommandLine;
 using System;
@@ -17,7 +18,14 @@ namespace Spartacus.Modes.DLL
     {
         public override void Run()
         {
-            GatherEvents();
+            if (!RuntimeData.IsExistingLog)
+            {
+                GatherEvents();
+            } 
+            else
+            {
+                Logger.Info("Processing existing log file: " + RuntimeData.PMLFile);
+            }
 
             Logger.Info("Reading events file...");
             ProcMonPML log = new(RuntimeData.PMLFile);
@@ -28,19 +36,13 @@ namespace Spartacus.Modes.DLL
             Stopwatch watch = Stopwatch.StartNew();
             Dictionary<string, PMLEvent> events = FindInterestingEvents(log);
             watch.Stop();
-            if (RuntimeData.Debug)
-            {
-                Logger.Debug(String.Format("FindEvents() took {0:N0}ms", watch.ElapsedMilliseconds));
-            }
+            Logger.Debug(String.Format("FindEvents() took {0:N0}ms", watch.ElapsedMilliseconds));
 
             // Find the actual DLLs that were loaded.
             watch.Restart();
             events = FindLoadedEvents(log, events);
             watch.Stop();
-            if (RuntimeData.Debug)
-            {
-                Logger.Debug(String.Format("FindLoadedEvents() took {0:N0}ms", watch.ElapsedMilliseconds));
-            }
+            Logger.Debug(String.Format("FindLoadedEvents() took {0:N0}ms", watch.ElapsedMilliseconds));
 
             // Save output to CSV.
             do
@@ -59,6 +61,24 @@ namespace Spartacus.Modes.DLL
                     Logger.Warning("Trying to save file again...");
                 }
             } while (true);
+
+            // Export functions.
+            if (!String.IsNullOrEmpty(RuntimeData.ExportsDirectory) && Directory.Exists(RuntimeData.ExportsDirectory))
+            {
+                Dictionary<string, string> filesToProxy = new();
+                foreach (KeyValuePair<string, PMLEvent> e in events)
+                {
+                    string dllFilename = Path.GetFileName(e.Value.Path).ToLower();
+                    if (filesToProxy.ContainsKey(dllFilename))
+                    {
+                        continue;
+                    }
+
+                    filesToProxy.Add(dllFilename, e.Value.FoundPath);
+                }
+
+                Helper.ExportDLLExports(filesToProxy, RuntimeData.ExportsDirectory);
+            }
         }
 
         protected void GatherEvents()
@@ -90,6 +110,60 @@ namespace Spartacus.Modes.DLL
         }
 
         public override void SanitiseAndValidateRuntimeData()
+        {
+            if (RuntimeData.IsExistingLog)
+            {
+                SanitiseExistingLogProcessing();
+            }
+            else
+            {
+                SanitiseNewLogProcessing();
+            }
+
+            // Check for CSV output file.
+            if (String.IsNullOrEmpty(RuntimeData.CSVFile))
+            {
+                throw new Exception("--csv is missing");
+            }
+            else if (File.Exists(RuntimeData.CSVFile))
+            {
+                Logger.Debug("--csv exists and will be overwritten");
+            }
+
+            // Exports folder.
+            if (String.IsNullOrEmpty(RuntimeData.ExportsDirectory))
+            {
+                Logger.Debug("--exports is missing, will skip DLL proxy generation");
+            }
+            else if (Directory.Exists(RuntimeData.ExportsDirectory))
+            {
+                Logger.Debug("--exports directory already exists");
+            }
+            else
+            {
+                Logger.Debug("--exports directory does not exist - creating now");
+                // If this goes wrong, it will throw an exception.
+                Directory.CreateDirectory(RuntimeData.ExportsDirectory);
+            }
+
+            // Load the template for the proxy dll.
+            RuntimeData.TemplateProxyDLL = Resources.ResourceManager.GetString("TemplateProxyDLL.cpp");
+        }
+
+        protected void SanitiseExistingLogProcessing()
+        {
+            // Check if the PML file exists.
+            if (String.IsNullOrEmpty(RuntimeData.PMLFile))
+            {
+                throw new Exception("--pml is missing");
+            }
+            else if (!File.Exists(RuntimeData.PMLFile))
+            {
+                throw new Exception("--pml does not exist: " +  RuntimeData.PMLFile);
+            }
+        }
+
+        protected void SanitiseNewLogProcessing()
         {
             // Check for ProcMon.
             if (String.IsNullOrEmpty(RuntimeData.ProcMonExecutable))
@@ -145,16 +219,6 @@ namespace Spartacus.Modes.DLL
                     RuntimeData.PMLFile = pmc.GetConfiguration().Logfile;
                 }
             }
-
-            // Check for CSV output file.
-            if (String.IsNullOrEmpty(RuntimeData.CSVFile))
-            {
-                throw new Exception("--csv is missing");
-            }
-            else if (File.Exists(RuntimeData.CSVFile))
-            {
-                Logger.Debug("--csv exists and will be overwritten");
-            }
         }
 
         protected Dictionary<string, PMLEvent> FindInterestingEvents(ProcMonPML log)
@@ -166,6 +230,8 @@ namespace Spartacus.Modes.DLL
                 steps = 1;
             }
 
+            // Get the OS paths (program files, windows, etc) so that we can filter out files in those folders
+            // as they are usually non-writable.
             List<string> privilegedPaths = Helper.GetOSPaths();
 
             Dictionary<string, PMLEvent> events = new Dictionary<string, PMLEvent>();
@@ -200,7 +266,7 @@ namespace Spartacus.Modes.DLL
                     continue;
                 }
 
-                // Exclude any DLLs that are in directories that are writable only by privileged users.
+                // Ignore extensions that aren't *.dll
                 string p = e.Path.ToLower();
                 if (!p.EndsWith(".dll"))
                 {
@@ -208,6 +274,7 @@ namespace Spartacus.Modes.DLL
                 }
                 else if (!RuntimeData.All)
                 {
+                    // Exclude any DLLs that are in directories that are writable only by privileged users.
                     // Check if the path belongs to an OS path, like windows, program files, etc.
                     bool isPrivileged = false;
                     foreach (string path in privilegedPaths)
@@ -245,13 +312,13 @@ namespace Spartacus.Modes.DLL
             // This is done so that further down we can try and find the DLLs that _were_ loaded from different paths.
             Logger.Verbose("Extracting DLL filenames from paths...");
             // Key will be the filename, value will be the path.
-            Dictionary<string, string> missingDLLs = new();
+            List<string> missingDLLs = new();
             foreach (KeyValuePair<string, PMLEvent> item in events)
             {
                 string name = Path.GetFileName(item.Key).ToLower();
-                if (!missingDLLs.ContainsKey(name))
+                if (!missingDLLs.Contains(name))
                 {
-                    missingDLLs.Add(name, "");
+                    missingDLLs.Add(name);
                 }
             }
             Logger.Verbose("Found " + String.Format("{0:N0}", missingDLLs.Count()) + " unique DLLs...");
@@ -302,12 +369,12 @@ namespace Spartacus.Modes.DLL
                 }
 
                 // If we are here it means we have found a DLL that was actually loaded. Extract its name.
-                string name = Path.GetFileName(p);
+                string name = Path.GetFileName(p).ToLower();
                 if (name == "")
                 {
                     continue;
                 }
-                else if (!missingDLLs.ContainsKey(name))
+                else if (!missingDLLs.Contains(name))
                 {
                     // We found a SUCCESS DLL but it's not one that is vulnerable.
                     continue;

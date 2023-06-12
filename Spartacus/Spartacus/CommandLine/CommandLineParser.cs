@@ -44,6 +44,7 @@ namespace Spartacus.Spartacus.CommandLine
             { "procmon", "" },
             { "csv", "" },
             { "existing", "switch" },
+            { "exports", "" },
         };
 
         private Dictionary<string, string> Arguments = new Dictionary<string, string>();
@@ -133,36 +134,24 @@ namespace Spartacus.Spartacus.CommandLine
                     case "csv":
                         RuntimeData.CSVFile = argument.Value;
                         break;
-                    //case "exe":
-                    //    RuntimeData.TrackExecutables = argument.Value
-                    //        .Split(',')
-                    //        .ToList()
-                    //        .Select(s => s.Trim()) // Trim
-                    //        .Where(s => !string.IsNullOrWhiteSpace(s)) // Remove empty
-                    //        .Distinct() // Remove duplicates
-                    //        .ToList();
-                    //    break;
                     case "procmon":
                         RuntimeData.ProcMonExecutable = argument.Value;
                         break;
-                    //case "exports":
-                    //    RuntimeData.ExportsOutputDirectory = argument.Value;
-                    //    break;
+                    case "exports":
+                        RuntimeData.ExportsDirectory = argument.Value;
+                        break;
                     case "existing":
                         if (argument.Value.ToLower() != "false")
                         {
                             RuntimeData.IsExistingLog = (argument.Value.Length > 0);
                         }
                         break;
-                    //case "proxy-dll-template":
-                    //    RuntimeData.ProxyDllTemplate = argument.Value;
-                    //    break;
-                    //case "all":
-                    //    if (argument.Value.ToLower() != "false")
-                    //    {
-                    //        RuntimeData.IncludeAllDLLs = (argument.Value.Length > 0);
-                    //    }
-                    //    break;
+                    case "all":
+                        if (argument.Value.ToLower() != "false")
+                        {
+                            RuntimeData.All = (argument.Value.Length > 0);
+                        }
+                        break;
                     //case "detect":
                     //    if (argument.Value.ToLower() != "false")
                     //    {

@@ -117,7 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="dllmain.cpp" xml:space="preserve">
+  <data name="TemplateProxyDLL.cpp" xml:space="preserve">
+    <value>#pragma once
+
+%_PRAGMA_COMMENTS_%
+
+#include &lt;windows.h&gt;
+
+VOID Payload() {
+    // Run your payload here.
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+{
+    switch (fdwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+        Payload();
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
+}</value>
+  </data>
+  <data name="_dllmain.cpp" xml:space="preserve">
     <value>#pragma once
 
 %_PRAGMA_COMMENTS_%
@@ -152,7 +180,7 @@ VOID DebugToFile(LPCSTR szInput)
 
 %_FUNCTIONS_%</value>
   </data>
-  <data name="ExportFunctionDefinitionsINI.java" xml:space="preserve">
+  <data name="_ExportFunctionDefinitionsINI.java" xml:space="preserve">
     <value>/*
  *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
  *  One would ask "Why don't you save this output as JSON? Wouldn't that be easier?" And the answer is "yes, it would be",
@@ -194,7 +222,7 @@ public class ExportFunctionDefinitionsINI extends GhidraScript {
 	}
 }</value>
   </data>
-  <data name="proxy.dll.cpp" xml:space="preserve">
+  <data name="_proxy.dll.cpp" xml:space="preserve">
     <value>#pragma once
 
 %_PRAGMA_COMMENTS_%
@@ -222,7 +250,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     return TRUE;
 }</value>
   </data>
-  <data name="proxy.rc" xml:space="preserve">
+  <data name="_proxy.rc" xml:space="preserve">
     <value>// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
@@ -322,7 +350,7 @@ END
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED</value>
   </data>
-  <data name="proxy.sln" xml:space="preserve">
+  <data name="_proxy.sln" xml:space="preserve">
     <value>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
@@ -354,7 +382,7 @@ Global
 	EndGlobalSection
 EndGlobal</value>
   </data>
-  <data name="proxy.vcxproj" xml:space="preserve">
+  <data name="_proxy.vcxproj" xml:space="preserve">
     <value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
   &lt;ItemGroup Label="ProjectConfigurations"&gt;
@@ -526,7 +554,7 @@ powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem 
   &lt;/ImportGroup&gt;
 &lt;/Project&gt;</value>
   </data>
-  <data name="resource.h" xml:space="preserve">
+  <data name="_resource.h" xml:space="preserve">
     <value>//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by proxy.rc

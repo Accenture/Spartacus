@@ -173,7 +173,7 @@ namespace Spartacus.Spartacus
                     pragma.Add(String.Format(pragmaTemplate, f.Name, actualPathNoExtension.Replace("\\", "\\\\"), f.Name, f.Ordinal));
                 }
 
-                string fileContents = RuntimeData.ProxyDllTemplate.Replace("%_PRAGMA_COMMENTS_%", String.Join("\r\n", pragma.ToArray()));
+                string fileContents = RuntimeData.TemplateProxyDLL.Replace("%_PRAGMA_COMMENTS_%", String.Join("\r\n", pragma.ToArray()));
                 File.WriteAllText(saveAs, fileContents);
 
                 Logger.Success("OK", true, false);
