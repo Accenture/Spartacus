@@ -97,60 +97,6 @@ namespace Spartacus.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to /*
-        /// *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
-        /// *  One would ask &quot;Why don&apos;t you save this output as JSON? Wouldn&apos;t that be easier?&quot; And the answer is &quot;yes, it would be&quot;,
-        /// *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
-        /// */
-        ///
-        ///import java.util.*;
-        ///import java.nio.file.Files;
-        ///import java.nio.file.Paths;
-        ///import java.nio.charset.Charset;
-        ///
-        ///import ghidra.app.script.GhidraScri [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string _ExportFunctionDefinitionsINI_java {
-            get {
-                return ResourceManager.GetString("_ExportFunctionDefinitionsINI.java", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to #pragma once
-        ///
-        ///%_PRAGMA_COMMENTS_%
-        ///
-        ///#include &lt;windows.h&gt;
-        ///
-        ///VOID Payload() {
-        ///    // Run your payload here.
-        ///}
-        ///
-        ///BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-        ///{
-        ///    switch (fdwReason)
-        ///    {
-        ///    case DLL_PROCESS_ATTACH:
-        ///        Payload();
-        ///        break;
-        ///    case DLL_THREAD_ATTACH:
-        ///        break;
-        ///    case DLL_THREAD_DETACH:
-        ///        break;
-        ///    case DLL_PROCESS_DETACH:
-        ///        break;
-        ///    }
-        ///    return TRUE;
-        ///}.
-        /// </summary>
-        internal static string _proxy_dll_cpp {
-            get {
-                return ResourceManager.GetString("_proxy.dll.cpp", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to // Microsoft Visual C++ generated resource script.
         /////
         ///#include &quot;resource.h&quot;
@@ -238,6 +184,26 @@ namespace Spartacus.Properties {
         internal static string _resource_h {
             get {
                 return ResourceManager.GetString("_resource.h", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /*
+        /// *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
+        /// *  One would ask &quot;Why don&apos;t you save this output as JSON? Wouldn&apos;t that be easier?&quot; And the answer is &quot;yes, it would be&quot;,
+        /// *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
+        /// */
+        ///
+        ///import java.util.*;
+        ///import java.nio.file.Files;
+        ///import java.nio.file.Paths;
+        ///import java.nio.charset.Charset;
+        ///
+        ///import ghidra.app.script.GhidraScri [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ExportFunctionDefinitionsINI_java {
+            get {
+                return ResourceManager.GetString("ExportFunctionDefinitionsINI.java", resourceCulture);
             }
         }
         

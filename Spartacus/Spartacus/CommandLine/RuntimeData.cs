@@ -14,6 +14,7 @@ namespace Spartacus.Spartacus.CommandLine
             NONE = 0,
             DLL = 1,
             DETECT = 2,
+            PROXY = 3,
         };
 
         public static SpartacusMode Mode = SpartacusMode.NONE;
@@ -42,46 +43,14 @@ namespace Spartacus.Spartacus.CommandLine
 
         public static string TemplateProxyDLL = "";
 
+        public static string Solution = "";
 
+        public static string DLLFile = "";
 
-
-
-
-
-
-        // OLD.
-        public static string ProcMonConfigFile = "";
-
-        public static string ProcMonLogFile = "";
-
-        public static string CsvOutputFile = "";
-
-        
-
-        public static string ExportsOutputDirectory = "";
-
-        public static string ProxyDllTemplate = "";
-
-        public static bool ProcessExistingLog = false;
-
-        public static List<string> TrackExecutables = new List<string>();
-
-        
-
-        
-
-        public static bool IncludeAllDLLs = false;
-
-        public static bool DetectProxyingDLLs = false;
-
-        public static bool GenerateProxy = false;
+        public static List<string> FunctionsToProxy = new();
 
         public static string GhidraHeadlessPath = "";
 
-        public static string DLL = "";
-
-        public static string OutputDirectory = "";
-
-        public static List<string> OnlyProxy = new List<string>();
+        public static bool Overwrite = false;
     }
 }

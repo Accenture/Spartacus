@@ -117,6 +117,48 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ExportFunctionDefinitionsINI.java" xml:space="preserve">
+    <value>/*
+ *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
+ *  One would ask "Why don't you save this output as JSON? Wouldn't that be easier?" And the answer is "yes, it would be",
+ *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
+ */
+
+import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.Charset;
+
+import ghidra.app.script.GhidraScript;
+import ghidra.program.model.listing.*;
+import ghidra.program.model.data.*;
+
+public class ExportFunctionDefinitionsINI extends GhidraScript {
+
+	@Override
+	public void run() throws Exception {
+
+		//String iniData = "";
+        List&lt;String&gt; iniData = new ArrayList&lt;String&gt;();
+        Listing listing = currentProgram.getListing();
+        FunctionIterator iter = listing.getFunctions(true);
+        while (iter.hasNext() &amp;&amp; !monitor.isCancelled()) {
+            Function f = iter.next();
+            
+            iniData.add("[" + f.getName() + "]");
+            iniData.add("return=" + f.getReturnType().getName());
+            iniData.add("signature=" + f.getSignature().getPrototypeString());
+            
+            ParameterDefinition[] functionParameters = f.getSignature().getArguments();
+            for (int i = 0; i &lt; functionParameters.length; i++) {
+                iniData.add("parameters[" + functionParameters[i].getOrdinal() + "]=" + functionParameters[i].getName() + "|" + functionParameters[i].getDataType().getName());
+            }
+        }
+        
+        Files.write(Paths.get("%EXPORT_TO%"), iniData, Charset.defaultCharset());
+	}
+}</value>
+  </data>
   <data name="TemplateProxyDLL.cpp" xml:space="preserve">
     <value>#pragma once
 
@@ -179,76 +221,6 @@ VOID DebugToFile(LPCSTR szInput)
 }
 
 %_FUNCTIONS_%</value>
-  </data>
-  <data name="_ExportFunctionDefinitionsINI.java" xml:space="preserve">
-    <value>/*
- *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
- *  One would ask "Why don't you save this output as JSON? Wouldn't that be easier?" And the answer is "yes, it would be",
- *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
- */
-
-import java.util.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.charset.Charset;
-
-import ghidra.app.script.GhidraScript;
-import ghidra.program.model.listing.*;
-import ghidra.program.model.data.*;
-
-public class ExportFunctionDefinitionsINI extends GhidraScript {
-
-	@Override
-	public void run() throws Exception {
-
-		//String iniData = "";
-        List&lt;String&gt; iniData = new ArrayList&lt;String&gt;();
-        Listing listing = currentProgram.getListing();
-        FunctionIterator iter = listing.getFunctions(true);
-        while (iter.hasNext() &amp;&amp; !monitor.isCancelled()) {
-            Function f = iter.next();
-            
-            iniData.add("[" + f.getName() + "]");
-            iniData.add("return=" + f.getReturnType().getName());
-            iniData.add("signature=" + f.getSignature().getPrototypeString());
-            
-            ParameterDefinition[] functionParameters = f.getSignature().getArguments();
-            for (int i = 0; i &lt; functionParameters.length; i++) {
-                iniData.add("parameters[" + functionParameters[i].getOrdinal() + "]=" + functionParameters[i].getName() + "|" + functionParameters[i].getDataType().getName());
-            }
-        }
-        
-        Files.write(Paths.get("%EXPORT_TO%"), iniData, Charset.defaultCharset());
-	}
-}</value>
-  </data>
-  <data name="_proxy.dll.cpp" xml:space="preserve">
-    <value>#pragma once
-
-%_PRAGMA_COMMENTS_%
-
-#include &lt;windows.h&gt;
-
-VOID Payload() {
-    // Run your payload here.
-}
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-    switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-        Payload();
-        break;
-    case DLL_THREAD_ATTACH:
-        break;
-    case DLL_THREAD_DETACH:
-        break;
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}</value>
   </data>
   <data name="_proxy.rc" xml:space="preserve">
     <value>// Microsoft Visual C++ generated resource script.

@@ -144,5 +144,42 @@ namespace Spartacus.Utils
             // Otherwise return the original value.
             return filePath;
         }
+
+        public bool CreateTargetDirectory(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                return true;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(path);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return Directory.Exists(path);
+        }
+
+        public bool DeleteTargetDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                return true;
+            }
+
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            return !Directory.Exists(path);
+        }
     }
 }
