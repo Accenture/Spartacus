@@ -1,4 +1,5 @@
-﻿using Spartacus.Modes.DETECT;
+﻿using Spartacus.Modes.COM;
+using Spartacus.Modes.DETECT;
 using Spartacus.Modes.DLL;
 using Spartacus.Modes.PROXY;
 using Spartacus.ProcMon;
@@ -186,6 +187,7 @@ namespace Spartacus.Spartacus.CommandLine
                 "dll" => RuntimeData.SpartacusMode.DLL,
                 "detect" => RuntimeData.SpartacusMode.DETECT,
                 "proxy" => RuntimeData.SpartacusMode.PROXY,
+                "com" => RuntimeData.SpartacusMode.COM,
                 _ => RuntimeData.SpartacusMode.NONE,
             };
         }
@@ -208,6 +210,9 @@ namespace Spartacus.Spartacus.CommandLine
                     break;
                 case RuntimeData.SpartacusMode.PROXY:
                     RuntimeData.ModeObject = new ModeProxy();
+                    break;
+                case RuntimeData.SpartacusMode.COM:
+                    RuntimeData.ModeObject = new ModeCOM();
                     break;
                 default:
                     throw new Exception("--mode is not valid");

@@ -94,15 +94,16 @@ namespace Spartacus.ProcMon
             // The data following this part depend on the EventClassType.
             string eventPath = "";
             byte stringSize;
+            int pathSize;
             switch ((EventClassType)logEvent.EventClass)
             {
                 case EventClassType.Process:
                     switch ((EventFileSystemOperation)logEvent.OperationType)
                     {
                         case EventFileSystemOperation.ProcessCreate:
-                            // The 2nd "+4+ is the PID.
+                            // The 2nd "+4+" is the PID.
                             stream.Seek(sizeOfStackTrace + pVoidSize + 4 + 4 + 30, SeekOrigin.Current);
-                            int pathSize = reader.ReadUInt16();
+                            pathSize = reader.ReadUInt16();
                             reader.ReadBytes(28);
                             eventPath = Encoding.Unicode.GetString(reader.ReadBytes(pathSize * 2));
                             break;
@@ -127,13 +128,24 @@ namespace Spartacus.ProcMon
 
                     break;
                 case EventClassType.Registry:
+                    switch ((EventRegistryOperation)logEvent.OperationType)
+                    {
+                        case EventRegistryOperation.RegOpenKey:
+                            stream.Seek(sizeOfStackTrace, SeekOrigin.Current);
+                            stringSize = reader.ReadByte();
+                            reader.ReadBytes(7); // Not relevant for now.
+                            eventPath = Encoding.ASCII.GetString(reader.ReadBytes(stringSize));
+                            break;
+                    }
+
                     break;
             }
 
             return new PMLEvent()
             {
                 EventClass = (EventClassType)logEvent.EventClass,
-                Operation = (EventFileSystemOperation)logEvent.OperationType,
+                Operation = ((EventClassType)logEvent.EventClass == EventClassType.File_System) ? (EventFileSystemOperation)logEvent.OperationType : EventFileSystemOperation.None,
+                RegistryOperation = ((EventClassType)logEvent.EventClass == EventClassType.Registry) ? (EventRegistryOperation)logEvent.OperationType : EventRegistryOperation.None,
                 Result = (EventResult)logEvent.Result,
                 Path = eventPath,
                 Process = LogProcesses[logEvent.indexProcessEvent],

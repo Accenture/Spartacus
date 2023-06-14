@@ -95,8 +95,32 @@ namespace Spartacus.ProcMon
             Network = 5
         }
 
+        public enum EventRegistryOperation: Int16
+        {
+            None = -1,
+            RegOpenKey = 0,
+            RegCreateKey = 1,
+            RegCloseKey = 2,
+            RegQueryKey = 3,
+            RegSetValue = 4,
+            RegQueryValue = 5,
+            RegEnumValue = 6,
+            RegEnumKey = 7,
+            RegSetInfoKey = 8,
+            RegDeleteKey = 9,
+            RegDeleteValue = 10,
+            RegFlushKey = 11,
+            RegLoadKey = 12,
+            RegUnloadKey = 13,
+            RegRenameKey = 14,
+            RegQueryMultipleValueKey = 15,
+            RegSetKeySecurity = 16,
+            RegQueryKeySecurity = 17
+        }
+
         public enum EventFileSystemOperation : Int16
         {
+            None = -1,
             VolumeDismount = 0,
             VolumeMount = 1,
             ProcessCreate = 1,
@@ -408,6 +432,7 @@ namespace Spartacus.ProcMon
         {
             public EventClassType EventClass;
             public EventFileSystemOperation Operation;
+            public EventRegistryOperation RegistryOperation;
             public EventResult Result;
             public string Path;
             public PMLProcessStruct Process;

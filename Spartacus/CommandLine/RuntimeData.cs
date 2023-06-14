@@ -15,6 +15,7 @@ namespace Spartacus.Spartacus.CommandLine
             DLL = 1,
             DETECT = 2,
             PROXY = 3,
+            COM = 4,
         };
 
         public static SpartacusMode Mode = SpartacusMode.NONE;
