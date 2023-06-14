@@ -82,6 +82,7 @@
     <Compile Include="Modes\DLL\ModeDLL.cs" />
     <Compile Include="Modes\ModeBase.cs" />
     <Compile Include="Modes\PROXY\ModeProxy.cs" />
+    <Compile Include="Modes\PROXY\SolutionGenerator.cs" />
     <Compile Include="ProcMon\ProcMonManager.cs" />
     <Compile Include="ProcMon\ProcMonPML.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -89,8 +90,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Spartacus\CommandLine\CommandLineParser.cs" />
-    <Compile Include="Spartacus\CommandLine\RuntimeData.cs" />
+    <Compile Include="CommandLine\CommandLineParser.cs" />
+    <Compile Include="CommandLine\RuntimeData.cs" />
     <Compile Include="Modes\PROXY\FunctionSignature.cs" />
     <Compile Include="Utils\PEFileExports.cs" />
     <Compile Include="Utils\CurrentUserACL.cs" />
@@ -125,4 +126,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(ProjectDir)Assets" "$(ProjectDir)$(OutDir)Assets" /Y /I /E</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -41,8 +41,6 @@ namespace Spartacus.Spartacus.CommandLine
 
         public static string ExportsDirectory = "";
 
-        public static string TemplateProxyDLL = "";
-
         public static string Solution = "";
 
         public static string DLLFile = "";
@@ -52,5 +50,7 @@ namespace Spartacus.Spartacus.CommandLine
         public static string GhidraHeadlessPath = "";
 
         public static bool Overwrite = false;
+
+        public static bool UseExternalResources = false;
     }
 }

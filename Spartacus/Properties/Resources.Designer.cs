@@ -61,6 +61,26 @@ namespace Spartacus.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to /*
+        /// *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
+        /// *  One would ask &quot;Why don&apos;t you save this output as JSON? Wouldn&apos;t that be easier?&quot; And the answer is &quot;yes, it would be&quot;,
+        /// *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
+        /// */
+        ///
+        ///import java.util.*;
+        ///import java.nio.file.Files;
+        ///import java.nio.file.Paths;
+        ///import java.nio.charset.Charset;
+        ///
+        ///import ghidra.app.script.GhidraScri [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ExportFunctionDefinitionsINI_java {
+            get {
+                return ResourceManager.GetString("ExportFunctionDefinitionsINI.java", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to #pragma once
         ///
         ///%_PRAGMA_COMMENTS_%
@@ -71,6 +91,7 @@ namespace Spartacus.Properties {
         ///
         ///%_TYPEDEF_%
         ///
+        ///// Remove this line if you aren&apos;t proxying any functions.
         ///HMODULE hModule = LoadLibrary(L&quot;%_REAL_DLL_%&quot;);
         ///
         ///BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -84,15 +105,11 @@ namespace Spartacus.Properties {
         ///        break;
         ///    }
         ///    return TRUE;
-        ///}
-        ///
-        ///VOID DebugToFile(LPCSTR szInput)
-        ///{
-        ///    std::ofstream [rest of string was truncated]&quot;;.
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string _dllmain_cpp {
+        internal static string solution_dllmain_cpp {
             get {
-                return ResourceManager.GetString("_dllmain.cpp", resourceCulture);
+                return ResourceManager.GetString("solution\\dllmain.cpp", resourceCulture);
             }
         }
         
@@ -116,9 +133,9 @@ namespace Spartacus.Properties {
         ///
         ///#if  [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string _proxy_rc {
+        internal static string solution_proxy_rc {
             get {
-                return ResourceManager.GetString("_proxy.rc", resourceCulture);
+                return ResourceManager.GetString("solution\\proxy.rc", resourceCulture);
             }
         }
         
@@ -127,7 +144,7 @@ namespace Spartacus.Properties {
         ///# Visual Studio Version 17
         ///VisualStudioVersion = 17.4.33213.308
         ///MinimumVisualStudioVersion = 10.0.40219.1
-        ///Project(&quot;{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}&quot;) = &quot;proxy&quot;, &quot;proxy.vcxproj&quot;, &quot;{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}&quot;
+        ///Project(&quot;{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}&quot;) = &quot;%_PROJECTNAME_%&quot;, &quot;%_PROJECTNAME_%.vcxproj&quot;, &quot;{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}&quot;
         ///EndProject
         ///Global
         ///	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,12 +152,11 @@ namespace Spartacus.Properties {
         ///		Debug|x86 = Debug|x86
         ///		Release|x64 = Release|x64
         ///		Release|x86 = Release|x86
-        ///	EndGlobalSection
-        ///	GlobalSectio [rest of string was truncated]&quot;;.
+        ///	EndGlobalSe [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string _proxy_sln {
+        internal static string solution_proxy_sln {
             get {
-                return ResourceManager.GetString("_proxy.sln", resourceCulture);
+                return ResourceManager.GetString("solution\\proxy.sln", resourceCulture);
             }
         }
         
@@ -158,9 +174,9 @@ namespace Spartacus.Properties {
         ///    &lt;/ProjectConfiguration&gt;
         ///    &lt;ProjectCon [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string _proxy_vcxproj {
+        internal static string solution_proxy_vcxproj {
             get {
-                return ResourceManager.GetString("_proxy.vcxproj", resourceCulture);
+                return ResourceManager.GetString("solution\\proxy.vcxproj", resourceCulture);
             }
         }
         
@@ -181,29 +197,9 @@ namespace Spartacus.Properties {
         ///#endif
         ///.
         /// </summary>
-        internal static string _resource_h {
+        internal static string solution_resource_h {
             get {
-                return ResourceManager.GetString("_resource.h", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to /*
-        /// *  This file has been created by using the existing Ghidra ExportFunctionInfoScript.java script as a guide.
-        /// *  One would ask &quot;Why don&apos;t you save this output as JSON? Wouldn&apos;t that be easier?&quot; And the answer is &quot;yes, it would be&quot;,
-        /// *  however I want to keep Spartacus a standalone executable, and adding a NuGet package for JSON would break that.
-        /// */
-        ///
-        ///import java.util.*;
-        ///import java.nio.file.Files;
-        ///import java.nio.file.Paths;
-        ///import java.nio.charset.Charset;
-        ///
-        ///import ghidra.app.script.GhidraScri [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string ExportFunctionDefinitionsINI_java {
-            get {
-                return ResourceManager.GetString("ExportFunctionDefinitionsINI.java", resourceCulture);
+                return ResourceManager.GetString("solution\\resource.h", resourceCulture);
             }
         }
         

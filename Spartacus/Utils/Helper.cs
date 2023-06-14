@@ -1,4 +1,5 @@
-﻿using Spartacus.Spartacus;
+﻿using Spartacus.Properties;
+using Spartacus.Spartacus;
 using Spartacus.Spartacus.CommandLine;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ namespace Spartacus.Utils
             };
         }
 
-        public void ExportDLLExports(Dictionary<string, string> filesToProxy, string outputDirectory)
+        public void ExportDLLExports(Dictionary<string, string> filesToProxy, string outputDirectory, string templateFile)
         {
             Logger.Info("Extracting DLL export functions...");
 
@@ -116,7 +117,7 @@ namespace Spartacus.Utils
                     pragma.Add(String.Format(pragmaTemplate, f.Name, actualPathNoExtension.Replace("\\", "\\\\"), f.Name, f.Ordinal));
                 }
 
-                string fileContents = RuntimeData.TemplateProxyDLL.Replace("%_PRAGMA_COMMENTS_%", String.Join("\r\n", pragma.ToArray()));
+                string fileContents = templateFile.Replace("%_PRAGMA_COMMENTS_%", String.Join("\r\n", pragma.ToArray()));
                 File.WriteAllText(saveAs, fileContents);
 
                 Logger.Success("OK", true, false);
@@ -180,6 +181,49 @@ namespace Spartacus.Utils
             }
 
             return !Directory.Exists(path);
+        }
+
+        public string GetResource(string name)
+        {
+            string data;
+
+            if (RuntimeData.UseExternalResources)
+            {
+                string fullPath = Path.GetFullPath(@$"Assets\{name}");
+                if (!File.Exists(fullPath))
+                {
+                    throw new Exception("Could not load external resource: " + fullPath);
+                }
+
+                data = File.ReadAllText(fullPath);
+            }
+            else
+            {
+                data = Resources.ResourceManager.GetString(name);
+            }
+
+            if (String.IsNullOrEmpty(data))
+            {
+                throw new Exception("Loaded resource is empty: " + name);
+            }
+            return data;
+        }
+
+        public List<FileExport> GetExportFunctions(string DLL)
+        {
+            List<FileExport> exports = new();
+            PEFileExports ExportLoader = new();
+
+            try
+            {
+                exports = ExportLoader.Extract(DLL);
+            }
+            catch (Exception ex)
+            {
+                // Nothing.
+            }
+
+            return exports;
         }
     }
 }

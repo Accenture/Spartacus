@@ -24,6 +24,7 @@ namespace Spartacus.Spartacus.CommandLine
             { "existing", "switch" },
             { "all", "switch" },
             { "overwrite", "switch" },
+            { "external-resources", "switch" },
             { "pml", "" },
             { "pmc", "" },
             { "procmon", "" },
@@ -157,6 +158,12 @@ namespace Spartacus.Spartacus.CommandLine
                         break;
                     case "only":
                         RuntimeData.FunctionsToProxy = argument.Value.Trim().Split(',').ToList();
+                        break;
+                    case "external-resources":
+                        if (argument.Value.ToLower() != "false")
+                        {
+                            RuntimeData.UseExternalResources = (argument.Value.Length > 0);
+                        }
                         break;
                     default:
                         throw new Exception("Unknown argument: " + argument.Key);

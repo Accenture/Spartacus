@@ -159,35 +159,7 @@ public class ExportFunctionDefinitionsINI extends GhidraScript {
 	}
 }</value>
   </data>
-  <data name="TemplateProxyDLL.cpp" xml:space="preserve">
-    <value>#pragma once
-
-%_PRAGMA_COMMENTS_%
-
-#include &lt;windows.h&gt;
-
-VOID Payload() {
-    // Run your payload here.
-}
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-    switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-        Payload();
-        break;
-    case DLL_THREAD_ATTACH:
-        break;
-    case DLL_THREAD_DETACH:
-        break;
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}</value>
-  </data>
-  <data name="_dllmain.cpp" xml:space="preserve">
+  <data name="solution\dllmain.cpp" xml:space="preserve">
     <value>#pragma once
 
 %_PRAGMA_COMMENTS_%
@@ -198,6 +170,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
 %_TYPEDEF_%
 
+// Remove this line if you aren't proxying any functions.
 HMODULE hModule = LoadLibrary(L"%_REAL_DLL_%");
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -213,6 +186,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     return TRUE;
 }
 
+// Remove this function if you aren't proxying any functions.
 VOID DebugToFile(LPCSTR szInput)
 {
     std::ofstream log("spartacus-proxy.log", std::ios_base::app | std::ios_base::out);
@@ -222,7 +196,7 @@ VOID DebugToFile(LPCSTR szInput)
 
 %_FUNCTIONS_%</value>
   </data>
-  <data name="_proxy.rc" xml:space="preserve">
+  <data name="solution\proxy.rc" xml:space="preserve">
     <value>// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
@@ -275,8 +249,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION %FILEVERSION_MAJOR%,%FILEVERSION_MINOR%,%FILEVERSION_REVISION%,%FILEVERSION_BUILD%
- PRODUCTVERSION %PRODUCTVERSION_MAJOR%,%PRODUCTVERSION_MINOR%,%PRODUCTVERSION_REVISION%,%PRODUCTVERSION_BUILD%
+ FILEVERSION %_FILEVERSION_MAJOR_%,%_FILEVERSION_MINOR_%,%_FILEVERSION_REVISION_%,%_FILEVERSION_BUILD_%
+ PRODUCTVERSION %_PRODUCTVERSION_MAJOR_%,%_PRODUCTVERSION_MINOR_%,%_PRODUCTVERSION_REVISION_%,%_PRODUCTVERSION_BUILD_%
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -291,14 +265,14 @@ BEGIN
     BEGIN
         BLOCK "080904b0"
         BEGIN
-            VALUE "CompanyName", "%COMPANYNAME%"
-            VALUE "FileDescription", "%FILEDESCRIPTION%"
-            VALUE "FileVersion", "%FILEVERSION%"
-            VALUE "InternalName", "%INTERNALNAME%"
-            VALUE "LegalCopyright", "%LEGALCOPYRIGHT%"
-            VALUE "OriginalFilename", "%ORIGINALNAME%"
-            VALUE "ProductName", "%PRODUCTNAME%"
-            VALUE "ProductVersion", "%PRODUCTVERSION%"
+            VALUE "CompanyName", "%_COMPANYNAME_%"
+            VALUE "FileDescription", "%_FILEDESCRIPTION_%"
+            VALUE "FileVersion", "%_FILEVERSION_%"
+            VALUE "InternalName", "%_INTERNALNAME_%"
+            VALUE "LegalCopyright", "%_LEGALCOPYRIGHT_%"
+            VALUE "OriginalFilename", "%_ORIGINALNAME_%"
+            VALUE "ProductName", "%_PRODUCTNAME_%"
+            VALUE "ProductVersion", "%_PRODUCTVERSION_%"
         END
     END
     BLOCK "VarFileInfo"
@@ -322,12 +296,12 @@ END
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED</value>
   </data>
-  <data name="_proxy.sln" xml:space="preserve">
+  <data name="solution\proxy.sln" xml:space="preserve">
     <value>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "proxy", "proxy.vcxproj", "{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%_PROJECTNAME_%", "%_PROJECTNAME_%.vcxproj", "{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -354,7 +328,7 @@ Global
 	EndGlobalSection
 EndGlobal</value>
   </data>
-  <data name="_proxy.vcxproj" xml:space="preserve">
+  <data name="solution\proxy.vcxproj" xml:space="preserve">
     <value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
   &lt;ItemGroup Label="ProjectConfigurations"&gt;
@@ -379,7 +353,7 @@ EndGlobal</value>
     &lt;VCProjectVersion&gt;16.0&lt;/VCProjectVersion&gt;
     &lt;Keyword&gt;Win32Proj&lt;/Keyword&gt;
     &lt;ProjectGuid&gt;{6fced408-75b2-4ef9-9e5f-3ec58b19249b}&lt;/ProjectGuid&gt;
-    &lt;RootNamespace&gt;proxy&lt;/RootNamespace&gt;
+    &lt;RootNamespace&gt;%_PROJECTNAME_%&lt;/RootNamespace&gt;
     &lt;WindowsTargetPlatformVersion&gt;10.0&lt;/WindowsTargetPlatformVersion&gt;
   &lt;/PropertyGroup&gt;
   &lt;Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" /&gt;
@@ -428,10 +402,10 @@ EndGlobal</value>
   &lt;/ImportGroup&gt;
   &lt;PropertyGroup Label="UserMacros" /&gt;
   &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"&gt;
-    &lt;TargetName&gt;%_NAME_%&lt;/TargetName&gt;
+    &lt;TargetName&gt;%_PROJECTNAME_%&lt;/TargetName&gt;
   &lt;/PropertyGroup&gt;
   &lt;PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'"&gt;
-    &lt;TargetName&gt;%_NAME_%&lt;/TargetName&gt;
+    &lt;TargetName&gt;%_PROJECTNAME_%&lt;/TargetName&gt;
   &lt;/PropertyGroup&gt;
   &lt;ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"&gt;
     &lt;ClCompile&gt;
@@ -481,7 +455,7 @@ EndGlobal</value>
       &lt;SubSystem&gt;Windows&lt;/SubSystem&gt;
       &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt;
       &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
-      &lt;ModuleDefinitionFile&gt;proxy.def&lt;/ModuleDefinitionFile&gt;
+      &lt;ModuleDefinitionFile&gt;%_PROJECTNAME_%.def&lt;/ModuleDefinitionFile&gt;
     &lt;/Link&gt;
   &lt;/ItemDefinitionGroup&gt;
   &lt;ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'"&gt;
@@ -502,31 +476,31 @@ EndGlobal</value>
       &lt;OptimizeReferences&gt;true&lt;/OptimizeReferences&gt;
       &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt;
       &lt;EnableUAC&gt;false&lt;/EnableUAC&gt;
-      &lt;ModuleDefinitionFile&gt;proxy.def&lt;/ModuleDefinitionFile&gt;
+      &lt;ModuleDefinitionFile&gt;%_PROJECTNAME_%.def&lt;/ModuleDefinitionFile&gt;
     &lt;/Link&gt;
     &lt;PostBuildEvent&gt;
-      &lt;Command&gt;powershell.exe -c (Get-ChildItem "$(TargetPath)").LastWriteTime = (Get-ChildItem "%SOURCEDLL%").LastWriteTime
-powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem "%SOURCEDLL%").CreationTime&lt;/Command&gt;
+      &lt;Command&gt;powershell.exe -c (Get-ChildItem "$(TargetPath)").LastWriteTime = (Get-ChildItem "%_SOURCEDLL_%").LastWriteTime
+powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem "%_SOURCEDLL_%").CreationTime&lt;/Command&gt;
     &lt;/PostBuildEvent&gt;
   &lt;/ItemDefinitionGroup&gt;
   &lt;ItemGroup&gt;
     &lt;ClCompile Include="dllmain.cpp" /&gt;
   &lt;/ItemGroup&gt;
   &lt;ItemGroup&gt;
-    &lt;None Include="proxy.def" /&gt;
+    &lt;None Include="%_PROJECTNAME_%.def" /&gt;
   &lt;/ItemGroup&gt;
   &lt;ItemGroup&gt;
     &lt;ClInclude Include="resource.h" /&gt;
   &lt;/ItemGroup&gt;
   &lt;ItemGroup&gt;
-    &lt;ResourceCompile Include="proxy.rc" /&gt;
+    &lt;ResourceCompile Include="%_PROJECTNAME_%.rc" /&gt;
   &lt;/ItemGroup&gt;
   &lt;Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /&gt;
   &lt;ImportGroup Label="ExtensionTargets"&gt;
   &lt;/ImportGroup&gt;
 &lt;/Project&gt;</value>
   </data>
-  <data name="_resource.h" xml:space="preserve">
+  <data name="solution\resource.h" xml:space="preserve">
     <value>//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by proxy.rc
@@ -542,5 +516,33 @@ powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem 
 #endif
 #endif
 </value>
+  </data>
+  <data name="TemplateProxyDLL.cpp" xml:space="preserve">
+    <value>#pragma once
+
+%_PRAGMA_COMMENTS_%
+
+#include &lt;windows.h&gt;
+
+VOID Payload() {
+    // Run your payload here.
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+{
+    switch (fdwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+        Payload();
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
+}</value>
   </data>
 </root>

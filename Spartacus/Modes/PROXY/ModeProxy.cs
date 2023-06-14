@@ -37,7 +37,7 @@ namespace Spartacus.Modes.PROXY
              */
 
             Logger.Info("Extracting DLL export functions...");
-            List<FileExport> exportedFunctions = GetExportFunctions(RuntimeData.DLLFile);
+            List<FileExport> exportedFunctions = Helper.GetExportFunctions(RuntimeData.DLLFile);
             if (exportedFunctions.Count == 0)
             {
                 Logger.Error("No export functions found in DLL: " + RuntimeData.DLLFile);
@@ -45,15 +45,59 @@ namespace Spartacus.Modes.PROXY
             }
             Logger.Verbose("Found " + exportedFunctions.Count + " functions");
 
+            Dictionary<string, FunctionSignature> proxyFunctions = new();
             if (!String.IsNullOrEmpty(RuntimeData.GhidraHeadlessPath))
             {
-                RunGhidraProcess(exportedFunctions);
+                proxyFunctions = GetFunctionDefinitions(exportedFunctions);
             }
 
+            SolutionGenerator solutionGenerator = new();
+            try
+            {
+                if (!solutionGenerator.Create(RuntimeData.Solution, RuntimeData.DLLFile, exportedFunctions, proxyFunctions))
+                {
+                    Logger.Error("Could not generate solution");
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                return;
+            }
 
+            Logger.Success("Target solution created at: " + RuntimeData.Solution);
         }
 
-        private void RunGhidraProcess(List<FileExport> exportedFunctions)
+        private Dictionary<string, FunctionSignature> GetFunctionDefinitions(List<FileExport> exportedFunctions)
+        {
+            Dictionary<string, FunctionSignature> functionDefinitions = new();
+
+            // First we ran Ghidra to get the function definitions.
+            string ghidraOutput = GetGhidraOutput();
+            if (String.IsNullOrEmpty(ghidraOutput))
+            {
+                // This will be an empty set.
+                return functionDefinitions;
+            }
+
+            Logger.Info("Loading function definitions");
+            List<FunctionSignature> loadedFunctions = LoadDllFunctionDefinitions(ghidraOutput);
+
+            Logger.Info("Matching exported functions with loaded function definitions");
+            functionDefinitions = GetProxyFunctions(exportedFunctions, loadedFunctions, RuntimeData.FunctionsToProxy);
+
+            if (functionDefinitions.Count == 0)
+            {
+                Logger.Warning("No function signatures found");
+                return functionDefinitions; // This will be empty.
+            }
+            Logger.Verbose("Found " + functionDefinitions.Count + " matching functions");
+
+            return functionDefinitions;
+        }
+
+        private string GetGhidraOutput()
         {
             // Create a temporary folder where the Ghidra project will be created into, and where the post-scripts will live.
             string ghidraParentFolder = Path.GetTempPath() + "Spartacus-" + Guid.NewGuid().ToString();
@@ -66,7 +110,7 @@ namespace Spartacus.Modes.PROXY
             if (!PrepareRuntimeDirectoriesAndFiles(ghidraProjectPath, ghidraScriptsPath, RuntimeData.Solution, ghidraScriptIniOutput, ghidraScriptFile))
             {
                 Logger.Error("Could not prepare runtime directories and files");
-                return;
+                return "";
             }
             Logger.Verbose("Ghidra project path will be: " + ghidraProjectPath);
             Logger.Verbose("Ghidra scripts path will be: " + ghidraScriptsPath);
@@ -81,28 +125,13 @@ namespace Spartacus.Modes.PROXY
             {
                 Logger.Error("Could not find " + ghidraScriptIniOutput);
                 Logger.Error("This is because the Ghidra postScript did not execute properly. Run Spartacus with the --debug argument to see Ghidra's output");
-                return;
+                return "";
             }
 
-            Logger.Info("Loading function definitions from " + ghidraScriptIniOutput);
-            List<FunctionSignature> loadedFunctions = LoadDllFunctionDefinitions(ghidraScriptIniOutput);
+            // Get the data we need.
+            string output = File.ReadAllText(ghidraScriptIniOutput).Replace("\r\n", "\n");
 
-            Logger.Info("Matching exported functions with loaded function definitions");
-            Dictionary<string, FunctionSignature> proxyFunctions = GetProxyFunctions(exportedFunctions, loadedFunctions, RuntimeData.FunctionsToProxy);
-
-            if (proxyFunctions.Count == 0)
-            {
-                Logger.Warning("No function signatures found");
-                return;
-            }
-            Logger.Verbose("Found " + proxyFunctions.Count + " matching functions");
-
-            if (!GenerateSolution(RuntimeData.DLLFile, proxyFunctions, exportedFunctions, RuntimeData.Solution))
-            {
-                Logger.Error("Could not generate solution");
-                return;
-            }
-
+            // And cleanup.
             Logger.Info("Cleaning up...");
             Logger.Info("Deleting Ghidra project path - " + ghidraProjectPath);
             if (!Helper.DeleteTargetDirectory(ghidraProjectPath))
@@ -116,163 +145,10 @@ namespace Spartacus.Modes.PROXY
                 Logger.Warning("Could not clean up path: " + ghidraScriptsPath);
             }
 
-            Logger.Success("Target solution created at: " + RuntimeData.Solution);
-            return;
+            return output;
         }
 
-        private bool GenerateSolution(string dllPath, Dictionary<string, FunctionSignature> proxyFunctions, List<FileExport> exportedFunctions, string outputDirectory)
-        {
-            string dllFilename = Path.GetFileName(dllPath);
-            string projectName = Path.GetFileNameWithoutExtension(dllPath);
-
-            Logger.Info("Generating proxy.def...");
-            string proxyDefinitions = GenerateProxyDef(dllFilename, proxyFunctions);
-
-            Logger.Info("Generating dllmain.cpp");
-            string dllMain = GenerateDLLMainSourceCode(RuntimeData.DLLFile, exportedFunctions, proxyFunctions);
-
-            Logger.Info("Generating proxy.sln");
-            string proxySln = Resources.ResourceManager.GetString("proxy.sln");
-
-            Logger.Info("Generating proxy.vcxproj");
-            string proxyVCXProj = Resources.ResourceManager.GetString("proxy.vcxproj")
-                .Replace("%_NAME_%", projectName)
-                .Replace("%SOURCEDLL%", dllPath);
-
-            Logger.Info("Generating proxy.rc");
-            string proxyRC = "";
-            try
-            {
-                proxyRC = GenerateProxyRC(dllPath);
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Could not get file version information: " + e.Message);
-            }
-
-            Logger.Info("Generating resource.h");
-            string resourceH = Resources.ResourceManager.GetString("resource.h");
-
-            Logger.Info("Saving proxy.def...");
-            File.WriteAllText(Path.Combine(outputDirectory, "proxy.def"), proxyDefinitions);
-
-            Logger.Info("Saving dllmain.cpp");
-            File.WriteAllText(Path.Combine(outputDirectory, "dllmain.cpp"), dllMain);
-
-            Logger.Info("Saving proxy.sln");
-            File.WriteAllText(Path.Combine(outputDirectory, "proxy.sln"), proxySln);
-
-            Logger.Info("Saving proxy.vcxproj");
-            File.WriteAllText(Path.Combine(outputDirectory, "proxy.vcxproj"), proxyVCXProj);
-
-            Logger.Info("Saving resource.h");
-            File.WriteAllText(Path.Combine(outputDirectory, "resource.h"), resourceH);
-
-            Logger.Info("Saving proxy.rc");
-            // We are writing the data to this file as Unicode (UTF16 LE BOM), otherwise characters like the copyright symbol won't display correctly.
-            using (var f = File.Create(Path.Combine(outputDirectory, "proxy.rc")))
-            {
-                using (StreamWriter sw = new StreamWriter(f, Encoding.Unicode))
-                {
-                    sw.Write(proxyRC);
-                }
-            }
-
-            return true;
-        }
-
-        private string GenerateProxyDef(string dllName, Dictionary<string, FunctionSignature> proxyFunctions)
-        {
-            List<string> lines = new List<string>
-            {
-                "LIBRARY " + dllName,
-                "EXPORTS"
-            };
-            foreach (KeyValuePair<string, FunctionSignature> item in proxyFunctions)
-            {
-                lines.Add("\t" + item.Value.Name + "=" + item.Value.GetProxyName());
-            }
-            return String.Join("\r\n", lines.ToArray());
-        }
-
-        private string GenerateDLLMainSourceCode(string dllPath, List<FileExport> exportedFunctions, Dictionary<string, FunctionSignature> proxyFunctions)
-        {
-            string template = Resources.ResourceManager.GetString("dllmain.cpp");
-
-            // First generate the pragma comments.
-            List<string> pragma = new List<string>();
-            string pragmaTemplate = "#pragma comment(linker,\"/export:{0}={1}.{2},@{3}\")";
-            string actualPathNoExtension = Path.Combine(Path.GetDirectoryName(dllPath), Path.GetFileNameWithoutExtension(dllPath));
-            foreach (FileExport f in exportedFunctions)
-            {
-                string line = String.Format(pragmaTemplate, f.Name, actualPathNoExtension.Replace("\\", "\\\\"), f.Name, f.Ordinal);
-                if (proxyFunctions.ContainsKey(f.Name))
-                {
-                    // Comment out if it's a proxied function.
-                    line = $"// {line}";
-                }
-                pragma.Add(line);
-            }
-
-            List<string> typeDef = new List<string>();
-            List<string> functions = new List<string>();
-            foreach (KeyValuePair<string, FunctionSignature> item in proxyFunctions)
-            {
-                typeDef.Add(item.Value.GetTypedefDeclaration() + ";");
-                functions.Add(item.Value.GetProxyFunctionCode(true));
-            }
-
-            template = template
-                .Replace("%_PRAGMA_COMMENTS_%", String.Join("\r\n", pragma.ToArray()))
-                .Replace("%_TYPEDEF_%", String.Join("\r\n", typeDef.ToArray()))
-                .Replace("%_FUNCTIONS_%", String.Join("\r\n", functions.ToArray()))
-                .Replace("%_REAL_DLL_%", dllPath.Replace("\\", "\\\\"));
-
-            return template;
-        }
-
-        private string GenerateProxyRC(string dllPath)
-        {
-            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(dllPath);
-
-            string proxyRC = Resources.ResourceManager.GetString("proxy.rc")
-                .Replace("%COMPANYNAME%", versionInfo.CompanyName)
-                .Replace("%FILEDESCRIPTION%", versionInfo.FileDescription)
-                .Replace("%INTERNALNAME%", versionInfo.InternalName)
-                .Replace("%LEGALCOPYRIGHT%", versionInfo.LegalCopyright)
-                .Replace("%ORIGINALNAME%", versionInfo.OriginalFilename)
-                .Replace("%PRODUCTNAME%", versionInfo.ProductName)
-                .Replace("%PRODUCTVERSION%", versionInfo.ProductVersion)
-                .Replace("%PRODUCTVERSION_MAJOR%", versionInfo.ProductMajorPart.ToString())
-                .Replace("%PRODUCTVERSION_MINOR%", versionInfo.ProductMinorPart.ToString())
-                .Replace("%PRODUCTVERSION_BUILD%", versionInfo.ProductBuildPart.ToString())
-                .Replace("%PRODUCTVERSION_REVISION%", versionInfo.ProductPrivatePart.ToString());
-
-            string fileVersion = versionInfo.FileVersion.Split(' ')[0];
-            proxyRC = proxyRC.Replace("%FILEVERSION%", fileVersion);
-
-            // For some reason FileVersion doesn't always match what is displayed when you view the file's properties.
-            string[] fileVersionParts = fileVersion.Split('.');
-
-            if (fileVersionParts.Length != 4)
-            {
-                fileVersionParts = new string[4];
-                fileVersionParts[0] = versionInfo.ProductMajorPart.ToString();
-                fileVersionParts[1] = versionInfo.ProductMinorPart.ToString();
-                fileVersionParts[2] = versionInfo.ProductBuildPart.ToString();
-                fileVersionParts[3] = versionInfo.ProductPrivatePart.ToString();
-            }
-
-            proxyRC = proxyRC
-                .Replace("%FILEVERSION_MAJOR%", fileVersionParts[0])
-                .Replace("%FILEVERSION_MINOR%", fileVersionParts[1])
-                .Replace("%FILEVERSION_BUILD%", fileVersionParts[2])
-                .Replace("%FILEVERSION_REVISION%", fileVersionParts[3]);
-
-            return proxyRC;
-        }
-
-        private List<FunctionSignature> LoadDllFunctionDefinitions(string iniInput)
+        private List<FunctionSignature> LoadDllFunctionDefinitions(string ghidraOutput)
         {
             /*
              * This function will parse this format:
@@ -292,7 +168,7 @@ namespace Spartacus.Modes.PROXY
             List<FunctionSignature> functions = new List<FunctionSignature>();
             FunctionSignature function = new FunctionSignature("");
 
-            string[] lines = File.ReadAllText(iniInput).Replace("\r\n", "\n").Split('\n');
+            string[] lines = ghidraOutput.Split('\n');
             foreach (string line in lines)
             {
                 Logger.Debug(line);
@@ -395,7 +271,7 @@ namespace Spartacus.Modes.PROXY
 
             // Get the Ghidra post-script that will export all the function definitions.
             Logger.Info("Creating Ghidra postScript...");
-            string ghidraScriptContents = Resources.ResourceManager.GetString("ExportFunctionDefinitionsINI.java")
+            string ghidraScriptContents = Helper.GetResource("ExportFunctionDefinitionsINI.java")
                 .Replace("%EXPORT_TO%", ghidraScriptIniOutput.Replace("\\", "\\\\"));
 
             try
@@ -410,24 +286,7 @@ namespace Spartacus.Modes.PROXY
             }
 
             return true;
-        }
-
-        private List<FileExport> GetExportFunctions(string DLL)
-        {
-            List<FileExport> exports = new();
-            PEFileExports ExportLoader = new();
-
-            try
-            {
-                exports = ExportLoader.Extract(DLL);
-            }
-            catch (Exception ex)
-            {
-                // Nothing.
-            }
-
-            return exports;
-        }
+        }        
 
         private Dictionary<string, FunctionSignature> GetProxyFunctions(List<FileExport> exportedFunctions, List<FunctionSignature> loadedFunctions, List<string> onlyProxyFunctions)
         {
@@ -436,7 +295,7 @@ namespace Spartacus.Modes.PROXY
             {
                 if (onlyProxyFunctions.Count > 0 && !onlyProxyFunctions.Contains(exportedFunction.Name.ToLower()))
                 {
-                    Logger.Verbose("Skipping function because it's not in the --only-proxy list: " + exportedFunction.Name);
+                    Logger.Verbose("Skipping function because it's not in the --only list: " + exportedFunction.Name);
                     continue;
                 }
 
@@ -517,7 +376,7 @@ namespace Spartacus.Modes.PROXY
                 // If after cleaning up, we have no values left, abort.
                 if (RuntimeData.FunctionsToProxy.Count == 0)
                 {
-                    throw new Exception("--only-proxy is invalid");
+                    throw new Exception("--only is invalid");
                 }
             }
         }

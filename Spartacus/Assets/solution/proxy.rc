@@ -50,8 +50,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION %FILEVERSION_MAJOR%,%FILEVERSION_MINOR%,%FILEVERSION_REVISION%,%FILEVERSION_BUILD%
- PRODUCTVERSION %PRODUCTVERSION_MAJOR%,%PRODUCTVERSION_MINOR%,%PRODUCTVERSION_REVISION%,%PRODUCTVERSION_BUILD%
+ FILEVERSION %_FILEVERSION_MAJOR_%,%_FILEVERSION_MINOR_%,%_FILEVERSION_REVISION_%,%_FILEVERSION_BUILD_%
+ PRODUCTVERSION %_PRODUCTVERSION_MAJOR_%,%_PRODUCTVERSION_MINOR_%,%_PRODUCTVERSION_REVISION_%,%_PRODUCTVERSION_BUILD_%
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -66,14 +66,14 @@ BEGIN
     BEGIN
         BLOCK "080904b0"
         BEGIN
-            VALUE "CompanyName", "%COMPANYNAME%"
-            VALUE "FileDescription", "%FILEDESCRIPTION%"
-            VALUE "FileVersion", "%FILEVERSION%"
-            VALUE "InternalName", "%INTERNALNAME%"
-            VALUE "LegalCopyright", "%LEGALCOPYRIGHT%"
-            VALUE "OriginalFilename", "%ORIGINALNAME%"
-            VALUE "ProductName", "%PRODUCTNAME%"
-            VALUE "ProductVersion", "%PRODUCTVERSION%"
+            VALUE "CompanyName", "%_COMPANYNAME_%"
+            VALUE "FileDescription", "%_FILEDESCRIPTION_%"
+            VALUE "FileVersion", "%_FILEVERSION_%"
+            VALUE "InternalName", "%_INTERNALNAME_%"
+            VALUE "LegalCopyright", "%_LEGALCOPYRIGHT_%"
+            VALUE "OriginalFilename", "%_ORIGINALNAME_%"
+            VALUE "ProductName", "%_PRODUCTNAME_%"
+            VALUE "ProductVersion", "%_PRODUCTVERSION_%"
         END
     END
     BLOCK "VarFileInfo"

@@ -77,7 +77,7 @@ namespace Spartacus.Modes.DLL
                     filesToProxy.Add(dllFilename, e.Value.FoundPath);
                 }
 
-                Helper.ExportDLLExports(filesToProxy, RuntimeData.ExportsDirectory);
+                Helper.ExportDLLExports(filesToProxy, RuntimeData.ExportsDirectory, Helper.GetResource("TemplateProxyDLL.cpp"));
             }
         }
 
@@ -145,9 +145,6 @@ namespace Spartacus.Modes.DLL
                 // If this goes wrong, it will throw an exception.
                 Directory.CreateDirectory(RuntimeData.ExportsDirectory);
             }
-
-            // Load the template for the proxy dll.
-            RuntimeData.TemplateProxyDLL = Resources.ResourceManager.GetString("TemplateProxyDLL.cpp");
         }
 
         protected void SanitiseExistingLogProcessing()
