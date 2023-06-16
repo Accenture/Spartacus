@@ -169,7 +169,7 @@ namespace Spartacus.Modes.COM
                                     if (Helper.UserACL.HasAccess(new FileInfo(defaultValue), System.Security.AccessControl.FileSystemRights.TakeOwnership))
                                     {
                                         Logger.Debug(defaultValue + " can be owned");
-                                        Findings.Add(new ACLStruct { regPath = key.Name, result = Result.DELETE, filePath = defaultValue });
+                                        Findings.Add(new ACLStruct { regPath = key.Name, result = Result.OWNERSHIP, filePath = defaultValue });
                                     }
                                 }
                             }
