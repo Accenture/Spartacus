@@ -407,7 +407,7 @@ namespace Spartacus.Modes.DLL
             Logger.Info("Saving to CSV...");
             using (StreamWriter stream = File.CreateText(RuntimeData.CSVFile))
             {
-                stream.WriteLine(string.Format("Process, Image Path, Missing DLL, Found DLL, Integrity, Command Line"));
+                stream.WriteLine(string.Format("Process,Image Path,Missing DLL,Found DLL,Integrity,Command Line"));
                 foreach (KeyValuePair<string, PMLEvent> item in events)
                 {
                     stream.WriteLine(

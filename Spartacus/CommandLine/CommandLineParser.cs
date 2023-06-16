@@ -26,6 +26,7 @@ namespace Spartacus.Spartacus.CommandLine
             { "all", "switch" },
             { "overwrite", "switch" },
             { "external-resources", "switch" },
+            { "acl", "switch" },
             { "pml", "" },
             { "pmc", "" },
             { "procmon", "" },
@@ -164,6 +165,12 @@ namespace Spartacus.Spartacus.CommandLine
                         if (argument.Value.ToLower() != "false")
                         {
                             RuntimeData.UseExternalResources = (argument.Value.Length > 0);
+                        }
+                        break;
+                    case "acl":
+                        if (argument.Value.ToLower() != "false")
+                        {
+                            RuntimeData.isACL = (argument.Value.Length > 0);
                         }
                         break;
                     default:

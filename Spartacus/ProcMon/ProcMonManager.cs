@@ -90,7 +90,7 @@ namespace Spartacus.ProcMon
             List<PMCFilter> filters = new()
             {
                 new PMCFilter() { Column = FilterRuleColumn.OPERATION, Relation = FilterRuleRelation.IS, Action = FilterRuleAction.INCLUDE, Value = "RegOpenKey" },
-                new PMCFilter() { Column = FilterRuleColumn.PATH, Relation = FilterRuleRelation.ENDS_WITH, Action = FilterRuleAction.INCLUDE, Value = "InprocServer32" },
+                //new PMCFilter() { Column = FilterRuleColumn.PATH, Relation = FilterRuleRelation.ENDS_WITH, Action = FilterRuleAction.INCLUDE, Value = "InprocServer32" },
                 new PMCFilter() { Column = FilterRuleColumn.PROCESS_NAME, Relation = FilterRuleRelation.IS, Action = FilterRuleAction.EXCLUDE, Value = "procmon.exe" },
                 new PMCFilter() { Column = FilterRuleColumn.PROCESS_NAME, Relation = FilterRuleRelation.IS, Action = FilterRuleAction.EXCLUDE, Value = "procmon64.exe" },
             };
