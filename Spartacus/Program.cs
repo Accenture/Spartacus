@@ -1,6 +1,7 @@
 ﻿using Spartacus.ProcMon;
 using Spartacus.Spartacus;
 using Spartacus.Spartacus.CommandLine;
+using Spartacus.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,24 +16,35 @@ namespace Spartacus
         {
             string appVersion = String.Format("{0}.{1}.{2}", Assembly.GetExecutingAssembly().GetName().Version.Major.ToString(), Assembly.GetExecutingAssembly().GetName().Version.Minor.ToString(), Assembly.GetExecutingAssembly().GetName().Version.Build.ToString());
             
-            Logger.Info($@"Spartacus v{appVersion} [ Accenture Security ]");
-            Logger.Info($@"- For more information visit https://github.com/Accenture/Spartacus");
-            Logger.Info("");
+            Logger.Info($@"Spartacus v{appVersion} [ Accenture Security ]", true, false);
+            Logger.Info($@"- For more information visit https://github.com/Accenture/Spartacus", true, false);
+            Logger.Info("", true, false);
 
-            if (args.Length == 0)
-            {
-                // TODO - Show help.
-#if DEBUG
-                Console.ReadLine();
-#endif
-                return;
-            }
+            Helper helper = new();
 
             // Parse passed arguments into RuntimeData.*
             try
             {
+                if (args.Length == 0)
+                {
+                    helper.ShowHelp();
+#if DEBUG
+                    Console.ReadLine();
+#endif
+                    return;
+                }
+
                 Logger.Verbose("Loading command line arguments...");
                 CommandLineParser command = new(args);
+
+                if (RuntimeData.isHelp)
+                {
+                    helper.ShowHelp();
+#if DEBUG
+                    Console.ReadLine();
+#endif
+                    return;
+                }
             }
             catch (Exception e)
             {

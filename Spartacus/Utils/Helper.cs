@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
@@ -183,11 +184,11 @@ namespace Spartacus.Utils
             return !Directory.Exists(path);
         }
 
-        public string GetResource(string name)
+        public string GetResource(string name, bool isInternal)
         {
             string data;
 
-            if (RuntimeData.UseExternalResources)
+            if (RuntimeData.UseExternalResources && !isInternal)
             {
                 string fullPath = Path.GetFullPath(@$"Assets\{name}");
                 if (!File.Exists(fullPath))
@@ -209,6 +210,11 @@ namespace Spartacus.Utils
             return data;
         }
 
+        public string GetResource(string name)
+        {
+            return GetResource(name, false);
+        }
+
         public List<FileExport> GetExportFunctions(string DLL)
         {
             List<FileExport> exports = new();
@@ -224,6 +230,20 @@ namespace Spartacus.Utils
             }
 
             return exports;
+        }
+
+        public void ShowHelp()
+        {
+            string helpText = RuntimeData.Mode switch
+            {
+                RuntimeData.SpartacusMode.DLL => @"help\dll.txt",
+                RuntimeData.SpartacusMode.PROXY => @"help\proxy.txt",
+                RuntimeData.SpartacusMode.COM => @"help\com.txt",
+                RuntimeData.SpartacusMode.DETECT => @"help\detect.txt",
+                _ => @"help\main.txt"
+            };
+
+            Logger.Info(GetResource(helpText, false), true, false);
         }
     }
 }

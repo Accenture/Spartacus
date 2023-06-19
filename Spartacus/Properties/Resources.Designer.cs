@@ -81,6 +81,85 @@ namespace Spartacus.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode com [--help] [OPTIONS]
+        ///
+        ///--procmon               Location (file) of the SysInternals Process Monitor procmon.exe or procmon64.exe
+        ///--pml                   Location (file) to store the ProcMon event log file. If the file exists,
+        ///                        it will be overwritten. When used with --existing-log it will indicate
+        ///                        the event log file to read from and will not be overwritten.
+        ///--pmc                   Define a custom ProcMon (PMC) file to use. This  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help_com_txt {
+            get {
+                return ResourceManager.GetString("help\\com.txt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode detect [--help]
+        ///
+        ///This mode does not support any additional options..
+        /// </summary>
+        internal static string help_detect_txt {
+            get {
+                return ResourceManager.GetString("help\\detect.txt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode dll [--help] [OPTIONS]
+        ///
+        ///--procmon               Location (file) of the SysInternals Process Monitor procmon.exe or procmon64.exe
+        ///--pml                   Location (file) to store the ProcMon event log file. If the file exists,
+        ///                        it will be overwritten. When used with --existing-log it will indicate
+        ///                        the event log file to read from and will not be overwritten.
+        ///--pmc                   Define a custom ProcMon (PMC) file to use. This  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help_dll_txt {
+            get {
+                return ResourceManager.GetString("help\\dll.txt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode [dll|proxy|com|detect] [--help] [OPTIONS]
+        ///
+        ///Supported Modes
+        ///---------------
+        ///
+        ///dll                     Identify DLL hijacking vulnerabilities.
+        ///proxy                   Generate Visual Studio solutions for DLL proxy files.
+        ///com                     Identify COM hijacking vulnerabilities.
+        ///detect                  Identify DLLs that are proxying calls (like &apos;DLL Hijacking in progress&apos;).
+        ///                        This isn&apos;t a feature to be relied upon, it&apos;s there to get the low hangi [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help_main_txt {
+            get {
+                return ResourceManager.GetString("help\\main.txt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode proxy [--help] [OPTIONS]
+        ///
+        ///--ghidra                Path to Ghidra&apos;s &apos;analyzeHeadless.bat&apos; file.
+        ///--dll                   Path to the DLL you want to proxy.
+        ///--solution              Path to the directory where the solution of the proxy will be stored.
+        ///--overwrite             If the --solution path already exists, use this flag to overwrite it.
+        ///
+        ///Examples:
+        ///
+        ///Create proxies for functions to which it&apos;s possible to get a signature.
+        ///
+        ///    --mode proxy --ghidra C:\ghidra\support\an [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help_proxy_txt {
+            get {
+                return ResourceManager.GetString("help\\proxy.txt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to #pragma once
         ///
         ///%_PRAGMA_COMMENTS_%

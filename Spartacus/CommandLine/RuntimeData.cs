@@ -55,5 +55,7 @@ namespace Spartacus.Spartacus.CommandLine
         public static bool UseExternalResources = false;
 
         public static bool isACL = false;
+
+        public static bool isHelp = false;
     }
 }

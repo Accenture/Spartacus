@@ -27,6 +27,7 @@ namespace Spartacus.Spartacus.CommandLine
             { "overwrite", "switch" },
             { "external-resources", "switch" },
             { "acl", "switch" },
+            { "help", "switch" },
             { "pml", "" },
             { "pmc", "" },
             { "procmon", "" },
@@ -173,6 +174,12 @@ namespace Spartacus.Spartacus.CommandLine
                             RuntimeData.isACL = (argument.Value.Length > 0);
                         }
                         break;
+                    case "help":
+                        if (argument.Value.ToLower() != "false")
+                        {
+                            RuntimeData.isHelp = (argument.Value.Length > 0);
+                        }
+                        break;
                     default:
                         throw new Exception("Unknown argument: " + argument.Key);
                 }
@@ -184,7 +191,11 @@ namespace Spartacus.Spartacus.CommandLine
                 Logger.Debug(String.Format("Command Line (raw): {0} = {1}", argument.Key, argument.Value));
             }
 
-            SanitiseAndValidateRuntimeData();
+            // If --help has been passed, there's no reason to validate arguments.
+            if (!RuntimeData.isHelp)
+            {   
+                SanitiseAndValidateRuntimeData();
+            }
         }
 
         private RuntimeData.SpartacusMode ParseSpartacusMode(string mode)
