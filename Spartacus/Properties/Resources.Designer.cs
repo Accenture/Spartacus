@@ -146,12 +146,8 @@ namespace Spartacus.Properties {
         ///--dll                   Path to the DLL you want to proxy.
         ///--solution              Path to the directory where the solution of the proxy will be stored.
         ///--overwrite             If the --solution path already exists, use this flag to overwrite it.
-        ///
-        ///Examples:
-        ///
-        ///Create proxies for functions to which it&apos;s possible to get a signature.
-        ///
-        ///    --mode proxy --ghidra C:\ghidra\support\an [rest of string was truncated]&quot;;.
+        ///--only                  Generate proxy functions only for functions defined in this variable.
+        ///                        Values are comma  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string help_proxy_txt {
             get {

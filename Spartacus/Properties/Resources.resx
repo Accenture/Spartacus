@@ -250,16 +250,30 @@ Global Options
 --dll                   Path to the DLL you want to proxy.
 --solution              Path to the directory where the solution of the proxy will be stored.
 --overwrite             If the --solution path already exists, use this flag to overwrite it.
+--only                  Generate proxy functions only for functions defined in this variable.
+                        Values are comma separated like 'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA'
 
 Examples:
 
-Create proxies for functions to which it's possible to get a signature.
+Create proxies for as many functions as possible (based on Ghidra's output).
 
-    --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-wtsapi32 --overwrite --verbose
+    --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-userenv --overwrite --verbose
 
 Same as above, but use external asset files to generate the solution (if you need to modify them).
 
-    --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-wtsapi32 --overwrite --verbose --external-resources</value>
+    --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-userenv --overwrite --verbose --external-resources
+    
+Generate proxies only for functions GetFileVersionInfoExW and GetFileVersionInfoExA.
+
+    --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\version.dll --solution C:\Projects\spartacus-version --verbose --overwrite --external-resources --only "GetFileVersionInfoExW, GetFileVersionInfoExA"
+    
+Generate a solution that redirects all exports (no function proxying).
+
+    --mode proxy --dll C:\Windows\System32\version.dll --solution "C:\data\tmp\refactor-version" --overwrite --verbose --external-resources
+    
+It is possible to input multiple DLLs at once.
+
+    --mode proxy --dll C:\Windows\System32\version.dll --dll C:\Windows\System32\userenv.dll --solution "C:\data\tmp\dll-collection" --overwrite --verbose --external-resources</value>
   </data>
   <data name="solution\dllmain.cpp" xml:space="preserve">
     <value>#pragma once
