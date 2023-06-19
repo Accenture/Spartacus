@@ -57,5 +57,7 @@ namespace Spartacus.Spartacus.CommandLine
         public static bool isACL = false;
 
         public static bool isHelp = false;
+
+        public static List<string> BatchDLLFiles = new();
     }
 }

@@ -17,7 +17,7 @@ namespace Spartacus.Spartacus.CommandLine
     {
         private readonly string[] RawArguments;
 
-        private Dictionary<string, string> GlobalArguments = new Dictionary<string, string>
+        private Dictionary<string, string> GlobalArguments = new()
         {
             { "mode", "" },
             { "verbose", "switch" },
@@ -39,7 +39,7 @@ namespace Spartacus.Spartacus.CommandLine
             { "exports", "" },
         };
 
-        private Dictionary<string, string> Arguments = new Dictionary<string, string>();
+        private Dictionary<string, List<string>> Arguments = new();
 
         public CommandLineParser(string[] args)
         {
@@ -54,21 +54,21 @@ namespace Spartacus.Spartacus.CommandLine
             Parse(Arguments);
         }
 
-        private Dictionary<string, string> LoadCommandLine(Dictionary<string, string> arguments)
+        private Dictionary<string, List<string>> LoadCommandLine(Dictionary<string, string> arguments)
         {
+            Dictionary<string, List<string>> data = new();
+
             foreach (string parameter in arguments.Keys.ToList())
             {
-                arguments[parameter] = GetArgument($"--{parameter}", arguments[parameter] == "switch");
+                data[parameter] = GetArgument($"--{parameter}", arguments[parameter] == "switch");
             }
 
-            // Remove null values.
-            return arguments
-                .Where(v => (v.Value != null))
-                .ToDictionary(v => v.Key, v => v.Value);
+            return data;
         }
 
-        private string GetArgument(string name, bool isSwitch = false)
+        private List<string> GetArgument(string name, bool isSwitch = false)
         {
+            List<string> data = new();
             string value = null;
 
             for (int i = 0; i < RawArguments.Length; i++)
@@ -79,105 +79,122 @@ namespace Spartacus.Spartacus.CommandLine
                     {
                         // This is a boolean switch, like --verbose, so we just return a non empty value.
                         value = "true";
+                        data.Add(value);
                     }
                     else
                     {
                         if (i + 1 <= RawArguments.Length)
                         {
                             value = RawArguments[i + 1];
+                            data.Add(value);
                         }
                     }
-                    break;
+                    // We now support multiple params with the same name, so no <break> needed.
+                    // break;
                 }
             }
 
-            return value;
+            // Remove null values and return.
+            return data.Where(d => d != null).ToList();
         }
 
-        private void Parse(Dictionary<string, string> arguments)
+        private void Parse(Dictionary<string, List<string>> arguments)
         {
-            foreach (KeyValuePair<string, string> argument in arguments)
+            string value = "";
+            foreach (KeyValuePair<string, List<string>> argument in arguments)
             {
+                if (argument.Value.Count == 0)
+                {
+                    continue;
+                }
+
                 switch (argument.Key.ToLower())
                 {
                     case "mode":
-                        RuntimeData.Mode = ParseSpartacusMode(argument.Value);
+                        RuntimeData.Mode = ParseSpartacusMode(argument.Value.First());
                         break;
                     case "debug":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.Debug = (argument.Value.Length > 0);
+                            RuntimeData.Debug = (argument.Value.First().Length > 0);
                             Logger.IsDebug = RuntimeData.Debug;
                         }
                         break;
                     case "verbose":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.Verbose = (argument.Value.Length > 0);
+                            RuntimeData.Verbose = (argument.Value.First().Length > 0);
                             Logger.IsVerbose = RuntimeData.Verbose;
                         }
                         break;
                     case "pmc":
-                        RuntimeData.PMCFile = argument.Value;
+                        RuntimeData.PMCFile = argument.Value.First();
                         break;
                     case "pml":
-                        RuntimeData.PMLFile = argument.Value;
+                        RuntimeData.PMLFile = argument.Value.First();
                         break;
                     case "csv":
-                        RuntimeData.CSVFile = argument.Value;
+                        RuntimeData.CSVFile = argument.Value.First();
                         break;
                     case "procmon":
-                        RuntimeData.ProcMonExecutable = argument.Value;
+                        RuntimeData.ProcMonExecutable = argument.Value.First();
                         break;
                     case "exports":
-                        RuntimeData.ExportsDirectory = argument.Value;
+                        RuntimeData.ExportsDirectory = argument.Value.First();
                         break;
                     case "existing":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.IsExistingLog = (argument.Value.Length > 0);
+                            RuntimeData.IsExistingLog = (argument.Value.First().Length > 0);
                         }
                         break;
                     case "all":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.All = (argument.Value.Length > 0);
+                            RuntimeData.All = (argument.Value.First().Length > 0);
                         }
                         break;
                     case "overwrite":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.Overwrite = (argument.Value.Length > 0);
+                            RuntimeData.Overwrite = (argument.Value.First().Length > 0);
                         }
                         break;
                     case "dll":
-                        RuntimeData.DLLFile = argument.Value;
+                        // Here load all --dll properties, currently used only with the PROXY mode.
+                        RuntimeData.BatchDLLFiles = argument.Value.Select(v => v.ToLower().Trim()).Distinct().ToList();
+
+                        // If there's only 1 --dll, add it to the original value.
+                        if (RuntimeData.BatchDLLFiles.Count == 1)
+                        {
+                            RuntimeData.DLLFile = RuntimeData.BatchDLLFiles.First();
+                        }
                         break;
                     case "solution":
-                        RuntimeData.Solution = argument.Value;
+                        RuntimeData.Solution = argument.Value.First();
                         break;
                     case "ghidra":
-                        RuntimeData.GhidraHeadlessPath = argument.Value;
+                        RuntimeData.GhidraHeadlessPath = argument.Value.First();
                         break;
                     case "only":
-                        RuntimeData.FunctionsToProxy = argument.Value.Trim().Split(',').ToList();
+                        RuntimeData.FunctionsToProxy = argument.Value.First().Trim().Split(',').ToList();
                         break;
                     case "external-resources":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.UseExternalResources = (argument.Value.Length > 0);
+                            RuntimeData.UseExternalResources = (argument.Value.First().Length > 0);
                         }
                         break;
                     case "acl":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.isACL = (argument.Value.Length > 0);
+                            RuntimeData.isACL = (argument.Value.First().Length > 0);
                         }
                         break;
                     case "help":
-                        if (argument.Value.ToLower() != "false")
+                        if (argument.Value.First().ToLower() != "false")
                         {
-                            RuntimeData.isHelp = (argument.Value.Length > 0);
+                            RuntimeData.isHelp = (argument.Value.First().Length > 0);
                         }
                         break;
                     default:
@@ -186,9 +203,13 @@ namespace Spartacus.Spartacus.CommandLine
             }
 
             // For debug.
-            foreach (KeyValuePair<string, string> argument in arguments)
+            foreach (KeyValuePair<string, List<string>> argument in arguments)
             {
-                Logger.Debug(String.Format("Command Line (raw): {0} = {1}", argument.Key, argument.Value));
+                foreach (string v in argument.Value)
+                {
+                    Logger.Debug(String.Format("Command Line (raw): {0} = {1}", argument.Key, v));
+                }
+                
             }
 
             // If --help has been passed, there's no reason to validate arguments.

@@ -18,6 +18,18 @@ namespace Spartacus.Modes.PROXY
     {
         public override void Run()
         {
+            foreach (string dllFile in RuntimeData.BatchDLLFiles)
+            {
+                string solutionPath = RuntimeData.BatchDLLFiles.Count == 1 ? RuntimeData.Solution : Path.Combine(RuntimeData.Solution, Path.GetFileNameWithoutExtension(dllFile));
+                if (!ProcessSingleDLL(dllFile, solutionPath))
+                {
+                    Logger.Error("Could not generate proxy DLL for: " + dllFile);
+                }
+            }
+        }
+
+        protected bool ProcessSingleDLL(string dllFile, string solutionPath)
+        {
             /**
              *  Steps
              *  -----
@@ -37,44 +49,46 @@ namespace Spartacus.Modes.PROXY
              */
 
             Logger.Info("Extracting DLL export functions...");
-            List<FileExport> exportedFunctions = Helper.GetExportFunctions(RuntimeData.DLLFile);
+            List<FileExport> exportedFunctions = Helper.GetExportFunctions(dllFile);
             if (exportedFunctions.Count == 0)
             {
-                Logger.Error("No export functions found in DLL: " + RuntimeData.DLLFile);
-                return;
+                Logger.Error("No export functions found in DLL: " + dllFile);
+                return false;
             }
             Logger.Verbose("Found " + exportedFunctions.Count + " functions");
 
             Dictionary<string, FunctionSignature> proxyFunctions = new();
             if (!String.IsNullOrEmpty(RuntimeData.GhidraHeadlessPath))
             {
-                proxyFunctions = GetFunctionDefinitions(exportedFunctions);
+                proxyFunctions = GetFunctionDefinitions(exportedFunctions, dllFile, solutionPath);
             }
 
             SolutionGenerator solutionGenerator = new();
             try
             {
-                if (!solutionGenerator.Create(RuntimeData.Solution, RuntimeData.DLLFile, exportedFunctions, proxyFunctions))
+                if (!solutionGenerator.Create(solutionPath, dllFile, exportedFunctions, proxyFunctions))
                 {
                     Logger.Error("Could not generate solution");
-                    return;
+                    return false;
                 }
             }
             catch (Exception e)
             {
                 Logger.Error(e.Message);
-                return;
+                return false;
             }
 
-            Logger.Success("Target solution created at: " + RuntimeData.Solution);
+            Logger.Success("Target solution created at: " + solutionPath);
+
+            return true;
         }
 
-        private Dictionary<string, FunctionSignature> GetFunctionDefinitions(List<FileExport> exportedFunctions)
+        private Dictionary<string, FunctionSignature> GetFunctionDefinitions(List<FileExport> exportedFunctions, string dllFile, string solutionPath)
         {
             Dictionary<string, FunctionSignature> functionDefinitions = new();
 
             // First we ran Ghidra to get the function definitions.
-            string ghidraOutput = GetGhidraOutput();
+            string ghidraOutput = GetGhidraOutput(dllFile, solutionPath);
             if (String.IsNullOrEmpty(ghidraOutput))
             {
                 // This will be an empty set.
@@ -97,7 +111,7 @@ namespace Spartacus.Modes.PROXY
             return functionDefinitions;
         }
 
-        private string GetGhidraOutput()
+        private string GetGhidraOutput(string dllFile, string solutionPath)
         {
             // Create a temporary folder where the Ghidra project will be created into, and where the post-scripts will live.
             string ghidraParentFolder = Path.GetTempPath() + "Spartacus-" + Guid.NewGuid().ToString();
@@ -107,7 +121,7 @@ namespace Spartacus.Modes.PROXY
             string ghidraScriptIniOutput = Path.Combine(ghidraScriptsPath, "ExportedFunctions.ini");
 
             Logger.Info("Creating Ghidra/Output directories...");
-            if (!PrepareRuntimeDirectoriesAndFiles(ghidraProjectPath, ghidraScriptsPath, RuntimeData.Solution, ghidraScriptIniOutput, ghidraScriptFile))
+            if (!PrepareRuntimeDirectoriesAndFiles(ghidraProjectPath, ghidraScriptsPath, solutionPath, ghidraScriptIniOutput, ghidraScriptFile))
             {
                 Logger.Error("Could not prepare runtime directories and files");
                 return "";
@@ -115,11 +129,11 @@ namespace Spartacus.Modes.PROXY
             Logger.Verbose("Ghidra project path will be: " + ghidraProjectPath);
             Logger.Verbose("Ghidra scripts path will be: " + ghidraScriptsPath);
             Logger.Verbose("Ghidra post-script file will be: " + ghidraScriptFile);
-            Logger.Verbose("Output path will be: " + RuntimeData.Solution);
+            Logger.Verbose("Output path will be: " + solutionPath);
 
             // Run analyzeHeadless.bat (Ghidra) and get the output ini file. If no file is created, abort.
             Logger.Info("Running Ghidra...");
-            ExecuteGhidra(RuntimeData.GhidraHeadlessPath, ghidraProjectPath, ghidraScriptsPath, RuntimeData.DLLFile);
+            ExecuteGhidra(RuntimeData.GhidraHeadlessPath, ghidraProjectPath, ghidraScriptsPath, dllFile);
 
             if (!File.Exists(ghidraScriptIniOutput))
             {
@@ -336,14 +350,19 @@ namespace Spartacus.Modes.PROXY
 
         public override void SanitiseAndValidateRuntimeData()
         {
-            // Check for the DLL file to proxy.
-            if (String.IsNullOrEmpty(RuntimeData.DLLFile))
+            if (RuntimeData.BatchDLLFiles.Count == 0)
             {
                 throw new Exception("--dll is missing");
             }
-            else if (!File.Exists(RuntimeData.DLLFile))
+            else
             {
-                throw new Exception("--dll file does not exist: " + RuntimeData.DLLFile);
+                foreach (string dllFile in RuntimeData.BatchDLLFiles)
+                {
+                    if (!File.Exists (dllFile))
+                    {
+                        throw new Exception("--dll file does not exist: " + dllFile);
+                    }
+                }
             }
 
             // Check for the output solution that will be created.
