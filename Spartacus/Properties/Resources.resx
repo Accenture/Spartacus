@@ -206,8 +206,7 @@ This mode does not support any additional options.</value>
                         This file will include only the DLLs that were marked as NAME_NOT_FOUND,
                         PATH_NOT_FOUND, and were in user-writable locations (it excludes anything
                         in the Windows and Program Files directories)
---exports               Location (folder) in which all the proxy DLL files will be saved.
-                        Proxy DLL files will only be generated if this argument is used.
+--solution              Path to the directory where the solutions for the proxy DLLs will be stored.
 --existing              Switch to indicate that Spartacus should process an existing ProcMon event
                         log file (PML). To indicate the event log file use --pml, useful when you
                         have been running ProcMon for hours or used it in Boot Logging.
@@ -216,13 +215,13 @@ This mode does not support any additional options.</value>
 
 Examples:
 
-Collect all events and save them into C:\Data\logs.pml. All vulnerable DLLs will be saved as C:\Data\VulnerableDLLFiles.csv and all proxy DLLs in C:\Data\DLLExports.
+Collect all events and save them into C:\Data\logs.pml. All vulnerable DLLs will be saved as C:\Data\VulnerableDLLFiles.csv and all proxy DLLs solutions in C:\Data\Solutions.
 
-    --mode dll --procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --exports C:\Data\DLLExports --verbose
+    --mode dll --procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --solution C:\Data\Solutions --verbose
 
 Parse an existing PML event log output, save output to CSV, and generate proxy DLLs.
 
-    --mode dll --existing --pml C:\MyData\SomeBackup.pml --csv C:\Data\VulnerableDLLFiles.csv --exports C:\Data\DLLExports --verbose</value>
+    --mode dll --existing --pml C:\MyData\SomeBackup.pml --csv C:\Data\VulnerableDLLFiles.csv --solution C:\Data\Solutions --verbose</value>
   </data>
   <data name="help\main.txt" xml:space="preserve">
     <value>Usage: Spartacus.exe --mode [dll|proxy|com|detect] [--help] [OPTIONS]
@@ -247,7 +246,7 @@ Global Options
     <value>Usage: Spartacus.exe --mode proxy [--help] [OPTIONS]
 
 --ghidra                Path to Ghidra's 'analyzeHeadless.bat' file.
---dll                   Path to the DLL you want to proxy.
+--dll                   Path to the DLL you want to proxy, and can include multiple instances of this argument.
 --solution              Path to the directory where the solution of the proxy will be stored.
 --overwrite             If the --solution path already exists, use this flag to overwrite it.
 --only                  Generate proxy functions only for functions defined in this variable.
@@ -632,33 +631,5 @@ powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem 
 #endif
 #endif
 </value>
-  </data>
-  <data name="TemplateProxyDLL.cpp" xml:space="preserve">
-    <value>#pragma once
-
-%_PRAGMA_COMMENTS_%
-
-#include &lt;windows.h&gt;
-
-VOID Payload() {
-    // Run your payload here.
-}
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-    switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-        Payload();
-        break;
-    case DLL_THREAD_ATTACH:
-        break;
-    case DLL_THREAD_DETACH:
-        break;
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}</value>
   </data>
 </root>

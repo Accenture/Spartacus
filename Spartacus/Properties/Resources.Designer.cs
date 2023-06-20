@@ -143,11 +143,10 @@ namespace Spartacus.Properties {
         ///   Looks up a localized string similar to Usage: Spartacus.exe --mode proxy [--help] [OPTIONS]
         ///
         ///--ghidra                Path to Ghidra&apos;s &apos;analyzeHeadless.bat&apos; file.
-        ///--dll                   Path to the DLL you want to proxy.
+        ///--dll                   Path to the DLL you want to proxy, and can include multiple instances of this argument.
         ///--solution              Path to the directory where the solution of the proxy will be stored.
         ///--overwrite             If the --solution path already exists, use this flag to overwrite it.
-        ///--only                  Generate proxy functions only for functions defined in this variable.
-        ///                        Values are comma  [rest of string was truncated]&quot;;.
+        ///--only                  Generate proxy functions only for functions defined in this [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string help_proxy_txt {
             get {

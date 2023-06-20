@@ -48,14 +48,19 @@ namespace Spartacus.Modes.PROXY
              *  
              */
 
-            Logger.Info("Extracting DLL export functions...");
+            Logger.Verbose("Extracting DLL export functions from: " + dllFile);
             List<FileExport> exportedFunctions = Helper.GetExportFunctions(dllFile);
             if (exportedFunctions.Count == 0)
             {
-                Logger.Error("No export functions found in DLL: " + dllFile);
+                Logger.Warning("No export functions found in DLL: " + dllFile);
                 return false;
             }
             Logger.Verbose("Found " + exportedFunctions.Count + " functions");
+            
+            foreach (var item in exportedFunctions)
+            {
+                Logger.Debug(item.Name);
+            }
 
             Dictionary<string, FunctionSignature> proxyFunctions = new();
             if (!String.IsNullOrEmpty(RuntimeData.GhidraHeadlessPath))
@@ -98,7 +103,7 @@ namespace Spartacus.Modes.PROXY
             Logger.Info("Loading function definitions");
             List<FunctionSignature> loadedFunctions = LoadDllFunctionDefinitions(ghidraOutput);
 
-            Logger.Info("Matching exported functions with loaded function definitions");
+            Logger.Verbose("Matching exported functions with loaded function definitions");
             functionDefinitions = GetProxyFunctions(exportedFunctions, loadedFunctions, RuntimeData.FunctionsToProxy);
 
             if (functionDefinitions.Count == 0)
@@ -147,13 +152,13 @@ namespace Spartacus.Modes.PROXY
 
             // And cleanup.
             Logger.Info("Cleaning up...");
-            Logger.Info("Deleting Ghidra project path - " + ghidraProjectPath);
+            Logger.Verbose("Deleting Ghidra project path - " + ghidraProjectPath);
             if (!Helper.DeleteTargetDirectory(ghidraProjectPath))
             {
                 Logger.Warning("Could not clean up path: " + ghidraProjectPath);
             }
 
-            Logger.Info("Deleting Ghidra scripts path - " + ghidraScriptsPath);
+            Logger.Verbose("Deleting Ghidra scripts path - " + ghidraScriptsPath);
             if (!Helper.DeleteTargetDirectory(ghidraScriptsPath))
             {
                 Logger.Warning("Could not clean up path: " + ghidraScriptsPath);
@@ -247,8 +252,8 @@ namespace Spartacus.Modes.PROXY
             p.StartInfo.FileName = headlessAnalyserPath;
             p.StartInfo.Arguments = $"\"{projectPath}\" SpartacusProject -import \"{dllPath}\" -scriptPath \"{scriptPath}\" -postScript ExportFunctionDefinitionsINI.java -deleteProject";
 
-            Logger.Verbose("Executing " + p.StartInfo.FileName);
-            Logger.Verbose("Command Line: " + p.StartInfo.Arguments);
+            Logger.Debug("Executing " + p.StartInfo.FileName);
+            Logger.Debug("Command Line: " + p.StartInfo.Arguments);
 
             p.Start();
 
@@ -284,7 +289,7 @@ namespace Spartacus.Modes.PROXY
             }
 
             // Get the Ghidra post-script that will export all the function definitions.
-            Logger.Info("Creating Ghidra postScript...");
+            Logger.Verbose("Creating Ghidra postScript...");
             string ghidraScriptContents = Helper.GetResource("ExportFunctionDefinitionsINI.java")
                 .Replace("%EXPORT_TO%", ghidraScriptIniOutput.Replace("\\", "\\\\"));
 

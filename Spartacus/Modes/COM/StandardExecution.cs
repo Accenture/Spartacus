@@ -30,7 +30,7 @@ namespace Spartacus.Modes.COM
             Logger.Info("Reading events file...");
             ProcMonPML log = new(RuntimeData.PMLFile);
 
-            Logger.Info("Found " + String.Format("{0:N0}", log.TotalEvents()) + " events...");
+            Logger.Verbose("Found " + String.Format("{0:N0}", log.TotalEvents()) + " events...");
 
             // Find all events of interest, like DLLs that weren't loaded etc.
             Stopwatch watch = Stopwatch.StartNew();
@@ -76,13 +76,13 @@ namespace Spartacus.Modes.COM
                 File.Delete(RuntimeData.PMLFile);
             }
 
-            Logger.Info("Getting PMC file...");
+            Logger.Verbose("Getting PMC file...");
             RuntimeData.PMCFile = procMon.CreateConfigForCOM(RuntimeData.PMCFile, RuntimeData.InjectBackingFileIntoConfig, RuntimeData.PMLFile);
 
             Logger.Info("Starting ProcessMonitor...");
             procMon.Start(RuntimeData.PMCFile);
 
-            Logger.Info("Process Monitor has started...");
+            Logger.Verbose("Process Monitor has started...");
 
             Logger.Warning("Press ENTER when you want to terminate Process Monitor and parse its output...", false, true);
             Console.ReadLine();
@@ -159,7 +159,7 @@ namespace Spartacus.Modes.COM
             Logger.Info("Saving to CSV...");
             using (StreamWriter stream = File.CreateText(RuntimeData.CSVFile))
             {
-                stream.WriteLine(string.Format("Process, Image Path, Affected Path, Integrity, Command Line"));
+                stream.WriteLine(string.Format("Process,Image Path,Affected Path,Integrity,Command Line"));
                 foreach (KeyValuePair<string, PMLEvent> item in events)
                 {
                     stream.WriteLine(

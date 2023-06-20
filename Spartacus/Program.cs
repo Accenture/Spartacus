@@ -27,7 +27,7 @@ namespace Spartacus
             {
                 if (args.Length == 0)
                 {
-                    helper.ShowHelp();
+                    Logger.Info(helper.GetHelp(), true, false);
 #if DEBUG
                     Console.ReadLine();
 #endif
@@ -39,7 +39,7 @@ namespace Spartacus
 
                 if (RuntimeData.isHelp)
                 {
-                    helper.ShowHelp();
+                    Logger.Info(helper.GetHelp(), true, false);
 #if DEBUG
                     Console.ReadLine();
 #endif
@@ -58,7 +58,7 @@ namespace Spartacus
             // Now that we have a loaded mode object, execute it.
             try
             {
-                Logger.Verbose($"Running {RuntimeData.Mode} mode...");
+                Logger.Info($"Running {RuntimeData.Mode} mode...");
                 RuntimeData.ModeObject.Run();
             }
             catch (Exception e)

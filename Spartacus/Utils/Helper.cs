@@ -158,7 +158,7 @@ namespace Spartacus.Utils
             return exports;
         }
 
-        public void ShowHelp()
+        public string GetHelp()
         {
             string helpText = RuntimeData.Mode switch
             {
@@ -169,7 +169,7 @@ namespace Spartacus.Utils
                 _ => @"help\main.txt"
             };
 
-            Logger.Info(GetResource(helpText, false), true, false);
+            return GetResource(helpText, true);
         }
     }
 }

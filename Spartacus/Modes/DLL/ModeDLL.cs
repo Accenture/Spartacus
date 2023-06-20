@@ -31,7 +31,7 @@ namespace Spartacus.Modes.DLL
             Logger.Info("Reading events file...");
             ProcMonPML log = new(RuntimeData.PMLFile);
 
-            Logger.Info("Found " + String.Format("{0:N0}", log.TotalEvents()) + " events...");
+            Logger.Verbose("Found " + String.Format("{0:N0}", log.TotalEvents()) + " events...");
 
             // Find all events of interest, like DLLs that weren't loaded etc.
             Stopwatch watch = Stopwatch.StartNew();
@@ -73,6 +73,7 @@ namespace Spartacus.Modes.DLL
         protected void CreateSolutionsForDLLs(Dictionary<string, PMLEvent> events)
         {
             // First we collect which files we need to proxy.
+            Logger.Verbose("Identifying files to generate solutions for...");
             Dictionary<string, string> filesToProxy = new();
             foreach (KeyValuePair<string, PMLEvent> e in events)
             {
@@ -82,12 +83,13 @@ namespace Spartacus.Modes.DLL
                     continue;
                 }
 
+                Logger.Debug("File to proxy: " + e.Value.FoundPath);
                 filesToProxy.Add(dllFilename, e.Value.FoundPath);
             }
 
             // Now we create the proxies.
             ModeProxy proxyMode = new();
-            foreach (KeyValuePair<string, string> file in filesToProxy)
+            foreach (KeyValuePair<string, string> file in filesToProxy.OrderBy(x => x.Key))
             {
                 Logger.Info("Processing " + file.Key, false, true);
                 string solution = Path.Combine(RuntimeData.Solution, Path.GetFileNameWithoutExtension(file.Value));
@@ -98,6 +100,10 @@ namespace Spartacus.Modes.DLL
                     File.Create(Path.Combine(solution, file.Key + "-file-not-found")).Dispose();
                     Logger.Warning(" - No DLL Found", true, false);
                     continue;
+                }
+                else
+                {
+                    Logger.Info(" - Found", true, false);
                 }
 
                 if (!proxyMode.ProcessSingleDLL(dllFile, solution))
@@ -125,13 +131,13 @@ namespace Spartacus.Modes.DLL
                 File.Delete(RuntimeData.PMLFile);
             }
 
-            Logger.Info("Getting PMC file...");
+            Logger.Verbose("Getting PMC file...");
             RuntimeData.PMCFile = procMon.CreateConfigForDLL(RuntimeData.PMCFile, RuntimeData.InjectBackingFileIntoConfig, RuntimeData.PMLFile);
 
             Logger.Info("Starting ProcessMonitor...");
             procMon.Start(RuntimeData.PMCFile);
 
-            Logger.Info("Process Monitor has started...");
+            Logger.Verbose("Process Monitor has started...");
 
             Logger.Warning("Press ENTER when you want to terminate Process Monitor and parse its output...", false, true);
             Console.ReadLine();
@@ -191,6 +197,7 @@ namespace Spartacus.Modes.DLL
             {
                 throw new Exception("--pml does not exist: " +  RuntimeData.PMLFile);
             }
+            Logger.Debug("--pml is " + RuntimeData.PMLFile);
         }
 
         protected void SanitiseNewLogProcessing()
@@ -216,7 +223,6 @@ namespace Spartacus.Modes.DLL
                 }
                 else if (File.Exists(RuntimeData.PMLFile))
                 {
-                    // Just a debug statement.
                     Logger.Debug("--pml exists and will be overwritten");
                 }
             }

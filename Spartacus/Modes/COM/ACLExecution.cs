@@ -48,14 +48,15 @@ namespace Spartacus.Modes.COM
             
             Logger.Info("Searching HKEY_CLASSES_ROOT...");
             SearchRegistry(Registry.ClassesRoot);
-            Logger.Info("Total keys found: " + Findings.Count);
+            Logger.Verbose("Total keys found: " + Findings.Count);
 
             Logger.Info("Searching HKEY_CURRENT_USER...");
             SearchRegistry(Registry.CurrentUser);
-            Logger.Info("Total keys found: " + Findings.Count);
+            Logger.Verbose("Total keys found: " + Findings.Count);
 
             Logger.Info("Searching HKEY_LOCAL_MACHINE...");
             SearchRegistry(Registry.LocalMachine);
+            
             Logger.Info("Total keys found: " + Findings.Count);
 
             // Save output to CSV.

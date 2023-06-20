@@ -92,7 +92,7 @@ namespace Spartacus.Modes.PROXY
 
         private bool GenerateProjectFile(string solutionDirectory, string resourceName, string saveAsFilename, Dictionary<string, string> variables, bool writeAsUnicode)
         {
-            Logger.Info($"Generating {saveAsFilename}");
+            Logger.Verbose($"Generating {saveAsFilename}");
             string contents = Helper.GetResource(resourceName);
 
             foreach (KeyValuePair<string, string> variable in variables)
@@ -100,7 +100,7 @@ namespace Spartacus.Modes.PROXY
                 contents = contents.Replace(variable.Key, variable.Value);
             }
 
-            Logger.Info($"Saving {saveAsFilename}");
+            Logger.Debug($"Saving {saveAsFilename}");
             string saveAs = Path.Combine(solutionDirectory, saveAsFilename);
 
             if (writeAsUnicode)
@@ -173,7 +173,7 @@ namespace Spartacus.Modes.PROXY
 
         private bool GenerateDefinitionsFile(string solutionDirectory, string saveAsFilename, string dllName, Dictionary<string, FunctionSignature> proxyFunctions)
         {
-            Logger.Info($"Generating {saveAsFilename}");
+            Logger.Verbose($"Generating {saveAsFilename}");
 
             List<string> lines = new()
             {
@@ -191,7 +191,7 @@ namespace Spartacus.Modes.PROXY
             }
             string contents = String.Join("\r\n", lines.ToArray());
 
-            Logger.Info($"Saving {saveAsFilename}");
+            Logger.Debug($"Saving {saveAsFilename}");
             string saveAs = Path.Combine(solutionDirectory, saveAsFilename);
 
             File.WriteAllText(saveAs, contents);
@@ -233,7 +233,7 @@ namespace Spartacus.Modes.PROXY
                 .Replace("%_REAL_DLL_%", dllPath.Replace("\\", "\\\\"));
 
 
-            Logger.Info($"Saving {saveAsFilename}");
+            Logger.Debug($"Saving {saveAsFilename}");
             string saveAs = Path.Combine(solutionDirectory, saveAsFilename);
 
             File.WriteAllText(saveAs, contents);
