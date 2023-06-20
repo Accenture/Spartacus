@@ -1,5 +1,6 @@
 ﻿using Spartacus.ProcMon;
 using Spartacus.Spartacus.CommandLine;
+using Spartacus.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +14,8 @@ namespace Spartacus.Modes.COM
 {
     class StandardExecution
     {
+        Helper Helper = new();
+
         public void Run()
         {
             if (!RuntimeData.IsExistingLog)
@@ -57,6 +60,11 @@ namespace Spartacus.Modes.COM
 
         protected void GatherEvents()
         {
+            if (!Helper.UserACL.IsElevated())
+            {
+                Logger.Warning("Procmon execution requires elevated permissions - brace yourself for a UAC prompt.");
+            }
+
             ProcMonManager procMon = new(RuntimeData.ProcMonExecutable);
 
             Logger.Verbose("Making sure there are no ProcessMonitor instances...");

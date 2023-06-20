@@ -96,5 +96,10 @@ namespace Spartacus.Utils
             // This snippet was taken from https://stackoverflow.com/a/66487672
             return (_currentPrincipal.Claims.FirstOrDefault(c => c.Value == "S-1-5-32-544") != null);
         }
+
+        public bool IsElevated()
+        {
+            return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+        }
     }
 }

@@ -83,6 +83,11 @@ namespace Spartacus.Modes.DLL
 
         protected void GatherEvents()
         {
+            if (!Helper.UserACL.IsElevated())
+            {
+                Logger.Warning("Procmon execution requires elevated permissions - brace yourself for a UAC prompt.");
+            }
+
             ProcMonManager procMon = new(RuntimeData.ProcMonExecutable);
 
             Logger.Verbose("Making sure there are no ProcessMonitor instances...");
