@@ -40,8 +40,6 @@ namespace Spartacus.Spartacus.CommandLine
 
         public static bool All = false;
 
-        public static string ExportsDirectory = "";
-
         public static string Solution = "";
 
         public static string DLLFile = "";

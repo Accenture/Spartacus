@@ -36,7 +36,6 @@ namespace Spartacus.Spartacus.CommandLine
             { "solution", "" },
             { "ghidra", "" },
             { "only", "" },
-            { "exports", "" },
         };
 
         private Dictionary<string, List<string>> Arguments = new();
@@ -138,9 +137,6 @@ namespace Spartacus.Spartacus.CommandLine
                         break;
                     case "procmon":
                         RuntimeData.ProcMonExecutable = argument.Value.First();
-                        break;
-                    case "exports":
-                        RuntimeData.ExportsDirectory = argument.Value.First();
                         break;
                     case "existing":
                         if (argument.Value.First().ToLower() != "false")

@@ -28,7 +28,7 @@ namespace Spartacus.Modes.PROXY
             }
         }
 
-        protected bool ProcessSingleDLL(string dllFile, string solutionPath)
+        public bool ProcessSingleDLL(string dllFile, string solutionPath)
         {
             /**
              *  Steps

@@ -277,39 +277,5 @@ namespace Spartacus.Properties {
                 return ResourceManager.GetString("solution\\resource.h", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to #pragma once
-        ///
-        ///%_PRAGMA_COMMENTS_%
-        ///
-        ///#include &lt;windows.h&gt;
-        ///
-        ///VOID Payload() {
-        ///    // Run your payload here.
-        ///}
-        ///
-        ///BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-        ///{
-        ///    switch (fdwReason)
-        ///    {
-        ///    case DLL_PROCESS_ATTACH:
-        ///        Payload();
-        ///        break;
-        ///    case DLL_THREAD_ATTACH:
-        ///        break;
-        ///    case DLL_THREAD_DETACH:
-        ///        break;
-        ///    case DLL_PROCESS_DETACH:
-        ///        break;
-        ///    }
-        ///    return TRUE;
-        ///}.
-        /// </summary>
-        internal static string TemplateProxyDLL_cpp {
-            get {
-                return ResourceManager.GetString("TemplateProxyDLL.cpp", resourceCulture);
-            }
-        }
     }
 }

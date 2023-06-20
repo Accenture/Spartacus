@@ -1,4 +1,5 @@
-﻿using Spartacus.ProcMon;
+﻿using Spartacus.Modes.PROXY;
+using Spartacus.ProcMon;
 using Spartacus.Properties;
 using Spartacus.Spartacus;
 using Spartacus.Spartacus.CommandLine;
@@ -62,22 +63,47 @@ namespace Spartacus.Modes.DLL
                 }
             } while (true);
 
-            // Export functions.
-            if (!String.IsNullOrEmpty(RuntimeData.ExportsDirectory) && Directory.Exists(RuntimeData.ExportsDirectory))
+            // Create solutions for identified DLLs.
+            if (!String.IsNullOrEmpty(RuntimeData.Solution) && Directory.Exists(RuntimeData.Solution))
             {
-                Dictionary<string, string> filesToProxy = new();
-                foreach (KeyValuePair<string, PMLEvent> e in events)
-                {
-                    string dllFilename = Path.GetFileName(e.Value.Path).ToLower();
-                    if (filesToProxy.ContainsKey(dllFilename))
-                    {
-                        continue;
-                    }
+                CreateSolutionsForDLLs(events);
+            }
+        }
 
-                    filesToProxy.Add(dllFilename, e.Value.FoundPath);
+        protected void CreateSolutionsForDLLs(Dictionary<string, PMLEvent> events)
+        {
+            // First we collect which files we need to proxy.
+            Dictionary<string, string> filesToProxy = new();
+            foreach (KeyValuePair<string, PMLEvent> e in events)
+            {
+                string dllFilename = Path.GetFileName(e.Value.Path).ToLower();
+                if (String.IsNullOrEmpty(dllFilename) || filesToProxy.ContainsKey(dllFilename))
+                {
+                    continue;
                 }
 
-                Helper.ExportDLLExports(filesToProxy, RuntimeData.ExportsDirectory, Helper.GetResource("TemplateProxyDLL.cpp"));
+                filesToProxy.Add(dllFilename, e.Value.FoundPath);
+            }
+
+            // Now we create the proxies.
+            ModeProxy proxyMode = new();
+            foreach (KeyValuePair<string, string> file in filesToProxy)
+            {
+                Logger.Info("Processing " + file.Key, false, true);
+                string solution = Path.Combine(RuntimeData.Solution, Path.GetFileNameWithoutExtension(file.Value));
+                string dllFile = Helper.LookForFileIfNeeded(file.Value);
+
+                if (String.IsNullOrEmpty(file.Value) || String.IsNullOrEmpty(dllFile) || !File.Exists(dllFile))
+                {
+                    File.Create(Path.Combine(solution, file.Key + "-file-not-found")).Dispose();
+                    Logger.Warning(" - No DLL Found", true, false);
+                    continue;
+                }
+
+                if (!proxyMode.ProcessSingleDLL(dllFile, solution))
+                {
+                    Logger.Error("Could not generate proxy DLL for: " + dllFile);
+                }
             }
         }
 
@@ -135,20 +161,22 @@ namespace Spartacus.Modes.DLL
                 Logger.Debug("--csv exists and will be overwritten");
             }
 
-            // Exports folder.
-            if (String.IsNullOrEmpty(RuntimeData.ExportsDirectory))
+            // Solution folder.
+            if (String.IsNullOrEmpty(RuntimeData.Solution))
             {
-                Logger.Debug("--exports is missing, will skip DLL proxy generation");
+                Logger.Debug("--solution is missing, will skip DLL proxy generation");
             }
-            else if (Directory.Exists(RuntimeData.ExportsDirectory))
+            else if (Directory.Exists(RuntimeData.Solution))
             {
-                Logger.Debug("--exports directory already exists");
+                Logger.Debug("--solution directory already exists");
             }
             else
             {
-                Logger.Debug("--exports directory does not exist - creating now");
-                // If this goes wrong, it will throw an exception.
-                Directory.CreateDirectory(RuntimeData.ExportsDirectory);
+                Logger.Debug("--solution directory does not exist - creating now");
+                if (!Helper.CreateTargetDirectory(RuntimeData.Solution))
+                {
+                    throw new Exception("Could not create --solution directory: " + RuntimeData.Solution);
+                }
             }
         }
 
