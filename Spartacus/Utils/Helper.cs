@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Spartacus.Spartacus.PEFileExports;
 
@@ -170,6 +171,13 @@ namespace Spartacus.Utils
             };
 
             return GetResource(helpText, true);
+        }
+
+        public string ExtractGUIDFromString(string text)
+        {
+            string pattern = @"([a-f0-9]{8}[-][a-f0-9]{4}[-][a-f0-9]{4}[-][a-f0-9]{4}[-][a-f0-9]{12})";
+            MatchCollection matches = Regex.Matches(text.ToLower(), pattern);
+            return matches.Count > 0 ? "{" + matches[0].ToString().ToUpper() + "}" : "";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Spartacus.ProcMon;
+﻿using Microsoft.Win32;
+using Spartacus.ProcMon;
 using Spartacus.Spartacus.CommandLine;
 using Spartacus.Utils;
 using System;
@@ -15,6 +16,18 @@ namespace Spartacus.Modes.COM
     class StandardExecution
     {
         Helper Helper = new();
+
+        public struct COMFinding
+        {
+            public string ProcessName;
+            public string ImagePath;
+            public string MissingRegistryPath;
+            public string Integrity;
+            public string CommandLine;
+            public string ExistingRegistryPath;
+            public string ExistingRegistryDescription;
+            public string ExistingRegistryCOM;
+        }
 
         public void Run()
         {
@@ -38,12 +51,15 @@ namespace Spartacus.Modes.COM
             watch.Stop();
             Logger.Debug(String.Format("FindEvents() took {0:N0}ms", watch.ElapsedMilliseconds));
 
+            Logger.Verbose("Identifying existing COM entries...");
+            Dictionary<string, COMFinding> findings = MapRegistryEvents(events);
+
             // Save output to CSV.
             do
             {
                 try
                 {
-                    ExportToCSV(events);
+                    ExportToCSV(findings);
                     break;  // Saved successfully.
                 }
                 catch (Exception e)
@@ -154,23 +170,72 @@ namespace Spartacus.Modes.COM
             return events;
         }
 
-        protected void ExportToCSV(Dictionary<string, PMLEvent> events)
+        protected Dictionary<string, COMFinding> MapRegistryEvents(Dictionary<string, PMLEvent> events)
+        {
+            Dictionary<string, COMFinding> findings = new();
+
+            foreach (KeyValuePair<string, PMLEvent> item in events) {
+                string guid = Helper.ExtractGUIDFromString(item.Key);
+                if (String.IsNullOrEmpty(guid))
+                {
+                    continue;
+                }
+                else if (findings.ContainsKey(guid))
+                {
+                    continue;
+                }
+
+                COMFinding finding = new()
+                {
+                    ProcessName = item.Value.Process.ProcessName,
+                    ImagePath = item.Value.Process.ImagePath,
+                    MissingRegistryPath = item.Value.Path,
+                    Integrity = item.Value.Process.Integrity,
+                    CommandLine = item.Value.Process.CommandLine
+                };
+
+                try
+                {
+                    RegistryKey CLSID = Registry.ClassesRoot.OpenSubKey(@$"CLSID\{guid}", false);
+                    if (CLSID != null)
+                    {
+                        finding.ExistingRegistryPath = CLSID.Name;
+                        finding.ExistingRegistryDescription = CLSID.GetValue("")?.ToString();
+                        finding.ExistingRegistryCOM = CLSID.OpenSubKey("InProcServer32")?.GetValue("")?.ToString();
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Probably missing keys.
+                }
+
+                findings.Add(guid, finding);
+            }
+
+            return findings;
+        }
+
+        protected void ExportToCSV(Dictionary<string, COMFinding> findings)
         {
             Logger.Info("Saving to CSV...");
             using (StreamWriter stream = File.CreateText(RuntimeData.CSVFile))
             {
-                stream.WriteLine(string.Format("Process,Image Path,Affected Path,Integrity,Command Line"));
-                foreach (KeyValuePair<string, PMLEvent> item in events)
+                stream.WriteLine(string.Format("Process,Image Path,Missing Registry Path,Integrity,Command Line,Existing CLSID Path,Existing CLSID Description,Existing CLSID File"));
+                foreach (KeyValuePair<string, COMFinding> item in findings)
                 {
                     stream.WriteLine(
                         string.Format(
-                            "\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\"",
-                            item.Value.Process.ProcessName,
-                            item.Value.Process.ImagePath,
-                            item.Value.Path,
-                            item.Value.Process.Integrity,
-                            item.Value.Process.CommandLine.Replace("\"", "\"\""))
-                        );
+                            "\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\"",
+                            !String.IsNullOrEmpty(item.Value.ProcessName) ? item.Value.ProcessName : "",
+                            !String.IsNullOrEmpty(item.Value.ImagePath) ? item.Value.ImagePath : "",
+                            !String.IsNullOrEmpty(item.Value.MissingRegistryPath) ? item.Value.MissingRegistryPath : "",
+                            !String.IsNullOrEmpty(item.Value.Integrity) ? item.Value.Integrity : "",
+                            !String.IsNullOrEmpty(item.Value.CommandLine) ? item.Value.CommandLine.Replace("\"", "\"\"") : "",
+                            !String.IsNullOrEmpty(item.Value.ExistingRegistryPath) ? item.Value.ExistingRegistryPath : "",
+                            !String.IsNullOrEmpty(item.Value.ExistingRegistryDescription) ? item.Value.ExistingRegistryDescription.Replace("\"", "\"\"") : "",
+                            !String.IsNullOrEmpty(item.Value.ExistingRegistryCOM) ? item.Value.ExistingRegistryCOM.Replace("\"", "\"\"") : ""
+                        )
+                    );
                 }
             }
         }
