@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Spartacus")]
-[assembly: AssemblyDescription("DLL Hijacking Discovery")]
+[assembly: AssemblyDescription("DLL/COM Hijacking Discovery")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Accenture Security")]
 [assembly: AssemblyProduct("Spartacus")]
