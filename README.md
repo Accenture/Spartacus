@@ -214,3 +214,4 @@ Whether it's a typo, a bug, or a new feature, Spartacus is very open to contribu
 * https://github.com/eronnen/procmon-parser/
 * https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain
 * https://stmxcsr.com/persistence/com-hijacking.html
+* Icon for Spartacus is from [Helmet icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/helmet) | https://dariusdan.com/
