@@ -164,7 +164,7 @@ public class ExportFunctionDefinitionsINI extends GhidraScript {
 
 --procmon               Location (file) of the SysInternals Process Monitor procmon.exe or procmon64.exe
 --pml                   Location (file) to store the ProcMon event log file. If the file exists,
-                        it will be overwritten. When used with --existing-log it will indicate
+                        it will be overwritten. When used with --existing it will indicate
                         the event log file to read from and will not be overwritten.
 --pmc                   Define a custom ProcMon (PMC) file to use. This file will not be modified
                         and will be used as is.
@@ -198,14 +198,11 @@ This mode does not support any additional options.</value>
 
 --procmon               Location (file) of the SysInternals Process Monitor procmon.exe or procmon64.exe
 --pml                   Location (file) to store the ProcMon event log file. If the file exists,
-                        it will be overwritten. When used with --existing-log it will indicate
+                        it will be overwritten. When used with --existing it will indicate
                         the event log file to read from and will not be overwritten.
 --pmc                   Define a custom ProcMon (PMC) file to use. This file will not be modified
                         and will be used as is.
 --csv                   Location (file) to store the CSV output of the execution.
-                        This file will include only the DLLs that were marked as NAME_NOT_FOUND,
-                        PATH_NOT_FOUND, and were in user-writable locations (it excludes anything
-                        in the Windows and Program Files directories)
 --solution              Path to the directory where the solutions for the proxy DLLs will be stored.
 --existing              Switch to indicate that Spartacus should process an existing ProcMon event
                         log file (PML). To indicate the event log file use --pml, useful when you

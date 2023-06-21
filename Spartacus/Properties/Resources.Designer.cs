@@ -85,9 +85,9 @@ namespace Spartacus.Properties {
         ///
         ///--procmon               Location (file) of the SysInternals Process Monitor procmon.exe or procmon64.exe
         ///--pml                   Location (file) to store the ProcMon event log file. If the file exists,
-        ///                        it will be overwritten. When used with --existing-log it will indicate
+        ///                        it will be overwritten. When used with --existing it will indicate
         ///                        the event log file to read from and will not be overwritten.
-        ///--pmc                   Define a custom ProcMon (PMC) file to use. This  [rest of string was truncated]&quot;;.
+        ///--pmc                   Define a custom ProcMon (PMC) file to use. This file [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string help_com_txt {
             get {
@@ -111,9 +111,9 @@ namespace Spartacus.Properties {
         ///
         ///--procmon               Location (file) of the SysInternals Process Monitor procmon.exe or procmon64.exe
         ///--pml                   Location (file) to store the ProcMon event log file. If the file exists,
-        ///                        it will be overwritten. When used with --existing-log it will indicate
+        ///                        it will be overwritten. When used with --existing it will indicate
         ///                        the event log file to read from and will not be overwritten.
-        ///--pmc                   Define a custom ProcMon (PMC) file to use. This  [rest of string was truncated]&quot;;.
+        ///--pmc                   Define a custom ProcMon (PMC) file to use. This file [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string help_dll_txt {
             get {

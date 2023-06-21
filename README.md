@@ -1,4 +1,4 @@
-# Spartacus DLL Hijacking ![version](https://img.shields.io/github/v/tag/Accenture/Spartacus?label=version&style=flat-square)
+# Spartacus DLL/COM Hijacking Toolkit ![version](https://img.shields.io/github/v/tag/Accenture/Spartacus?label=version&style=flat-square)
 
 ## Why "Spartacus"?
 
@@ -6,54 +6,43 @@ If you have seen the film Spartacus from 1960, you will remember the scene where
 
 When a process that is vulnerable to DLL Hijacking is asking for a DLL to be loaded, it's kind of asking "WHO IS VERSION.DLL?" and random directories start claiming "I AM VERSION.DLL" and "NO, I AM VERSION.DLL". And thus, Spartacus.
 
-## Did you really make yet another DLL Hijacking discovery tool?
+## How is this tool different to all the other hijacking tools out there?
 
-...but with a twist as Spartacus is utilising the [SysInternals Process Monitor](https://learn.microsoft.com/en-us/sysinternals/downloads/procmon) and is parsing raw PML log files. You can leave ProcMon running for hours and discover 2nd and 3rd level (ie an app that loads another DLL that loads yet another DLL when you use a specific feature of the parent app) DLL Hijacking vulnerabilities. It will also automatically generate proxy DLLs with all relevant exports for vulnerable DLLs.
-
-## Features
-
-* Parsing ProcMon PML files natively. The config (PMC) and log (PML) parsers have been implemented by porting partial functionality to C# from https://github.com/eronnen/procmon-parser/. You can find the format specification [here](https://github.com/eronnen/procmon-parser/tree/master/docs).
-* Spartacus will create proxy DLLs for all missing DLLs that were identified. For instance, if an application is vulnerable to DLL Hijacking via `version.dll`, Spartacus will create a `version.dll.cpp` file for you with all the exports included in it. Then you can insert your payload/execution technique and compile.
-* Able to process large PML files and store all DLLs of interest in an output CSV file. Local benchmark processed a 3GB file with 8 million events in 45 seconds.
+* Spartacus automates most of the process. It parses raw [SysInternals Process Monitor](https://learn.microsoft.com/en-us/sysinternals/downloads/procmon) logs, and you can leave ProcMon running for hours and discover 2nd and 3rd level DLL/COM hijacking vulnerabilities (ie an app that loads another DLL that loads yet another DLL when you use a specific feature of the parent app).
+* Automatically generate Visual Studio solutions for vulnerable DLLs.
+* Able to process large PML files and store all events of interest output into a CSV file. Local benchmark processed a 3GB file with 8 million events in 45 seconds.
+* Supports scanning for both DLL and COM hijacking vulnerabilities.
+* By utilising [Ghidra](https://github.com/NationalSecurityAgency/ghidra) functionality, extract export function signatures and execute your payload via individually proxied functions instead of running everything from `DllMain`. This technique was inspired and implemented from the walkthrough described at https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain, by [Shantanu Khandelwal](https://twitter.com/shantanukhande).
 * `[Defence]` Monitoring mode trying to identify running applications proxying calls, as in "DLL Hijacking in progress". This is just to get any low hanging fruit and should not be relied upon.
-* Able to create proxies for export functions in order to avoid using `DllMain`. This technique was inspired and implemented from the walkthrough described at https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain, by [Shantanu Khandelwal](https://twitter.com/shantanukhande). For this to work [Ghidra](https://github.com/NationalSecurityAgency/ghidra) is required.
 
 # Table of Contents
 
-* [Screenshots](#screenshots)
-    * [Spartacus Execution](#spartacus-execution)
-    * [CSV Output](#csv-output)
-    * [Exports](#output-exports)
-    * [Export DLL Functions](#export-dll-functions)
-* [Usage](#usage)
-    * [Execution Flow](#execution-flow)
-    * [Command Line Arguments](#command-line-arguments)
-    * [Examples](#examples)
-    * [Proxy DLL Template](#proxy-dll-template)
+* [Installation](#installation)
+* [Supported Functionality](#supported-functionality)
+    * [DLL Hijacking](#dll-hijacking)
+        * [Usage](#dll-hijacking-usage)
+    * [COM Hijacking](#com-hijacking)
+        * [Usage](#com-hijacking-usage)
+    * [DLL Proxy Generation](#dll-proxy-generation)
+        * [Usage](#dll-proxy-generation-usage)
+    * [DLL Hijacking Detection](#dll-hijacking-detection)
+* [Command Line Arguments](#command-line-arguments)
 * [Contributions](#contributions)
 * [Credits](#credits)
 
-# Screenshots
+# Installation
 
-## Spartacus Execution
+Find and download the latest version of Spartacus under [Releases](https://github.com/Accenture/Spartacus/releases). Otherwise simply clone this repository and build from source.
 
-![Running Spartacus](screenshots/runtime.png "Running Spartacus")
+# Supported Functionality
 
-## CSV Output
+Below is a description of each of the modes that Spartacus supports. 
 
-![CSV Output](screenshots/output.png "CSV Output")
+**Note**: Command line arguments have significantly changed from v1 to v2.
 
-## Output Exports
+## DLL Hijacking
 
-![Exports](screenshots/exports.png "Exports")
-
-## Export DLL Functions
-
-![DLL Functions](screenshots/exports-version.png "DLL Functions")
-
-# Usage
-
-## Execution Flow
+The original functionality of Spartacus was solely finding DLL hijacking vulnerabilities. The way it works is:
 
 1. Generate a ProcMon (PMC) config file on the fly, based on the arguments passed. The filters that will be set are:
     * Operation is `CreateFile`.
@@ -61,126 +50,159 @@ When a process that is vulnerable to DLL Hijacking is asking for a DLL to be loa
     * Process name is not `procmon.exe` or `procmon64.exe`.
     * Enable `Drop Filtered Events` to ensure minimum PML output size.
     * Disable `Auto Scroll`.
-2. Execute Process Monitor.
-3. Halt its execution until the user presses `ENTER`.
-4. Terminates Process Monitor.
+2. Execute Process Monitor and halt until the user presses `ENTER`.
+3. User runs/terminates processes, or leave it running for as long as they require.
+4. Terminates Process Monitor upon the user pressing `ENTER`.
 5. Parses the output Event Log (PML) file.
     1. Creates a CSV file with all the NAME_NOT_FOUND and PATH_NOT_FOUND DLLs.
     2. Compares the DLLs from above and tries to identify the DLLs that were actually loaded.
-    3. For every "found" DLL it generates a proxy DLL with all its export functions.
+    3. For every "found" DLL it generates a Visual Studio solution for proxying all of the identified DLL's export functions.
 
-## Command Line Arguments
+### DLL Hijacking Usage
 
-| Argument                  | Description |
-| ------------------------- | ----------- |
-| `--pml`                   | Location (file) to store the ProcMon event log file. If the file exists, it will be overwritten. When used with `--existing-log` it will indicate the event log file to read from and will not be overwritten. |
-| `--pmc`                   | Define a custom ProcMon (PMC) file to use. This file will not be modified and will be used as is. |
-| `--csv`                   | Location (file) to store the CSV output of the execution. This file will include only the DLLs that were marked as NAME_NOT_FOUND, PATH_NOT_FOUND, and were in user-writable locations (it excludes anything in the `Windows` and `Program Files` directories) |
-| `--exe`                   | Define process names (comma separated) that you want to track, helpful when you are interested only in a specific process. |
-| `--exports`               | Location (folder) in which all the proxy DLL files will be saved. Proxy DLL files will only be generated if this argument is used. |
-| `--procmon`               | Location (file) of the SysInternals Process Monitor `procmon.exe` or `procmon64.exe` |
-| `--proxy-dll-template`    | Define a DLL template to use for generating the proxy DLL files. Only relevant when `--exports` is used. All `#pragma` exports are inserted by replacing the `%_PRAGMA_COMMENTS_%` string, so make sure your template includes that string in the relevant location. |
-| `--existing-log`          | Switch to indicate that Spartacus should process an existing ProcMon event log file (PML). To indicate the event log file use `--pml`, useful when you have been running ProcMon for hours or used it in Boot Logging. |
-| `--all`                   | By default any DLLs in the Windows or Program Files directories will be skipped. Use this to include those directories in the output. |
-| `--detect`                | Try to identify DLLs that are proxying calls (like 'DLL Hijacking in progress'). This isn't a feature to be relied upon, it's there to get the low hanging fruit. |
-| `--verbose`               | Enable verbose output. |
-| `--debug`                 | Enable debug output. |
-| `--generate-proxy`        | Switch to indicate that Spartacus will be creating proxy functions for all identified export functions. |
-| `--ghidra`                | Used only with --generate-proxy. Absolute path to Ghidra's 'analyzeHeadless.bat' file. |
-| `--dll`                   | Used only with --generate-proxy. Absolute path to the DLL you want to proxy. |
-| `--output-dir`            | Used only with --generate-proxy. Absolute path to the directory where the solution of the proxy will be stored. This directory should not exist, and will be auto-created. |
-| `--only-proxy`            | Used only with --generate-proxy. Comma separated string to indicate functions to clone. Such as 'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA' |
-
-## Examples
-
-Collect all events and save them into `C:\Data\logs.pml`. All vulnerable DLLs will be saved as `C:\Data\VulnerableDLLFiles.csv` and all proxy DLLs in `C:\Data\DLLExports`.
+Collect all events and save them into `C:\Data\logs.pml`. All vulnerable DLLs will be saved as `C:\Data\VulnerableDLLFiles.csv` and all proxy DLLs solutions in `C:\Data\Solutions`.
 
 ```
---procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --exports C:\Data\DLLExports --verbose
+--mode dll --procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --solution C:\Data\Solutions --verbose
 ```
 
-Collect events only for `Teams.exe` and `OneDrive.exe`.
+Parse an existing PML event log output, save output to CSV, and generate proxy Visual Studio solutions.
 
 ```
---procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --exports C:\Data\DLLExports --verbose --exe "Teams.exe,OneDrive.exe"
+--mode dll --existing --pml C:\MyData\SomeBackup.pml --csv C:\Data\VulnerableDLLFiles.csv --solution C:\Data\Solutions --verbose
 ```
 
-Collect events only for `Teams.exe` and `OneDrive.exe`, and use a custom proxy DLL template at `C:\Data\myProxySkeleton.cpp`.
+### Screenshots
+
+![DLL Runtime](screenshots/runtime-dll.png "DLL Runtime")
+
+![CSV Output](screenshots/dll-output.png "CSV Output")
+
+## COM Hijacking
+
+A new functionality of Spartacus is to identify local COM hijacking vulnerabilities. The way it works is:
+
+1. Generate a ProcMon (PMC) config file on the fly, based on the arguments passed. The filters that will be set are:
+    * Operation is `RegOpenKey`.
+    * Process name is not `procmon.exe` or `procmon64.exe`.
+    * Enable `Drop Filtered Events` to ensure minimum PML output size.
+    * Disable `Auto Scroll`.
+2. Execute Process Monitor and halt until the user presses `ENTER`.
+3. User runs/terminates processes, or leave it running for as long as they require.
+4. Terminates Process Monitor upon the user pressing `ENTER`.
+5. Parses the output Event Log (PML) file.
+    1. Identifies all missing registry keys that end in `InprocServer32` and its result is `NAME_NOT_FOUND`.
+    2. If the identified key is under `HKEY_CURRENT_USER`, search for its GUID under `HKEY_CLASSES_ROOT` and include its details in the export CSV (if found).
+    3. Create a CSV output with all the gathered information.
+6. Spartacus doesn't automatically create a Visual Studio solution for COM hijacking, however if you need to create a proxy DLL you can use the `proxy` mode.
+
+For COM hijacking Spartacus also supports scanning the local system for misconfigured COM entries:
+
+1. Enumerate all of `HKEY_CLASSES_ROOT`, `HKEY_CURRENT_USER`, and `HKEY_LOCAL_MACHINE`.
+2. Look for registry keys that are called `InProcServer`, `InProcServer32`, `LocalServer`, or `LocalServer32`.
+3. Identify any missing EXE/DLL locations, along with any ACL misconfiguration such as the ability to Modify or Delete the file by the current user.
+
+### COM Hijacking Usage
+
+Collect all events and save them into `C:\Data\logs.pml`. All vulnerable COM information will be saved as `C:\Data\VulnerableCOM.csv`.
 
 ```
---procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --exports C:\Data\DLLExports --verbose --exe "Teams.exe,OneDrive.exe" --proxy-dll-template C:\Data\myProxySkeleton.cpp
+--mode com --procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableCOM.csv --verbose
 ```
 
-Collect events only for `Teams.exe` and `OneDrive.exe`, but don't generate proxy DLLs.
+Process an existing PML file to identify vulnerable COM entries.
 
 ```
---procmon C:\SysInternals\Procmon.exe --pml C:\Data\logs.pml --csv C:\Data\VulnerableDLLFiles.csv --verbose --exe "Teams.exe,OneDrive.exe"
+--mode com --existing --pml C:\Data\logs.pml --csv C:\Data\VulnerableCOM.csv --verbose
 ```
 
-Parse an existing PML event log output, save output to CSV, and generate proxy DLLs.
+Enumerate the local system registry to identify missing/misconfigured COM libraries and executables.
 
 ```
---existing-log --pml C:\MyData\SomeBackup.pml --csv C:\Data\VulnerableDLLFiles.csv --exports C:\Data\DLLExports
+--mode com --acl --csv C:\Data\VulnerableCOM.csv --verbose
 ```
 
-Run in monitoring mode and try to detect any applications that is proxying DLL calls.
+### Screenshots
+
+![COM Runtime](screenshots/runtime-com.png "COM Runtime")
+
+![CSV Output](screenshots/com-output.png "CSV Output")
+
+## DLL Proxy Generation
+
+Spartacus supports generating Visual Studio solutions by creating skeleton projects for you to use, based on the DLL you wish to exploit.
+
+* Redirecting all calls by exporting functions back to the legitimate DLL.
+    * This means that you will have to execute your payload from the `DllMain` function.
+* Using Ghidra, extract as many function signatures/definitions as possible from the target DLL, and create proxy functions for these.
+    * For any function that extracting its signature was not possible, it will be directly redirected to the legitimate function/dll.
+    * This means you can execute your payload from a function outside of `DllMain`.
+    * For instance, if you wish to exploit `version.dll` you could run your implant from `GetFileVersionInfoExW` if that function is called by the vulnerable application.
+
+### DLL Proxy Generation Usage
+
+Generate a solution that redirects all exports (no function proxying).
 
 ```
---detect
+--mode proxy --dll C:\Windows\System32\version.dll --solution "C:\data\tmp\refactor-version" --overwrite --verbose --external-resources
 ```
 
-Create proxies for all identified export functions.
+It is possible to input multiple DLLs at once.
 
 ```
---generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose
+--mode proxy --dll C:\Windows\System32\version.dll --dll C:\Windows\System32\userenv.dll --solution "C:\data\tmp\dll-collection" --overwrite --verbose --external-resources
 ```
 
-Create a proxy only for a specific export function.
+Create proxies for as many functions as possible (based on Ghidra's output).
 
 ```
---generate-proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --output-dir C:\Projects\spartacus-wtsapi32 --verbose --only-proxy "ExpandEnvironmentStringsForUserW"
+--mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-userenv --overwrite --verbose
 ```
 
-**Note**: When generating proxies for export functions, the solution that is created also replicates `VERSIONINFO` and timestomps the target DLL to match the date of the source one (using PowerShell).
+Same as above, but use external asset files to generate the solution (if you need to modify them).
 
-## Proxy DLL Template
-
-Below is the template that is used when generating proxy DLLs, the generated `#pragma` statements are inserted by replacing the `%_PRAGMA_COMMENTS_%` string.
-
-The only thing to be aware of is that the `pragma` DLL will be using a hardcoded path of its location rather than trying to load it dynamically.
-
-```cpp
-#pragma once
-
-%_PRAGMA_COMMENTS_%
-
-#include <windows.h>
-#include <string>
-#include <atlstr.h>  
-
-VOID Payload() {
-    // Run your payload here.
-}
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-    switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-        Payload();
-        break;
-    case DLL_THREAD_ATTACH:
-        break;
-    case DLL_THREAD_DETACH:
-        break;
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+```
+--mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-userenv --overwrite --verbose --external-resources
 ```
 
-If you wish to use your own template, just make sure the `%_PRAGMA_COMMENTS_%` is in the right place.
+Generate proxies only for functions `GetFileVersionInfoExW` and `GetFileVersionInfoExA`.
+
+```
+--mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\version.dll --solution C:\Projects\spartacus-version --verbose --overwrite --external-resources --only "GetFileVersionInfoExW, GetFileVersionInfoExA"
+```
+
+## DLL Hijacking Detection
+
+Spartacus also has a `--detect` mode, which tries to identify active DLL proxying. The logic behind it is:
+
+* Enumerate all processes.
+* For each process, load the DLLs (modules) it has loaded into memory (assuming you have the right permissions to do so).
+* If you find a DLL with the same name:
+    * If both files as in an OS path (ie Windows, System32, Program Files), ignore.
+    * If only one of the files is in an OS path and the other is in a user-writable location, flag the file.
+
+To use this feature, simply run Spartacus with `--detect`.
+
+# Command Line Arguments
+
+| Mode              | Argument                  | Description |
+| ----------------- | ------------------------- | ----------- |
+|                   | `--mode`                  | Define the mode to use, one of: `dll`, `proxy`, `com`, and `detect`. |
+| `all`             | `--verbose`               | Enable verbose output. |
+| `all`             | `--debug`                 | Enable debug output. |
+| `all`             | `--external-resources`    | By default Spartacus will use embedded resources for generating VS solution files etc. If you need to modify the templates, use this argument to make Spartacus load all files from the `./Assets` folder. |
+| `dll`, `com`      | `--procmon`               | Location (file) of the SysInternals Process Monitor `procmon.exe` or `procmon64.exe` |
+| `dll`, `com`      | `--pml`                   | Location (file) to store the ProcMon event log file. If the file exists, t will be overwritten. When used with --existing it will indicate the event log file to read from and will not be overwritten. |
+| `dll`, `com`      | `--pmc`                   | Define a custom ProcMon (PMC) file to use. This file will not be modified and will be used as is. |
+| `dll`, `com`      | `--csv`                   | Location (file) to store the CSV output of the execution. |
+| `dll`, `proxy`    | `--solution`              | Path to the directory where the solutions for the proxy DLLs will be stored. |
+| `dll`, `com`      | `--existing`              | Switch to indicate that Spartacus should process an existing ProcMon event log file (PML). To indicate the event log file use --pml, useful when you have been running ProcMon for hours or used it in Boot Logging. |
+| `dll`             | `--all`                   | By default any DLLs in the Windows or Program Files directories will be skipped. Use this to include those directories in the output. |
+| `proxy`           | `--ghidra`                | Path to Ghidra's 'analyzeHeadless.bat' file. Used when you want to proxy specific functions rather than just `DllMain`. |
+| `proxy`           | `--dll`                   | Path to the DLL you want to proxy, and can include multiple instances of this argument. |
+| `proxy`           | `--overwrite`             | If the `--solution` path already exists, use this flag to overwrite it. |
+| `proxy`           | `--only`                  | Generate proxy functions only for functions defined in this variable. Values are comma separated like `'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA'`. |
+| `com`             | `--acl`                   | Enumerate local system for missing/misconfigured COM libraries and executables. |
 
 # Contributions
 Whether it's a typo, a bug, or a new feature, Spartacus is very open to contributions as long as we agree on the following:
@@ -191,3 +213,4 @@ Whether it's a typo, a bug, or a new feature, Spartacus is very open to contribu
 
 * https://github.com/eronnen/procmon-parser/
 * https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain
+* https://stmxcsr.com/persistence/com-hijacking.html

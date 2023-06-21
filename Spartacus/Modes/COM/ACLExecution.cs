@@ -65,6 +65,7 @@ namespace Spartacus.Modes.COM
                 try
                 {
                     ExportToCSV(Findings);
+                    Logger.Info("CSV output saved to: " + RuntimeData.CSVFile);
                     break;  // Saved successfully.
                 }
                 catch (Exception e)
