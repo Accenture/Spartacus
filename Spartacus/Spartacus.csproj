@@ -88,6 +88,10 @@
     <Compile Include="Modes\DLL\ModeDLL.cs" />
     <Compile Include="Modes\ModeBase.cs" />
     <Compile Include="Modes\PROXY\ModeProxy.cs" />
+    <Compile Include="Modes\PROXY\PrototypeDatabaseGeneration.cs" />
+    <Compile Include="Modes\PROXY\PrototypeParsers\FunctionProcessor.cs" />
+    <Compile Include="Modes\PROXY\PrototypeParsers\HeaderFileProcessor.cs" />
+    <Compile Include="Modes\PROXY\ProxyGeneration.cs" />
     <Compile Include="Modes\PROXY\SolutionGenerator.cs" />
     <Compile Include="ProcMon\ProcMonManager.cs" />
     <Compile Include="ProcMon\ProcMonPML.cs" />

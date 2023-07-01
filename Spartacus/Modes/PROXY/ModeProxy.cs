@@ -3,6 +3,7 @@ using Spartacus.Spartacus;
 using Spartacus.Spartacus.CommandLine;
 using Spartacus.Spartacus.Models;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,342 +19,58 @@ namespace Spartacus.Modes.PROXY
     {
         public override void Run()
         {
-            foreach (string dllFile in RuntimeData.BatchDLLFiles)
+            switch (RuntimeData.Action.ToLower())
             {
-                string solutionPath = RuntimeData.BatchDLLFiles.Count == 1 ? RuntimeData.Solution : Path.Combine(RuntimeData.Solution, Path.GetFileNameWithoutExtension(dllFile));
-                if (!ProcessSingleDLL(dllFile, solutionPath))
-                {
-                    Logger.Error("Could not generate proxy DLL for: " + dllFile);
-                }
-            }
-        }
-
-        public bool ProcessSingleDLL(string dllFile, string solutionPath)
-        {
-            /**
-             *  Steps
-             *  -----
-             *  
-             *  1. Get exported functions from input DLL. If there are none, abort.
-             *  2. Create a temporary folder where the Ghidra project will be created into.
-             *  3. Create a temporary folder where the ExportFunctionDefinitionsINI.java script will be stored in.
-             *  4. Extract ExportFunctionDefinitions.java and put it in the path above.
-             *  5. Run analyzeHeadless.bat (Ghidra) and get the output ini file. If no file is created, abort.
-             *  6. Match exported functions from #1 with the ones from #5, and only keep the ones that have a valid function definition (some fail).
-             *     If there are none, abort.
-             *  7. For the functions extracted above, generate proxy.def.
-             *  8. Extract dllmain.cpp and generate all the proxy functions. Make sure the pragma exports are commented out.
-             *  9. Extract proxy.sln and proxy.vcxproj, set them up, and move everything into the output directory.
-             *  10. Clean up.
-             *  
-             */
-
-            Logger.Verbose("Extracting DLL export functions from: " + dllFile);
-            List<FileExport> exportedFunctions = Helper.GetExportFunctions(dllFile);
-            if (exportedFunctions.Count == 0)
-            {
-                Logger.Warning("No export functions found in DLL: " + dllFile);
-                return false;
-            }
-            Logger.Verbose("Found " + exportedFunctions.Count + " functions");
-            
-            foreach (var item in exportedFunctions)
-            {
-                Logger.Debug(item.Name);
-            }
-
-            Dictionary<string, FunctionSignature> proxyFunctions = new();
-            if (!String.IsNullOrEmpty(RuntimeData.GhidraHeadlessPath))
-            {
-                proxyFunctions = GetFunctionDefinitions(exportedFunctions, dllFile, solutionPath);
-            }
-
-            SolutionGenerator solutionGenerator = new();
-            try
-            {
-                if (!solutionGenerator.Create(solutionPath, dllFile, exportedFunctions, proxyFunctions))
-                {
-                    Logger.Error("Could not generate solution");
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                return false;
-            }
-
-            Logger.Success("Target solution created at: " + solutionPath);
-
-            return true;
-        }
-
-        private Dictionary<string, FunctionSignature> GetFunctionDefinitions(List<FileExport> exportedFunctions, string dllFile, string solutionPath)
-        {
-            Dictionary<string, FunctionSignature> functionDefinitions = new();
-
-            // First we ran Ghidra to get the function definitions.
-            string ghidraOutput = GetGhidraOutput(dllFile, solutionPath);
-            if (String.IsNullOrEmpty(ghidraOutput))
-            {
-                // This will be an empty set.
-                return functionDefinitions;
-            }
-
-            Logger.Info("Loading function definitions");
-            List<FunctionSignature> loadedFunctions = LoadDllFunctionDefinitions(ghidraOutput);
-
-            Logger.Verbose("Matching exported functions with loaded function definitions");
-            functionDefinitions = GetProxyFunctions(exportedFunctions, loadedFunctions, RuntimeData.FunctionsToProxy);
-
-            if (functionDefinitions.Count == 0)
-            {
-                Logger.Warning("No function signatures found");
-                return functionDefinitions; // This will be empty.
-            }
-            Logger.Verbose("Found " + functionDefinitions.Count + " matching functions");
-
-            return functionDefinitions;
-        }
-
-        private string GetGhidraOutput(string dllFile, string solutionPath)
-        {
-            // Create a temporary folder where the Ghidra project will be created into, and where the post-scripts will live.
-            string ghidraParentFolder = Path.GetTempPath() + "Spartacus-" + Guid.NewGuid().ToString();
-            string ghidraProjectPath = ghidraParentFolder + "-Project";
-            string ghidraScriptsPath = ghidraParentFolder + "-Scripts";
-            string ghidraScriptFile = Path.Combine(ghidraScriptsPath, "ExportFunctionDefinitionsINI.java");
-            string ghidraScriptIniOutput = Path.Combine(ghidraScriptsPath, "ExportedFunctions.ini");
-
-            Logger.Info("Creating Ghidra/Output directories...");
-            if (!PrepareRuntimeDirectoriesAndFiles(ghidraProjectPath, ghidraScriptsPath, solutionPath, ghidraScriptIniOutput, ghidraScriptFile))
-            {
-                Logger.Error("Could not prepare runtime directories and files");
-                return "";
-            }
-            Logger.Verbose("Ghidra project path will be: " + ghidraProjectPath);
-            Logger.Verbose("Ghidra scripts path will be: " + ghidraScriptsPath);
-            Logger.Verbose("Ghidra post-script file will be: " + ghidraScriptFile);
-            Logger.Verbose("Output path will be: " + solutionPath);
-
-            // Run analyzeHeadless.bat (Ghidra) and get the output ini file. If no file is created, abort.
-            Logger.Info("Running Ghidra...");
-            ExecuteGhidra(RuntimeData.GhidraHeadlessPath, ghidraProjectPath, ghidraScriptsPath, dllFile);
-
-            if (!File.Exists(ghidraScriptIniOutput))
-            {
-                Logger.Error("Could not find " + ghidraScriptIniOutput);
-                Logger.Error("This is because the Ghidra postScript did not execute properly. Run Spartacus with the --debug argument to see Ghidra's output");
-                return "";
-            }
-
-            // Get the data we need.
-            string output = File.ReadAllText(ghidraScriptIniOutput).Replace("\r\n", "\n");
-
-            // And cleanup.
-            Logger.Info("Cleaning up...");
-            Logger.Verbose("Deleting Ghidra project path - " + ghidraProjectPath);
-            if (!Helper.DeleteTargetDirectory(ghidraProjectPath))
-            {
-                Logger.Warning("Could not clean up path: " + ghidraProjectPath);
-            }
-
-            Logger.Verbose("Deleting Ghidra scripts path - " + ghidraScriptsPath);
-            if (!Helper.DeleteTargetDirectory(ghidraScriptsPath))
-            {
-                Logger.Warning("Could not clean up path: " + ghidraScriptsPath);
-            }
-
-            return output;
-        }
-
-        private List<FunctionSignature> LoadDllFunctionDefinitions(string ghidraOutput)
-        {
-            /*
-             * This function will parse this format:
-             * 
-                [VerFindFileW]
-                return=DWORD
-                signature=DWORD VerFindFileW(DWORD uFlags, LPCWSTR szFileName, LPCWSTR szWinDir, LPCWSTR szAppDir, LPWSTR szCurDir, PUINT lpuCurDirLen, LPWSTR szDestDir, PUINT lpuDestDirLen)
-                parameters[0]=uFlags|DWORD
-                parameters[1]=szFileName|LPCWSTR
-                parameters[2]=szWinDir|LPCWSTR
-                parameters[3]=szAppDir|LPCWSTR
-                parameters[4]=szCurDir|LPWSTR
-                parameters[5]=lpuCurDirLen|PUINT
-                parameters[6]=szDestDir|LPWSTR
-                parameters[7]=lpuDestDirLen|PUINT
-             */
-            List<FunctionSignature> functions = new List<FunctionSignature>();
-            FunctionSignature function = new FunctionSignature("");
-
-            string[] lines = ghidraOutput.Split('\n');
-            foreach (string line in lines)
-            {
-                Logger.Debug(line);
-                if (line.Trim().Length == 0)
-                {
-                    continue;
-                }
-
-                if (line[0] == '[')
-                {
-                    if (function.Name.Length > 0)
-                    {
-                        Logger.Debug("Adding function " + function.Name);
-                        Logger.Debug("\tReturn: " + function.Return);
-                        Logger.Debug("\tSignature: " + function.Signature);
-                        foreach (Parameter p in function.Parameters)
-                        {
-                            Logger.Debug("\t" + p.Ordinal + ", " + p.Type + ", " + p.Name);
-                        }
-                        functions.Add(function);
-                    }
-                    function = new FunctionSignature(line.Trim('[', ']').Trim());
-                }
-                else
-                {
-                    string[] data = line.Split(new char[] { '=' }, 2);
-                    if (data.Length != 2)
-                    {
-                        continue;
-                    }
-
-                    if (data[0] == "return")
-                    {
-                        function.Return = data[1].Trim().ToUpper();
-                    }
-                    else if (data[0] == "signature")
-                    {
-                        function.Signature = data[1].Trim();
-                    }
-                    else if (data[0].StartsWith("parameters["))
-                    {
-                        string[] info = data[1].Split(new char[] { '|' }, 2);
-                        if (info.Length != 2)
-                        {
-                            continue;
-                        }
-                        int Ordinal = Int32.Parse(data[0].Replace("parameters", "").Replace("[", "").Replace("]", ""));
-                        function.CreateParameter(Ordinal, info[0], info[1]);
-                    }
-                }
-            }
-
-            return functions;
-        }
-
-        private void ExecuteGhidra(string headlessAnalyserPath, string projectPath, string scriptPath, string dllPath)
-        {
-            Process p = new Process();
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.RedirectStandardError = true;
-            p.StartInfo.FileName = headlessAnalyserPath;
-            p.StartInfo.Arguments = $"\"{projectPath}\" SpartacusProject -import \"{dllPath}\" -scriptPath \"{scriptPath}\" -postScript ExportFunctionDefinitionsINI.java -deleteProject";
-
-            Logger.Debug("Executing " + p.StartInfo.FileName);
-            Logger.Debug("Command Line: " + p.StartInfo.Arguments);
-
-            p.Start();
-
-            Logger.Verbose("Waiting for Ghidra to finish...");
-            string standardOutput = p.StandardOutput.ReadToEnd();
-            string errorOutput = p.StandardError.ReadToEnd();
-            p.WaitForExit();
-            Logger.Info("Ghidra has finished");
-
-            Logger.Debug("Ghidra output");
-            Logger.Debug(standardOutput);
-            Logger.Debug("Ghidra errors");
-            Logger.Debug(errorOutput);
-        }
-
-        private bool PrepareRuntimeDirectoriesAndFiles(string ghidraProjectPath, string ghidraScriptsPath, string outputDirectory, string ghidraScriptIniOutput, string ghidraScriptFile)
-        {
-            // First create all required directories.
-            if (!Helper.CreateTargetDirectory(ghidraProjectPath))
-            {
-                Logger.Error("Could not create path: " + ghidraProjectPath);
-                return false;
-            }
-            else if (!Helper.CreateTargetDirectory(ghidraScriptsPath))
-            {
-                Logger.Error("Could not create path: " + ghidraScriptsPath);
-                return false;
-            }
-            else if (!Helper.CreateTargetDirectory(outputDirectory))
-            {
-                Logger.Error("Could not create output path: " + outputDirectory);
-                return false;
-            }
-
-            // Get the Ghidra post-script that will export all the function definitions.
-            Logger.Verbose("Creating Ghidra postScript...");
-            string ghidraScriptContents = Helper.GetResource("ExportFunctionDefinitionsINI.java")
-                .Replace("%EXPORT_TO%", ghidraScriptIniOutput.Replace("\\", "\\\\"));
-
-            try
-            {
-                File.WriteAllText(ghidraScriptFile, ghidraScriptContents);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning("Could not create " + ghidraScriptFile);
-                Logger.Error(ex.Message);
-                return false;
-            }
-
-            return true;
-        }        
-
-        private Dictionary<string, FunctionSignature> GetProxyFunctions(List<FileExport> exportedFunctions, List<FunctionSignature> loadedFunctions, List<string> onlyProxyFunctions)
-        {
-            Dictionary<string, FunctionSignature> proxyFunctions = new Dictionary<string, FunctionSignature>();
-            foreach (FileExport exportedFunction in exportedFunctions)
-            {
-                if (onlyProxyFunctions.Count > 0 && !onlyProxyFunctions.Contains(exportedFunction.Name.ToLower()))
-                {
-                    Logger.Verbose("Skipping function because it's not in the --only list: " + exportedFunction.Name);
-                    continue;
-                }
-
-                foreach (FunctionSignature function in loadedFunctions)
-                {
-                    // We only need functions that don't have any "undefined" parameters.
-                    if (exportedFunction.Name != function.Name)
-                    {
-                        continue;
-                    }
-
-                    if (function.Return.ToLower().StartsWith("undefined"))
-                    {
-                        continue;
-                    }
-
-                    bool hasUndefined = false;
-                    foreach (Parameter p in function.Parameters)
-                    {
-                        if (p.Type.ToLower().StartsWith("undefined"))
-                        {
-                            hasUndefined = true;
-                            break;
-                        }
-                    }
-
-                    if (hasUndefined)
-                    {
-                        continue;
-                    }
-
-                    proxyFunctions.Add(function.Name, function);
+                case "prototype":
+                case "prototypes":
+                    PrototypeDatabaseGeneration prototypeGenerator = new();
+                    prototypeGenerator.Run();
                     break;
-                }
+                default:
+                    ProxyGeneration proxyGenerator = new();
+                    proxyGenerator.Run();
+                    break;
             }
-            return proxyFunctions;
         }
 
         public override void SanitiseAndValidateRuntimeData()
+        {
+            switch (RuntimeData.Action.ToLower())
+            {
+                case "prototypes":
+                case "prototype":
+                    SanitisePrototypeGenerationRuntimeData();
+                    break;
+                default:
+                    SanitiseProxyGenerationRuntimeData();
+                    break;
+            }
+        }
+
+        protected void SanitisePrototypeGenerationRuntimeData()
+        {
+            // Check for input file where we'll look for header files.
+            if (String.IsNullOrEmpty(RuntimeData.Path))
+            {
+                throw new Exception("--path is missing");
+            }
+            else if (!Directory.Exists(RuntimeData.Path))
+            {
+                throw new Exception("--path does not exist: " +  RuntimeData.Path);
+            }
+
+            // Check for CSV output file.
+            if (String.IsNullOrEmpty(RuntimeData.CSVFile))
+            {
+                throw new Exception("--csv is missing");
+            }
+            else if (File.Exists(RuntimeData.CSVFile))
+            {
+                Logger.Debug("--csv exists and will be overwritten");
+            }
+        }
+
+        protected void SanitiseProxyGenerationRuntimeData()
         {
             if (RuntimeData.BatchDLLFiles.Count == 0)
             {
@@ -363,7 +80,7 @@ namespace Spartacus.Modes.PROXY
             {
                 foreach (string dllFile in RuntimeData.BatchDLLFiles)
                 {
-                    if (!File.Exists (dllFile))
+                    if (!File.Exists(dllFile))
                     {
                         throw new Exception("--dll file does not exist: " + dllFile);
                     }
@@ -383,7 +100,8 @@ namespace Spartacus.Modes.PROXY
             // If a ghidra path has been passed, validate it.
             if (!String.IsNullOrEmpty(RuntimeData.GhidraHeadlessPath))
             {
-                if (!File.Exists(RuntimeData.GhidraHeadlessPath)) {
+                if (!File.Exists(RuntimeData.GhidraHeadlessPath))
+                {
                     throw new Exception("--ghidra file does not exist: " + RuntimeData.GhidraHeadlessPath);
                 }
             }

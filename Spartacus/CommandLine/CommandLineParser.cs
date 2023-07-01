@@ -36,6 +36,8 @@ namespace Spartacus.Spartacus.CommandLine
             { "solution", "" },
             { "ghidra", "" },
             { "only", "" },
+            { "action", "" },
+            { "path", "" },
         };
 
         private Dictionary<string, List<string>> Arguments = new();
@@ -192,6 +194,12 @@ namespace Spartacus.Spartacus.CommandLine
                         {
                             RuntimeData.isHelp = (argument.Value.First().Length > 0);
                         }
+                        break;
+                    case "action":
+                        RuntimeData.Action = argument.Value.First();
+                        break;
+                    case "path":
+                        RuntimeData.Path = argument.Value.First();
                         break;
                     default:
                         throw new Exception("Unknown argument: " + argument.Key);

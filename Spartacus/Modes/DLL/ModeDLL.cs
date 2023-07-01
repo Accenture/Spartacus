@@ -89,7 +89,7 @@ namespace Spartacus.Modes.DLL
             }
 
             // Now we create the proxies.
-            ModeProxy proxyMode = new();
+            ProxyGeneration proxyMode = new();
             foreach (KeyValuePair<string, string> file in filesToProxy.OrderBy(x => x.Key))
             {
                 Logger.Info("Processing " + file.Key, false, true);
