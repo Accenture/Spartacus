@@ -36,7 +36,7 @@ namespace Spartacus.Modes.PROXY
 
             public readonly string GetDeclaration()
             {
-                return type + " " + name;
+                return (type + " " + name).Trim();
             }
         }
 

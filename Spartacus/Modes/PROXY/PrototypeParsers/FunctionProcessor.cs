@@ -105,10 +105,14 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
             {
                 FunctionArgument argument = new();
 
-                string[] items = rawArgument.Split(' ');
+                string[] items = rawArgument
+                    .Replace(" OPTIONAL", " ")
+                    .Trim()
+                    .Split(' ');
                 switch (items.Length)
                 {
                     case 1:
+                        argument.name = "";
                         argument.type = items[0].Trim();
                         break;
                     default:
@@ -120,6 +124,13 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
                         {
                             argument.name = argument.name.Substring(1);
                             argument.type += "*";
+
+                            // Maybe it's a double pointer, sigh.
+                            if (argument.name.StartsWith("*"))
+                            {
+                                argument.name = argument.name.Substring(1);
+                                argument.type += "*";
+                            }
                         }
                         break;
                 }
