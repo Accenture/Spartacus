@@ -38,6 +38,7 @@ namespace Spartacus.Spartacus.CommandLine
             { "only", "" },
             { "action", "" },
             { "path", "" },
+            { "prototypes", "" },
         };
 
         private Dictionary<string, List<string>> Arguments = new();
@@ -200,6 +201,9 @@ namespace Spartacus.Spartacus.CommandLine
                         break;
                     case "path":
                         RuntimeData.Path = argument.Value.First();
+                        break;
+                    case "prototypes":
+                        RuntimeData.PrototypesFile = argument.Value.First();
                         break;
                     default:
                         throw new Exception("Unknown argument: " + argument.Key);

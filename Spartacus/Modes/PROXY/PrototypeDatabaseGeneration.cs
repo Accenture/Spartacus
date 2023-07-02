@@ -94,23 +94,74 @@ namespace Spartacus.Modes.PROXY
             Logger.Info("Saving to CSV at " + RuntimeData.CSVFile);
             using (StreamWriter stream = File.CreateText(RuntimeData.CSVFile))
             {
-                stream.WriteLine(string.Format("File,Return Type,Name,Signature"));
-                foreach (KeyValuePair<string, List<FunctionPrototype>> item in headerFiles)
+                stream.WriteLine(string.Format($"File{delimiter}Return Type{delimiter}Name{delimiter}Signature"));
+                foreach (KeyValuePair<string, List<FunctionPrototype>> item in headerFiles.OrderBy(x => x.Key))
                 {
                     foreach (FunctionPrototype prototype in item.Value)
                     {
                         stream.WriteLine(
                             String.Format(
-                                "\"{0}\""+ delimiter +"\"{1}\""+ delimiter +"\"{2}\""+ delimiter +"\"{3}\"",
+                                $"{{0}}{delimiter}{{1}}{delimiter}{{2}}{delimiter}{{3}}",
                                 item.Key,
                                 prototype.returnType,
                                 prototype.name,
-                                prototype.GetFunctionDeclaration()
+                                prototype.GetFunctionDeclaration().Trim()
                             )
                         );
                     }
                 }
             }
+        }
+
+        public List<FunctionPrototype> LoadPrototypesFromCSV(string csvFile)
+        {
+            List<FunctionPrototype> functions = new();
+            
+            List<string> fileContents = File.ReadAllLines(csvFile).ToList();
+            fileContents.RemoveAt(0);   // Remove the header.
+
+            foreach (string line in fileContents)
+            {
+                string[] data = line.Split('|');
+                if (data.Length != 4)
+                {
+                    continue;
+                }
+
+                FunctionPrototype function = new();
+                function.returnType = data[1].Trim();
+                function.name = data[2].Trim();
+                function.arguments = new();
+
+                List<string> rawArguments = data
+                    .Last()
+                    .Split(',')
+                    .ToList()
+                    .Select(x => x.Trim())
+                    .ToList();
+                foreach (string rawArgument in rawArguments)
+                {
+                    FunctionArgument argument = new();
+
+                    string[] info = rawArgument.Split(' ');
+                    switch (info.Length)
+                    {
+                        case 1:
+                            argument.type = info[0].Trim();
+                            break;
+                        default:
+                            argument.name = info.Last().Trim();
+                            argument.type = info.First().Trim();
+                            break;
+                    }
+
+                    function.arguments.Add(argument);
+                }
+                
+                functions.Add(function);
+            }
+
+            return functions;
         }
     }
 }

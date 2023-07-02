@@ -89,8 +89,8 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
             List<FunctionArgument> arguments = new();
 
             declaration = declaration
-                .Replace(" * ", " *")               // Make sure the pointer sticks to the variable's name.
-                .Replace(" ** ", " **")               // Make sure the pointer sticks to the variable's name.
+                .Replace(" * ", "* ")               // Make sure the pointer sticks to the type's name.
+                .Replace(" ** ", "** ")             // Make sure the pointer sticks to the type's name.
                 .Trim(new char[] { '(', ')' })      // Remove parentheses.
                 .Trim();
 
@@ -114,6 +114,13 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
                     default:
                         argument.name = items.Last().Trim();
                         argument.type = items[items.Length - 2].Trim();
+
+                        // If a pointer exists, move it to the type.
+                        if (argument.name.StartsWith("*"))
+                        {
+                            argument.name = argument.name.Substring(1);
+                            argument.type += "*";
+                        }
                         break;
                 }
 

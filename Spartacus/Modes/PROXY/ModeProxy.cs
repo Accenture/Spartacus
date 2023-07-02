@@ -121,6 +121,15 @@ namespace Spartacus.Modes.PROXY
                     throw new Exception("--only is invalid");
                 }
             }
+
+            // Check for prototypes path.
+            if (!String.IsNullOrEmpty(RuntimeData.PrototypesFile))
+            {
+                if (!File.Exists(RuntimeData.PrototypesFile))
+                {
+                    throw new Exception("--prototypes file does not exist: " + RuntimeData.PrototypesFile);
+                }
+            }
         }
     }
 }

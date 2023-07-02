@@ -61,5 +61,7 @@ namespace Spartacus.Spartacus.CommandLine
         public static string Action = "";
 
         public static string Path = "";
+
+        public static string PrototypesFile = "";
     }
 }

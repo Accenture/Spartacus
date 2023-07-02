@@ -168,18 +168,15 @@ namespace Spartacus.Properties {
         ///// Remove this line if you aren&apos;t proxying any functions.
         ///HMODULE hModule = LoadLibrary(L&quot;%_REAL_DLL_%&quot;);
         ///
-        ///BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+        ///// Remove this function if you aren&apos;t proxying any functions.
+        ///VOID DebugToFile(LPCSTR szInput)
         ///{
-        ///    switch (ul_reason_for_call)
-        ///    {
-        ///    case DLL_PROCESS_ATTACH:
-        ///    case DLL_THREAD_ATTACH:
-        ///    case DLL_THREAD_DETACH:
-        ///    case DLL_PROCESS_DETACH:
-        ///        break;
-        ///    }
-        ///    return TRUE;
-        /// [rest of string was truncated]&quot;;.
+        ///    std::ofstream log(&quot;spartacus-proxy-%_PROJECTNAME_%.log&quot;, std::ios_base::app | std::ios_base::out);
+        ///    log &lt;&lt; szInput;
+        ///    log &lt;&lt; &quot;\n&quot;;
+        ///}
+        ///
+        ///BOOL APIENTRY DllMain(HMODULE hModule, D [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string solution_dllmain_cpp {
             get {

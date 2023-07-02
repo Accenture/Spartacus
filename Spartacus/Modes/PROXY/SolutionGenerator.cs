@@ -77,7 +77,7 @@ namespace Spartacus.Modes.PROXY
             }
 
             // Generate the main file.
-            if (!GenerateDllMainFile(solutionDirectory, @"solution\dllmain.cpp", "dllmain.cpp", dllPath, proxyFunctions, exportedFunctions))
+            if (!GenerateDllMainFile(solutionDirectory, @"solution\dllmain.cpp", "dllmain.cpp", dllPath, proxyFunctions, exportedFunctions, projectName))
             {
                 throw new Exception("Could not create dllmain.cpp file");
             }
@@ -199,7 +199,7 @@ namespace Spartacus.Modes.PROXY
             return File.Exists(saveAs);
         }
 
-        private bool GenerateDllMainFile(string solutionDirectory, string resourceName, string saveAsFilename, string dllPath, Dictionary<string, FunctionSignature> proxyFunctions, List<FileExport> exportedFunctions)
+        private bool GenerateDllMainFile(string solutionDirectory, string resourceName, string saveAsFilename, string dllPath, Dictionary<string, FunctionSignature> proxyFunctions, List<FileExport> exportedFunctions, string projectName)
         {
             string contents = Helper.GetResource(resourceName);
 
@@ -230,6 +230,7 @@ namespace Spartacus.Modes.PROXY
                 .Replace("%_PRAGMA_COMMENTS_%", String.Join("\r\n", pragma.ToArray()))
                 .Replace("%_TYPEDEF_%", String.Join("\r\n", typeDef.ToArray()))
                 .Replace("%_FUNCTIONS_%", String.Join("\r\n", functions.ToArray()))
+                .Replace("%_PROJECTNAME_%", projectName)
                 .Replace("%_REAL_DLL_%", dllPath.Replace("\\", "\\\\"));
 
 

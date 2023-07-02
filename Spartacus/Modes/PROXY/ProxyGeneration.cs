@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Spartacus.Modes.PROXY.PrototypeDatabaseGeneration;
 using static Spartacus.Spartacus.Models.FunctionSignature;
 using static Spartacus.Spartacus.PEFileExports;
 
@@ -17,8 +18,12 @@ namespace Spartacus.Modes.PROXY
     {
         protected Helper Helper = new();
 
+        protected List<FunctionPrototype> ExistingFunctionPrototypes = new();
+
         public void Run()
         {
+            ExistingFunctionPrototypes = LoadPrototypes();
+
             foreach (string dllFile in RuntimeData.BatchDLLFiles)
             {
                 string solutionPath = RuntimeData.BatchDLLFiles.Count == 1 ? RuntimeData.Solution : Path.Combine(RuntimeData.Solution, Path.GetFileNameWithoutExtension(dllFile));
@@ -69,6 +74,11 @@ namespace Spartacus.Modes.PROXY
                 proxyFunctions = GetFunctionDefinitions(exportedFunctions, dllFile, solutionPath);
             }
 
+            if (ExistingFunctionPrototypes.Count > 0)
+            {
+                proxyFunctions = GetFunctionDefinitionsFromPrototypes(exportedFunctions, proxyFunctions);
+            }
+
             SolutionGenerator solutionGenerator = new();
             try
             {
@@ -115,6 +125,40 @@ namespace Spartacus.Modes.PROXY
             Logger.Verbose("Found " + functionDefinitions.Count + " matching functions");
 
             return functionDefinitions;
+        }
+
+        private Dictionary<string, FunctionSignature> GetFunctionDefinitionsFromPrototypes(List<FileExport> exportedFunctions, Dictionary<string, FunctionSignature> proxyFunctions)
+        {
+            foreach (FileExport exportedFunction in exportedFunctions)
+            {
+                if (proxyFunctions.ContainsKey(exportedFunction.Name))
+                {
+                    // Function has already been added from the Ghidra output.
+                    continue;
+                }
+
+                List<FunctionPrototype> functions = ExistingFunctionPrototypes.Where(x => x.name == exportedFunction.Name).ToList();
+                if (functions.Count == 0)
+                {
+                    // Function was not found in the prototype database.
+                    continue;
+                }
+
+                FunctionPrototype function = functions.First();
+                FunctionSignature signature = new(function.name)
+                {
+                    Return = function.returnType
+                };
+
+                foreach (FunctionArgument argument in function.arguments)
+                {
+                    signature.AddParameter(new Parameter() { Name = argument.name, Type = argument.type });
+                }
+
+                proxyFunctions.Add(function.name, signature);
+            }
+
+            return proxyFunctions;
         }
 
         private string GetGhidraOutput(string dllFile, string solutionPath)
@@ -352,6 +396,18 @@ namespace Spartacus.Modes.PROXY
                 }
             }
             return proxyFunctions;
+        }
+
+        private List<FunctionPrototype> LoadPrototypes()
+        {
+            if (String.IsNullOrEmpty(RuntimeData.PrototypesFile) || !File.Exists(RuntimeData.PrototypesFile))
+            {
+                return new();
+            }
+
+            Logger.Info("Loading external function prototypes from " + RuntimeData.PrototypesFile);
+            PrototypeDatabaseGeneration generator = new();
+            return generator.LoadPrototypesFromCSV(RuntimeData.PrototypesFile);
         }
     }
 }
