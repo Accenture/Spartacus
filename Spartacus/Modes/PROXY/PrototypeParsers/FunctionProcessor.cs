@@ -32,7 +32,15 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
 
                     if (!String.IsNullOrEmpty(function.returnType))
                     {
-                        prototypes[header.Key].Add(function);
+                        // Check if this function has already been parsed. Sometimes there will be multiple
+                        // definitions of a specific function based on OS. We don't really care about that
+                        // because this feature is mostly to help out, rather than be 100% reliable.
+
+                        int findFunction = prototypes[header.Key].Count(s => s.name == function.name);
+                        if (findFunction == 0)
+                        {
+                            prototypes[header.Key].Add(function);
+                        }
                     }
                 }
             }

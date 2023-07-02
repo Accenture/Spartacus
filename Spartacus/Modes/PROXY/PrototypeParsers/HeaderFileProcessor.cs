@@ -308,6 +308,11 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
                 returnType = returnType.TrimStart(new char[] { '_', '*', '/' }).Trim();
                 return returnType;
             }
+            else if (returnType.StartsWith("friend"))
+            {
+                // This one is too complicated to parse at this point, am considering it an edge case.
+                return "";
+            }
 
             List<string> replaceClosingParenthesis = new()
             {

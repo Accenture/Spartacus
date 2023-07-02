@@ -74,7 +74,7 @@ namespace Spartacus.Modes.PROXY
             {
                 try
                 {
-                    SaveToCSV(finalFunctions);
+                    SaveToCSV(finalFunctions, "|");
                     break;
                 }
                 catch (Exception e)
@@ -89,23 +89,23 @@ namespace Spartacus.Modes.PROXY
             } while (true);
         }
 
-        protected void SaveToCSV(Dictionary<string, List<FunctionPrototype>> headerFiles)
+        protected void SaveToCSV(Dictionary<string, List<FunctionPrototype>> headerFiles, string delimiter)
         {
             Logger.Info("Saving to CSV at " + RuntimeData.CSVFile);
             using (StreamWriter stream = File.CreateText(RuntimeData.CSVFile))
             {
-                stream.WriteLine(string.Format("File,Return Type,Signature"));
+                stream.WriteLine(string.Format("File,Return Type,Name,Signature"));
                 foreach (KeyValuePair<string, List<FunctionPrototype>> item in headerFiles)
                 {
                     foreach (FunctionPrototype prototype in item.Value)
                     {
                         stream.WriteLine(
                             String.Format(
-                                "\"{0}\",\"{1}\",\"{2}\",\"{3}\"",
+                                "\"{0}\""+ delimiter +"\"{1}\""+ delimiter +"\"{2}\""+ delimiter +"\"{3}\"",
                                 item.Key,
-                                prototype.returnType.Replace("\"", "\"\""),
-                                prototype.name.Replace("\"", "\"\""),
-                                prototype.GetFunctionDeclaration().Replace("\"", "\"\"")
+                                prototype.returnType,
+                                prototype.name,
+                                prototype.GetFunctionDeclaration()
                             )
                         );
                     }
