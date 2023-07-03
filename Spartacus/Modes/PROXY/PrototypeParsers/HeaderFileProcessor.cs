@@ -210,8 +210,6 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
                     else
                     {
                         prototype = new();
-                        //File.AppendAllText(@"C:\Data\tmp\winapi.txt", fileContents[i - 1].Trim() + "\r\n");
-                        File.AppendAllText(@"C:\Data\tmp\winapi.txt", line + "\r\n");
                         /*
                          * If the line isn't just "WINAPI", the return type is the word before it, like:
                          * 

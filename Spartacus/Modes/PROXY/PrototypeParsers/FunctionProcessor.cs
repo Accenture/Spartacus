@@ -27,8 +27,6 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
                 foreach (RawFunctionPrototype rawFunction in header.Value)
                 {
                     FunctionPrototype function = ParseRawPrototype(rawFunction);
-                    function.rawFunction = rawFunction;
-                    function.returnType = rawFunction.returnType;
 
                     if (!String.IsNullOrEmpty(function.returnType))
                     {
@@ -52,10 +50,35 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
         {
             FunctionPrototype function = new();
 
+            function.rawFunction = rawFunction;
+            function.returnType = rawFunction.returnType;
             function.name = GetFuctionFromDeclaration(rawFunction.GetPrototypeAsString());
             
             string functionRawArguments = GetArgumentsFromDeclaration(rawFunction.GetPrototypeAsString());
             function.arguments = ParseFunctionArguments(functionRawArguments);
+
+            return OneLastCheck(function);
+        }
+
+        protected FunctionPrototype OneLastCheck(FunctionPrototype function)
+        {
+            // Although we've tried to process all header files to the best of our abilities
+            // there may still be some declarations that were too complex to parse. For example
+            // The ones that use annotations especially like "_When"_ that adds conditional
+            // statements to such declarations. This function will check if any special characters
+            // are still present in the definition and "invalidate" the function (empty the returnType).
+            // These characters include =, +, -, etc.
+
+            List<string> invalidCharacters = new() { "=", "-", "+", "(", ")", "\"", "'", "#", "/", "\\", "<", ">", "|", "!" };
+
+            foreach (string character in invalidCharacters)
+            {
+                if (function.GetFunctionDeclaration().Contains(character) || function.name.Contains(character) || function.returnType.Contains(character))
+                {
+                    function.returnType = "";
+                    break;
+                }
+            }
 
             return function;
         }

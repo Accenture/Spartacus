@@ -165,10 +165,22 @@ Same as above, but use external asset files to generate the solution (if you nee
 --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-userenv --overwrite --verbose --external-resources
 ```
 
+Utilise pre-generated function prototypes for functions which Ghidra was unable to extract function definitions for.
+
+```
+--mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\userenv.dll --solution C:\Projects\spartacus-userenv --overwrite --verbose --external-resources --prototypes C:\data\prototypes.csv
+```
+
 Generate proxies only for functions `GetFileVersionInfoExW` and `GetFileVersionInfoExA`.
 
 ```
 --mode proxy --ghidra C:\ghidra\support\analyzeHeadless.bat --dll C:\Windows\System32\version.dll --solution C:\Projects\spartacus-version --verbose --overwrite --external-resources --only "GetFileVersionInfoExW, GetFileVersionInfoExA"
+```
+
+Generate a function prototype database from existing *.h files, assisting in generating proxy functions for ones that Ghidra was not able to extract its function definition.
+
+```
+--mode proxy --action prototypes --path "C:\Program Files (x86)\Windows Kits" --csv C:\data\prototypes.csv --verbose
 ```
 
 ## DLL Hijacking Detection
@@ -202,6 +214,9 @@ To use this feature, simply run Spartacus with `--detect`.
 | `proxy`           | `--dll`                   | Path to the DLL you want to proxy, and can include multiple instances of this argument. |
 | `proxy`           | `--overwrite`             | If the `--solution` path already exists, use this flag to overwrite it. |
 | `proxy`           | `--only`                  | Generate proxy functions only for functions defined in this variable. Values are comma separated like `'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA'`. |
+| `proxy`           | `--action`                | Default action is to generate a VS solution. `--action prototypes`, takes as input a Windows SDK folder and parses *.h files in order to generate a database of function prototypes. |
+| `proxy`           | `--path`                  | Currently only works with `--action prototypes` and is the location of a Windows SDK directory. |
+| `proxy`           | `--prototypes`            | Location of prototypes.csv (currently within the `./Assets` folder). |
 | `com`             | `--acl`                   | Enumerate local system for missing/misconfigured COM libraries and executables. |
 
 # Contributions

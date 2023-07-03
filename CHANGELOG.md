@@ -1,5 +1,11 @@
 # Spartacus Changelog
 
+## v2.1.0
+
+* `[New]` Added `--action prototypes` to `--mode proxy` that supports the parsing of `*.h` files in order to generate pre-existing function prototypes.
+* `[New]` Included `./Assets/prototypes.csv` with a pre-generated list of function prototypes.
+* `[Update]` Updated `--mode com --acl` functionality to check the parent folder's permissions as well when checking for misconfigured COM registry entries.
+
 ## v2.0.0
 
 * `[New]` Implement support for identifying COM Hijacking.
