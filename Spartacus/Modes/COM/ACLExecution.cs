@@ -147,6 +147,36 @@ namespace Spartacus.Modes.COM
                                 {
                                     Logger.Debug(defaultValue + " does not exist");
                                     Findings.Add(new ACLStruct { regPath = key.Name, result = Result.MISSING_PATH, filePath = defaultValue });
+
+                                    // If the file does not exist, check if the folder is writable.
+                                    string parentPath = Path.GetDirectoryName(defaultValue);
+                                    if (Directory.Exists(parentPath))
+                                    {
+                                        DirectoryInfo parentDirectory = new DirectoryInfo(Path.GetDirectoryName(defaultValue));
+                                        if (Helper.UserACL.HasAccess(parentDirectory, System.Security.AccessControl.FileSystemRights.CreateFiles))
+                                        {
+                                            Logger.Debug(parentPath + " can be modified");
+                                            Findings.Add(new ACLStruct { regPath = key.Name, result = Result.MODIFY, filePath = parentPath });
+                                        }
+
+                                        if (Helper.UserACL.HasAccess(parentDirectory, System.Security.AccessControl.FileSystemRights.Delete))
+                                        {
+                                            Logger.Debug(parentPath + " can be deleted");
+                                            Findings.Add(new ACLStruct { regPath = key.Name, result = Result.MODIFY, filePath = parentPath });
+                                        }
+
+                                        if (Helper.UserACL.HasAccess(parentDirectory, System.Security.AccessControl.FileSystemRights.Modify))
+                                        {
+                                            Logger.Debug(parentPath + " can be modified");
+                                            Findings.Add(new ACLStruct { regPath = key.Name, result = Result.MODIFY, filePath = parentPath });
+                                        }
+
+                                        if (Helper.UserACL.HasAccess(parentDirectory, System.Security.AccessControl.FileSystemRights.Write))
+                                        {
+                                            Logger.Debug(parentPath + " can be written");
+                                            Findings.Add(new ACLStruct { regPath = key.Name, result = Result.MODIFY, filePath = parentPath });
+                                        }
+                                    }
                                 }
                                 else
                                 {
