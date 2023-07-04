@@ -1,5 +1,9 @@
 # Spartacus Changelog
 
+## v2.1.1
+
+* `[Update]` Added support for `NTAPI` prototypes.
+
 ## v2.1.0
 
 * `[New]` Added `--action prototypes` to `--mode proxy` that supports the parsing of `*.h` files in order to generate pre-existing function prototypes.

@@ -219,6 +219,10 @@ appmodel.h|LONG|AppPolicyGetShowDeveloperDiagnostic|HANDLE processToken, AppPoli
 appmodel.h|LONG|AppPolicyGetProcessTerminationMethod|HANDLE processToken, AppPolicyProcessTerminationMethod* policy
 appmodel.h|LONG|AppPolicyGetCreateFileAccess|HANDLE processToken, AppPolicyCreateFileAccess* policy
 appmodel.h|LONG|GetPackageInfo2|PACKAGE_INFO_REFERENCE packageInfoReference, UINT32 flags, PackagePathType packagePathType, UINT32* bufferLength, BYTE* buffer, UINT32* count
+appnotify.h|NTSTATUS|RegisterAppStateChangeNotification|PAPPSTATE_CHANGE_ROUTINE Routine, PVOID Context, PAPPSTATE_REGISTRATION* Registration
+appnotify.h|NTSTATUS|UnregisterAppStateChangeNotification|PAPPSTATE_REGISTRATION Registration
+appnotify.h|NTSTATUS|RegisterAppConstrainedChangeNotification|PAPPCONSTRAIN_CHANGE_ROUTINE Routine, PVOID Context, PAPPCONSTRAIN_REGISTRATION* Registration
+appnotify.h|NTSTATUS|UnregisterAppConstrainedChangeNotification|PAPPCONSTRAIN_REGISTRATION Registration
 atacct.h|HRESULT|GetNetScheduleAccountInformation|LPCWSTR pwszServerName, DWORD ccAccount, WCHAR wszAccount[]
 atacct.h|HRESULT|SetNetScheduleAccountInformation|LPCWSTR pwszServerName, LPCWSTR pwszAccount, LPCWSTR pwszPassword
 audioenginebaseapo.h|HRESULT|RegisterAPO|const* pProperties
@@ -381,6 +385,14 @@ bluetoothleapis.h|HRESULT|BluetoothGATTSetDescriptorValue|HANDLE hDevice, PBTH_L
 bluetoothleapis.h|HRESULT|BluetoothGATTRegisterEvent|HANDLE hService, BTH_LE_GATT_EVENT_TYPE EventType, PVOID EventParameterIn, PFNBLUETOOTH_GATT_EVENT_CALLBACK Callback, PVOID CallbackContext, BLUETOOTH_GATT_EVENT_HANDLE* pEventHandle, ULONG Flags
 bluetoothleapis.h|HRESULT|BluetoothGATTUnregisterEvent|BLUETOOTH_GATT_EVENT_HANDLE EventHandle, ULONG Flags
 celib.h|int|V ceDbgPrintf|BOOL fDebug, const* pszfmt, ...
+CertPolEng.h|NTSTATUS|PstGetTrustAnchors|PUNICODE_STRING pTargetName, DWORD cCriteria, PCCERT_SELECT_CRITERIA rgpCriteria, PSecPkgContext_IssuerListInfoEx* ppTrustedIssuers
+CertPolEng.h|NTSTATUS|PstGetTrustAnchorsEx|PUNICODE_STRING pTargetName, DWORD cCriteria, PCCERT_SELECT_CRITERIA rgpCriteria, PCCERT_CONTEXT pCertContext, PSecPkgContext_IssuerListInfoEx* ppTrustedIssuers
+CertPolEng.h|NTSTATUS|PstGetCertificateChain|PCCERT_CONTEXT pCert, PSecPkgContext_IssuerListInfoEx pTrustedIssuers, PCCERT_CHAIN_CONTEXT* ppCertChainContext
+CertPolEng.h|NTSTATUS|PstGetCertificates|PUNICODE_STRING pTargetName, DWORD cCriteria, PCCERT_SELECT_CRITERIA rgpCriteria, BOOL bIsClient, PDWORD pdwCertChainContextCount, PCCERT_CHAIN_CONTEXT** ppCertChainContexts
+CertPolEng.h|NTSTATUS|PstAcquirePrivateKey|PCCERT_CONTEXT pCert
+CertPolEng.h|NTSTATUS|PstValidate|PUNICODE_STRING pTargetName, BOOL bIsClient, CERT_USAGE_MATCH* pRequestedIssuancePolicy, HCERTSTORE* phAdditionalCertStore, PCCERT_CONTEXT pCert, GUID* pProvGUID
+CertPolEng.h|NTSTATUS|PstMapCertificate|PCCERT_CONTEXT pCert, LSA_TOKEN_INFORMATION_TYPE* pTokenInformationType, PVOID* ppTokenInformation
+CertPolEng.h|NTSTATUS|PstGetUserNameForCertificate|PCCERT_CONTEXT pCertContext, PUNICODE_STRING UserName
 cfapi.h|HRESULT|CfGetPlatformInfo|CF_PLATFORM_INFO* PlatformVersion
 cfapi.h|HRESULT|CfRegisterSyncRoot|LPCWSTR SyncRootPath, CF_SYNC_REGISTRATION* Registration, CF_SYNC_POLICIES* Policies, CF_REGISTER_FLAGS RegisterFlags
 cfapi.h|HRESULT|CfUnregisterSyncRoot|LPCWSTR SyncRootPath
@@ -2853,6 +2865,26 @@ ioapiset.h|BOOL|CancelIoEx|HANDLE hFile, LPOVERLAPPED lpOverlapped
 ioapiset.h|BOOL|CancelIo|HANDLE hFile
 ioapiset.h|BOOL|GetOverlappedResultEx|HANDLE hFile, LPOVERLAPPED lpOverlapped, LPDWORD lpNumberOfBytesTransferred, DWORD dwMilliseconds, BOOL bAlertable
 ioapiset.h|BOOL|CancelSynchronousIo|HANDLE hThread
+ip2string.h|NTSTATUS|RtlIpv4AddressToStringA|in_addr* Addr, PSTR S
+ip2string.h|NTSTATUS|RtlIpv6AddressToStringA|in6_addr* Addr, PSTR S
+ip2string.h|NTSTATUS|RtlEthernetAddressToStringA|DL_EUI48* Addr, PSTR S
+ip2string.h|NTSTATUS|RtlIpv4AddressToStringExA|in_addr* Address, USHORT Port, PSTR AddressString, PULONG AddressStringLength
+ip2string.h|NTSTATUS|RtlIpv6AddressToStringExA|in6_addr* Address, ULONG ScopeId, USHORT Port, PSTR AddressString, PULONG AddressStringLength
+ip2string.h|NTSTATUS|RtlIpv4AddressToStringW|in_addr* Addr, PWSTR S
+ip2string.h|NTSTATUS|RtlIpv6AddressToStringW|in6_addr* Addr, PWSTR S
+ip2string.h|NTSTATUS|RtlEthernetAddressToStringW|DL_EUI48* Addr, PWSTR S
+ip2string.h|NTSTATUS|RtlIpv4AddressToStringExW|in_addr* Address, USHORT Port, PWSTR AddressString, PULONG AddressStringLength
+ip2string.h|NTSTATUS|RtlIpv6AddressToStringExW|in6_addr* Address, ULONG ScopeId, USHORT Port, PWSTR AddressString, PULONG AddressStringLength
+ip2string.h|NTSTATUS|RtlIpv4StringToAddressA|PCSTR S, BOOLEAN Strict, PCSTR* Terminator, in_addr* Addr
+ip2string.h|NTSTATUS|RtlIpv6StringToAddressA|PCSTR S, PCSTR* Terminator, in6_addr* Addr
+ip2string.h|NTSTATUS|RtlEthernetStringToAddressA|PCSTR S, PCSTR* Terminator, DL_EUI48* Addr
+ip2string.h|NTSTATUS|RtlIpv4StringToAddressExA|PCSTR AddressString, BOOLEAN Strict, in_addr* Address, PUSHORT Port
+ip2string.h|NTSTATUS|RtlIpv6StringToAddressExA|PCSTR AddressString, in6_addr* Address, PULONG ScopeId, PUSHORT Port
+ip2string.h|NTSTATUS|RtlIpv4StringToAddressW|PCWSTR S, BOOLEAN Strict, LPCWSTR* Terminator, in_addr* Addr
+ip2string.h|NTSTATUS|RtlIpv6StringToAddressW|PCWSTR S, PCWSTR* Terminator, in6_addr* Addr
+ip2string.h|NTSTATUS|RtlEthernetStringToAddressW|PCWSTR S, LPCWSTR* Terminator, DL_EUI48* Addr
+ip2string.h|NTSTATUS|RtlIpv4StringToAddressExW|PCWSTR AddressString, BOOLEAN Strict, in_addr* Address, PUSHORT Port
+ip2string.h|NTSTATUS|RtlIpv6StringToAddressExW|PCWSTR AddressString, in6_addr* Address, PULONG ScopeId, PUSHORT Port
 iphlpapi.h|DWORD|GetNumberOfInterfaces|PDWORD pdwNumIf
 iphlpapi.h|DWORD|GetIfEntry|PMIB_IFROW pIfRow
 iphlpapi.h|DWORD|GetIfTable|PMIB_IFTABLE pIfTable, PULONG pdwSize, BOOL bOrder
@@ -3058,6 +3090,200 @@ ks.h|HRESULT|KsCreatePin2|HANDLE FilterHandle, PKSPIN_CONNECT Connect, ACCESS_MA
 ks.h|HRESULT|KsCreateTopologyNode2|HANDLE ParentHandle, PKSNODE_CREATE NodeCreate, ACCESS_MASK DesiredAccess, PHANDLE NodeHandle
 ks.h|NTSTATUS|KsAcquireCachedMdl|PIRP Irp, REFGUID Guid, PFNKSCANCELPINNEDMDL CancelRoutine, PVOID CancelContext, PMDL* MdlAddr, PVOID* ReleaseContext
 ks.h|NTSTATUS|KsReleaseCachedMdl|REFGUID Guid, PMDL MdlAddr, HANDLE ReleaseContext
+ks.h|NTSTATUS|KsEnableEvent|PIRP Irp, ULONG EventSetsCount, KSEVENT_SET* EventSet, PLIST_ENTRY EventsList, KSEVENTS_LOCKTYPE EventsFlags, PVOID EventsLock
+ks.h|NTSTATUS|KsEnableEventWithAllocator|PIRP Irp, ULONG EventSetsCount, KSEVENT_SET* EventSet, PLIST_ENTRY EventsList, KSEVENTS_LOCKTYPE EventsFlags, PVOID EventsLock, PFNKSALLOCATOR Allocator, ULONG EventItemSize
+ks.h|NTSTATUS|KsDisableEvent|PIRP Irp, PLIST_ENTRY EventsList, KSEVENTS_LOCKTYPE EventsFlags, PVOID EventsLock
+ks.h|NTSTATUS|KsDiscardEvent|PKSEVENT_ENTRY EventEntry
+ks.h|NTSTATUS|KsFreeEventList|PFILE_OBJECT FileObject, PLIST_ENTRY EventsList, KSEVENTS_LOCKTYPE EventsFlags, PVOID EventsLock
+ks.h|NTSTATUS|KsGenerateEvent|PKSEVENT_ENTRY EventEntry
+ks.h|NTSTATUS|KsGenerateDataEvent|PKSEVENT_ENTRY EventEntry, ULONG DataSize, PVOID Data
+ks.h|NTSTATUS|KsGenerateEventList|GUID* Set, ULONG EventId, PLIST_ENTRY EventsList, KSEVENTS_LOCKTYPE EventsFlags, PVOID EventsLock
+ks.h|NTSTATUS|KsGenerateThermalEvent|PVOID Object, KSDEVICE_THERMAL_STATE Value
+ks.h|NTSTATUS|KsDeviceRegisterThermalDispatch|PKSDEVICE KsDevice, PKSDEVICE_THERMAL_DISPATCH KsDeviceThermalDispatch
+ks.h|NTSTATUS|KsPropertyHandler|PIRP Irp, ULONG PropertySetsCount, KSPROPERTY_SET* PropertySet
+ks.h|NTSTATUS|KsPropertyHandlerWithAllocator|PIRP Irp, ULONG PropertySetsCount, KSPROPERTY_SET* PropertySet, PFNKSALLOCATOR Allocator, ULONG PropertyItemSize
+ks.h|NTSTATUS|KsFastPropertyHandler|PFILE_OBJECT FileObject, PKSPROPERTY Property, ULONG PropertyLength, _In_reads_bytes_PVOID Data, ULONG DataLength, PIO_STATUS_BLOCK IoStatus, ULONG PropertySetsCount, KSPROPERTY_SET* PropertySet
+ks.h|NTSTATUS|KsMethodHandler|PIRP Irp, ULONG MethodSetsCount, KSMETHOD_SET* MethodSet
+ks.h|NTSTATUS|KsMethodHandlerWithAllocator|PIRP Irp, ULONG MethodSetsCount, KSMETHOD_SET* MethodSet, PFNKSALLOCATOR Allocator, ULONG MethodItemSize
+ks.h|NTSTATUS|KsFastMethodHandler|PFILE_OBJECT FileObject, PKSMETHOD Method, ULONG MethodLength, PVOID Data, ULONG DataLength, PIO_STATUS_BLOCK IoStatus, ULONG MethodSetsCount, KSMETHOD_SET* MethodSet
+ks.h|NTSTATUS|KsCreateDefaultAllocator|PIRP Irp
+ks.h|NTSTATUS|KsCreateDefaultAllocatorEx|PIRP Irp, PVOID InitializeContext, PFNKSDEFAULTALLOCATE DefaultAllocate, PFNKSDEFAULTFREE DefaultFree, PFNKSINITIALIZEALLOCATOR InitializeAllocator, PFNKSDELETEALLOCATOR DeleteAllocator
+ks.h|NTSTATUS|KsValidateAllocatorCreateRequest|PIRP Irp, PKSALLOCATOR_FRAMING* AllocatorFraming
+ks.h|NTSTATUS|KsValidateAllocatorFramingEx|PKSALLOCATOR_FRAMING_EX Framing, ULONG BufferSize, KSALLOCATOR_FRAMING_EX* PinFraming
+ks.h|NTSTATUS|KsAllocateDefaultClock|PKSDEFAULTCLOCK* DefaultClock
+ks.h|NTSTATUS|KsAllocateDefaultClockEx|PKSDEFAULTCLOCK* DefaultClock, PVOID Context, PFNKSSETTIMER SetTimer, PFNKSCANCELTIMER CancelTimer, PFNKSCORRELATEDTIME CorrelatedTime, KSRESOLUTION* Resolution, ULONG Flags
+ks.h|NTSTATUS|KsFreeDefaultClock|PKSDEFAULTCLOCK DefaultClock
+ks.h|NTSTATUS|KsCreateDefaultClock|PIRP Irp, PKSDEFAULTCLOCK DefaultClock
+ks.h|NTSTATUS|KsCreateClock|HANDLE ConnectionHandle, PKSCLOCK_CREATE ClockCreate, PHANDLE ClockHandle
+ks.h|NTSTATUS|KsValidateClockCreateRequest|PIRP Irp, PKSCLOCK_CREATE* ClockCreate
+ks.h|NTSTATUS|KsGetDefaultClockState|PKSDEFAULTCLOCK DefaultClock
+ks.h|NTSTATUS|KsSetDefaultClockState|PKSDEFAULTCLOCK DefaultClock, KSSTATE State
+ks.h|NTSTATUS|KsGetDefaultClockTime|PKSDEFAULTCLOCK DefaultClock
+ks.h|NTSTATUS|KsSetDefaultClockTime|PKSDEFAULTCLOCK DefaultClock, LONGLONG Time
+ks.h|NTSTATUS|KsValidateConnectRequest|PIRP Irp, ULONG DescriptorsCount, KSPIN_DESCRIPTOR* Descriptor, PKSPIN_CONNECT* Connect
+ks.h|NTSTATUS|KsPinPropertyHandler|PIRP Irp, PKSPROPERTY Property, PVOID Data, ULONG DescriptorsCount, KSPIN_DESCRIPTOR* Descriptor
+ks.h|NTSTATUS|KsPinDataIntersection|PIRP Irp, PKSP_PIN Pin, PVOID Data, ULONG DescriptorsCount, KSPIN_DESCRIPTOR* Descriptor, PFNKSINTERSECTHANDLER IntersectHandler
+ks.h|NTSTATUS|KsPinDataIntersectionEx|PIRP Irp, PKSP_PIN Pin, PVOID Data, ULONG DescriptorsCount, KSPIN_DESCRIPTOR* Descriptor, ULONG DescriptorSize, PFNKSINTERSECTHANDLEREX IntersectHandler, PVOID HandlerContext
+ks.h|NTSTATUS|KsHandleSizedListQuery|PIRP Irp, ULONG DataItemsCount, ULONG DataItemSize, VOID* DataItems
+ks.h|NTSTATUS|KsLoadResource|PVOID ImageBase, POOL_TYPE PoolType, ULONG_PTR ResourceName, ULONG ResourceType, PVOID* Resource, PULONG ResourceSize
+ks.h|NTSTATUS|KsGetImageNameAndResourceId|HANDLE RegKey, PUNICODE_STRING ImageName, PULONG_PTR ResourceId, PULONG ValueType
+ks.h|NTSTATUS|KsMapModuleName|PDEVICE_OBJECT PhysicalDeviceObject, PUNICODE_STRING ModuleName, PUNICODE_STRING ImageName, PULONG_PTR ResourceId, PULONG ValueType
+ks.h|NTSTATUS|KsReferenceBusObject|KSDEVICE_HEADER Header
+ks.h|NTSTATUS|KsDereferenceBusObject|KSDEVICE_HEADER Header
+ks.h|NTSTATUS|KsDispatchQuerySecurity|PDEVICE_OBJECT DeviceObject, PIRP Irp
+ks.h|NTSTATUS|KsDispatchSetSecurity|PDEVICE_OBJECT DeviceObject, PIRP Irp
+ks.h|NTSTATUS|KsDispatchSpecificProperty|PIRP Irp, PFNKSHANDLER Handler
+ks.h|NTSTATUS|KsDispatchSpecificMethod|PIRP Irp, PFNKSHANDLER Handler
+ks.h|NTSTATUS|KsReadFile|PFILE_OBJECT FileObject, PKEVENT Event, PVOID PortContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID Buffer, ULONG Length, ULONG Key, KPROCESSOR_MODE RequestorMode
+ks.h|NTSTATUS|KsWriteFile|PFILE_OBJECT FileObject, PKEVENT Event, PVOID PortContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID Buffer, ULONG Length, ULONG Key, KPROCESSOR_MODE RequestorMode
+ks.h|NTSTATUS|KsQueryInformationFile|PFILE_OBJECT FileObject, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass
+ks.h|NTSTATUS|KsSetInformationFile|PFILE_OBJECT FileObject, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass
+ks.h|NTSTATUS|KsStreamIo|PFILE_OBJECT FileObject, PKEVENT Event, PVOID PortContext, PIO_COMPLETION_ROUTINE CompletionRoutine, PVOID CompletionContext, KSCOMPLETION_INVOCATION CompletionInvocationFlags, PIO_STATUS_BLOCK IoStatusBlock, PVOID StreamHeaders, ULONG Length, ULONG Flags, KPROCESSOR_MODE RequestorMode
+ks.h|NTSTATUS|KsProbeStreamIrp|PIRP Irp, ULONG ProbeFlags, ULONG HeaderSize
+ks.h|NTSTATUS|KsAllocateExtraData|PIRP Irp, ULONG ExtraSize, PVOID* ExtraBuffer
+ks.h|NTSTATUS|KsNullDriverUnload|PDRIVER_OBJECT DriverObject
+ks.h|NTSTATUS|KsSetMajorFunctionHandler|PDRIVER_OBJECT DriverObject, ULONG MajorFunction
+ks.h|NTSTATUS|KsDispatchInvalidDeviceRequest|PDEVICE_OBJECT DeviceObject, PIRP Irp
+ks.h|NTSTATUS|KsDefaultDeviceIoCompletion|PDEVICE_OBJECT DeviceObject, PIRP Irp
+ks.h|NTSTATUS|KsDispatchIrp|PDEVICE_OBJECT DeviceObject, PIRP Irp
+ks.h|NTSTATUS|KsDispatchFastIoDeviceControlFailure|PFILE_OBJECT FileObject, BOOLEAN Wait, PVOID InputBuffer, ULONG InputBufferLength, PVOID OutputBuffer, ULONG OutputBufferLength, ULONG IoControlCode, PIO_STATUS_BLOCK IoStatus, PDEVICE_OBJECT DeviceObject
+ks.h|NTSTATUS|KsDispatchFastReadFailure|PFILE_OBJECT FileObject, PLARGE_INTEGER FileOffset, ULONG Length, BOOLEAN Wait, ULONG LockKey, PVOID Buffer, PIO_STATUS_BLOCK IoStatus, PDEVICE_OBJECT DeviceObject
+ks.h|NTSTATUS|KsCancelIo|PLIST_ENTRY QueueHead, PKSPIN_LOCK SpinLock
+ks.h|NTSTATUS|KsReleaseIrpOnCancelableQueue|PIRP Irp, PDRIVER_CANCEL DriverCancel
+ks.h|NTSTATUS|KsRemoveIrpFromCancelableQueue|PLIST_ENTRY QueueHead, PKSPIN_LOCK SpinLock, KSLIST_ENTRY_LOCATION ListLocation, KSIRP_REMOVAL_OPERATION RemovalOperation
+ks.h|NTSTATUS|KsMoveIrpsOnCancelableQueue|PLIST_ENTRY SourceList, PKSPIN_LOCK SourceLock, PLIST_ENTRY DestinationList, PKSPIN_LOCK DestinationLock, KSLIST_ENTRY_LOCATION ListLocation, PFNKSIRPLISTCALLBACK ListCallback, PVOID Context
+ks.h|NTSTATUS|KsRemoveSpecificIrpFromCancelableQueue|PIRP Irp
+ks.h|NTSTATUS|KsAddIrpToCancelableQueue|PLIST_ENTRY QueueHead, PKSPIN_LOCK SpinLock, PIRP Irp, KSLIST_ENTRY_LOCATION ListLocation, PDRIVER_CANCEL DriverCancel
+ks.h|NTSTATUS|KsAcquireResetValue|PIRP Irp, KSRESET* ResetValue
+ks.h|NTSTATUS|KsTopologyPropertyHandler|PIRP Irp, PKSPROPERTY Property, PVOID Data, KSTOPOLOGY* Topology
+ks.h|NTSTATUS|KsAcquireDeviceSecurityLock|KSDEVICE_HEADER Header, BOOLEAN Exclusive
+ks.h|NTSTATUS|KsReleaseDeviceSecurityLock|KSDEVICE_HEADER Header
+ks.h|NTSTATUS|KsSetDevicePnpAndBaseObject|KSDEVICE_HEADER Header, PDEVICE_OBJECT PnpDeviceObject, PDEVICE_OBJECT BaseObject
+ks.h|NTSTATUS|KsQueryDevicePnpObject|KSDEVICE_HEADER Header
+ks.h|NTSTATUS|KsQueryObjectAccessMask|KSOBJECT_HEADER Header
+ks.h|NTSTATUS|KsRecalculateStackDepth|KSDEVICE_HEADER Header, BOOLEAN ReuseStackLocation
+ks.h|NTSTATUS|KsSetTargetState|KSOBJECT_HEADER Header, KSTARGET_STATE TargetState
+ks.h|NTSTATUS|KsSetTargetDeviceObject|KSOBJECT_HEADER Header, PDEVICE_OBJECT TargetDevice
+ks.h|NTSTATUS|KsSetPowerDispatch|KSOBJECT_HEADER Header, PFNKSCONTEXT_DISPATCH PowerDispatch, PVOID PowerContext
+ks.h|NTSTATUS|KsQueryObjectCreateItem|KSOBJECT_HEADER Header
+ks.h|NTSTATUS|KsAllocateDeviceHeader|KSDEVICE_HEADER* Header, ULONG ItemsCount, PKSOBJECT_CREATE_ITEM ItemsList
+ks.h|NTSTATUS|KsFreeDeviceHeader|KSDEVICE_HEADER Header
+ks.h|NTSTATUS|KsAllocateObjectHeader|KSOBJECT_HEADER* Header, ULONG ItemsCount, PKSOBJECT_CREATE_ITEM ItemsList, PIRP Irp, KSDISPATCH_TABLE* Table
+ks.h|NTSTATUS|KsFreeObjectHeader|KSOBJECT_HEADER Header
+ks.h|NTSTATUS|KsAddObjectCreateItemToDeviceHeader|KSDEVICE_HEADER Header, PDRIVER_DISPATCH Create, PVOID Context, PWSTR ObjectClass, PSECURITY_DESCRIPTOR SecurityDescriptor
+ks.h|NTSTATUS|KsAddObjectCreateItemToObjectHeader|KSOBJECT_HEADER Header, PDRIVER_DISPATCH Create, PVOID Context, PWSTR ObjectClass, PSECURITY_DESCRIPTOR SecurityDescriptor
+ks.h|NTSTATUS|KsAllocateObjectCreateItem|KSDEVICE_HEADER Header, PKSOBJECT_CREATE_ITEM CreateItem, BOOLEAN AllocateEntry, PFNKSITEMFREECALLBACK ItemFreeCallback
+ks.h|NTSTATUS|KsFreeObjectCreateItem|KSDEVICE_HEADER Header, PUNICODE_STRING CreateItem
+ks.h|NTSTATUS|KsFreeObjectCreateItemsByContext|KSDEVICE_HEADER Header, PVOID Context
+ks.h|NTSTATUS|KsCreateDefaultSecurity|PSECURITY_DESCRIPTOR ParentSecurity, PSECURITY_DESCRIPTOR* DefaultSecurity
+ks.h|NTSTATUS|KsForwardIrp|PIRP Irp, PFILE_OBJECT FileObject, BOOLEAN ReuseStackLocation
+ks.h|NTSTATUS|KsForwardAndCatchIrp|PDEVICE_OBJECT DeviceObject, PIRP Irp, PFILE_OBJECT FileObject, KSSTACK_USE StackUse
+ks.h|NTSTATUS|KsSynchronousIoControlDevice|PFILE_OBJECT FileObject, KPROCESSOR_MODE RequestorMode, ULONG IoControl, PVOID InBuffer, ULONG InSize, PVOID OutBuffer, ULONG OutSize, PULONG BytesReturned
+ks.h|NTSTATUS|KsUnserializeObjectPropertiesFromRegistry|PFILE_OBJECT FileObject, HANDLE ParentKey, PUNICODE_STRING RegistryPath
+ks.h|NTSTATUS|KsCacheMedium|PUNICODE_STRING SymbolicLink, PKSPIN_MEDIUM Medium, ULONG PinDirection
+ks.h|NTSTATUS|KsRegisterWorker|WORK_QUEUE_TYPE WorkQueueType, PKSWORKER* Worker
+ks.h|NTSTATUS|KsRegisterCountedWorker|WORK_QUEUE_TYPE WorkQueueType, PWORK_QUEUE_ITEM CountedWorkItem, PKSWORKER* Worker
+ks.h|NTSTATUS|KsUnregisterWorker|PKSWORKER Worker
+ks.h|NTSTATUS|KsQueueWorkItem|PKSWORKER Worker, PWORK_QUEUE_ITEM WorkItem
+ks.h|NTSTATUS|KsIncrementCountedWorker|PKSWORKER Worker
+ks.h|NTSTATUS|KsDecrementCountedWorker|PKSWORKER Worker
+ks.h|NTSTATUS|KsValidateTopologyNodeCreateRequest|PIRP Irp, PKSTOPOLOGY Topology, PKSNODE_CREATE* NodeCreate
+ks.h|NTSTATUS|KsMergeAutomationTables|PKSAUTOMATION_TABLE* AutomationTableAB, PKSAUTOMATION_TABLE AutomationTableA, PKSAUTOMATION_TABLE AutomationTableB, KSOBJECT_BAG Bag
+ks.h|NTSTATUS|KsInitializeDriver|PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPathName, KSDEVICE_DESCRIPTOR* Descriptor
+ks.h|NTSTATUS|KsAddDevice|PDRIVER_OBJECT DriverObject, PDEVICE_OBJECT PhysicalDeviceObject
+ks.h|NTSTATUS|KsCreateDevice|PDRIVER_OBJECT DriverObject, PDEVICE_OBJECT PhysicalDeviceObject, KSDEVICE_DESCRIPTOR* Descriptor, ULONG ExtensionSize, PKSDEVICE* Device
+ks.h|NTSTATUS|KsInitializeDevice|PDEVICE_OBJECT FunctionalDeviceObject, PDEVICE_OBJECT PhysicalDeviceObject, PDEVICE_OBJECT NextDeviceObject, KSDEVICE_DESCRIPTOR* Descriptor
+ks.h|NTSTATUS|KsTerminateDevice|PDEVICE_OBJECT DeviceObject
+ks.h|NTSTATUS|KsGetDeviceForDeviceObject|PDEVICE_OBJECT FunctionalDeviceObject
+ks.h|NTSTATUS|KsAcquireDevice|PKSDEVICE Device
+ks.h|NTSTATUS|KsReleaseDevice|PKSDEVICE Device
+ks.h|NTSTATUS|KsDeviceRegisterAdapterObject|PKSDEVICE Device, PADAPTER_OBJECT AdapterObject, ULONG MaxMappingsByteCount, ULONG MappingTableStride
+ks.h|NTSTATUS|KsDeviceGetBusData|PKSDEVICE Device, ULONG DataType, PVOID Buffer, ULONG Offset, ULONG Length
+ks.h|NTSTATUS|KsDeviceSetBusData|PKSDEVICE Device, ULONG DataType, PVOID Buffer, ULONG Offset, ULONG Length
+ks.h|NTSTATUS|KsCreateFilterFactory|PDEVICE_OBJECT DeviceObject, KSFILTER_DESCRIPTOR* Descriptor, PWSTR RefString, PSECURITY_DESCRIPTOR SecurityDescriptor, ULONG CreateItemFlags, PFNKSFILTERFACTORYPOWER SleepCallback, PFNKSFILTERFACTORYPOWER WakeCallback, PKSFILTERFACTORY* FilterFactory
+ks.h|NTSTATUS|KsFilterFactoryUpdateCacheData|PKSFILTERFACTORY FilterFactory, KSFILTER_DESCRIPTOR* FilterDescriptor
+ks.h|NTSTATUS|KsFilterFactoryAddCreateItem|PKSFILTERFACTORY FilterFactory, PWSTR RefString, PSECURITY_DESCRIPTOR SecurityDescriptor, ULONG CreateItemFlags
+ks.h|NTSTATUS|KsFilterFactorySetDeviceClassesState|PKSFILTERFACTORY FilterFactory, BOOLEAN NewState
+ks.h|NTSTATUS|KsFilterFactoryGetSymbolicLink|PKSFILTERFACTORY FilterFactory
+ks.h|NTSTATUS|KsInitializeDeviceProfile|PKSFILTERFACTORY FilterFactory
+ks.h|NTSTATUS|KsPublishDeviceProfile|PKSFILTERFACTORY FilterFactory, PKSDEVICE_PROFILE_INFO Profile
+ks.h|NTSTATUS|KsPersistDeviceProfile|PKSFILTERFACTORY FilterFactory
+ks.h|NTSTATUS|KsAddEvent|PVOID Object, PKSEVENT_ENTRY EventEntry
+ks.h|NTSTATUS|KsDefaultAddEventHandler|PIRP Irp, PKSEVENTDATA EventData, PKSEVENT_ENTRY EventEntry
+ks.h|NTSTATUS|KsGenerateEvents|PVOID Object, GUID* EventSet, ULONG EventId, ULONG DataSize, PVOID Data, PFNKSGENERATEEVENTCALLBACK CallBack, PVOID CallBackContext
+ks.h|NTSTATUS|KsPinGetAvailableByteCount|PKSPIN Pin, PLONG InputDataBytes, PLONG OutputBufferBytes
+ks.h|NTSTATUS|KsPinGetLeadingEdgeStreamPointer|PKSPIN Pin, KSSTREAM_POINTER_STATE State
+ks.h|NTSTATUS|KsPinGetTrailingEdgeStreamPointer|PKSPIN Pin, KSSTREAM_POINTER_STATE State
+ks.h|NTSTATUS|KsStreamPointerSetStatusCode|PKSSTREAM_POINTER StreamPointer, NTSTATUS Status
+ks.h|NTSTATUS|KsStreamPointerLock|PKSSTREAM_POINTER StreamPointer
+ks.h|NTSTATUS|KsStreamPointerUnlock|PKSSTREAM_POINTER StreamPointer, BOOLEAN Eject
+ks.h|NTSTATUS|KsStreamPointerAdvanceOffsetsAndUnlock|PKSSTREAM_POINTER StreamPointer, ULONG InUsed, ULONG OutUsed, BOOLEAN Eject
+ks.h|NTSTATUS|KsStreamPointerDelete|PKSSTREAM_POINTER StreamPointer
+ks.h|NTSTATUS|KsStreamPointerClone|PKSSTREAM_POINTER StreamPointer, PFNKSSTREAMPOINTER CancelCallback, ULONG ContextSize, PKSSTREAM_POINTER* CloneStreamPointer
+ks.h|NTSTATUS|KsStreamPointerAdvanceOffsets|PKSSTREAM_POINTER StreamPointer, ULONG InUsed, ULONG OutUsed, BOOLEAN Eject
+ks.h|NTSTATUS|KsStreamPointerAdvance|PKSSTREAM_POINTER StreamPointer
+ks.h|NTSTATUS|KsStreamPointerGetMdl|PKSSTREAM_POINTER StreamPointer
+ks.h|NTSTATUS|KsStreamPointerGetIrp|PKSSTREAM_POINTER StreamPointer, PBOOLEAN FirstFrameInIrp, PBOOLEAN LastFrameInIrp
+ks.h|NTSTATUS|KsStreamPointerScheduleTimeout|PKSSTREAM_POINTER StreamPointer, PFNKSSTREAMPOINTER Callback, ULONGLONG Interval
+ks.h|NTSTATUS|KsStreamPointerCancelTimeout|PKSSTREAM_POINTER StreamPointer
+ks.h|NTSTATUS|KsPinGetFirstCloneStreamPointer|PKSPIN Pin
+ks.h|NTSTATUS|KsStreamPointerGetNextClone|PKSSTREAM_POINTER StreamPointer
+ks.h|NTSTATUS|KsPinHandshake|PKSPIN Pin, PKSHANDSHAKE In, PKSHANDSHAKE Out
+ks.h|NTSTATUS|KsCompletePendingRequest|PIRP Irp
+ks.h|NTSTATUS|KsGetObjectTypeFromIrp|PIRP Irp
+ks.h|NTSTATUS|KsGetObjectFromFileObject|PFILE_OBJECT FileObject
+ks.h|NTSTATUS|KsGetObjectTypeFromFileObject|PFILE_OBJECT FileObject
+ks.h|NTSTATUS|KsFilterGetAndGate|PKSFILTER Filter
+ks.h|NTSTATUS|KsFilterAcquireProcessingMutex|PKSFILTER Filter
+ks.h|NTSTATUS|KsFilterReleaseProcessingMutex|PKSFILTER Filter
+ks.h|NTSTATUS|KsFilterAttemptProcessing|PKSFILTER Filter, BOOLEAN Asynchronous
+ks.h|NTSTATUS|KsPinGetAndGate|PKSPIN Pin
+ks.h|NTSTATUS|KsPinAttachAndGate|PKSPIN Pin, PKSGATE AndGate
+ks.h|NTSTATUS|KsPinAttachOrGate|PKSPIN Pin, PKSGATE OrGate
+ks.h|NTSTATUS|KsPinAcquireProcessingMutex|PKSPIN Pin
+ks.h|NTSTATUS|KsPinReleaseProcessingMutex|PKSPIN Pin
+ks.h|NTSTATUS|KsProcessPinUpdate|PKSPROCESSPIN ProcessPin
+ks.h|NTSTATUS|KsPinGetCopyRelationships|PKSPIN Pin, PKSPIN* CopySource, PKSPIN* DelegateBranch
+ks.h|NTSTATUS|KsPinAttemptProcessing|PKSPIN Pin, BOOLEAN Asynchronous
+ks.h|NTSTATUS|KsGetParent|PVOID Object
+ks.h|NTSTATUS|KsPinGetParentFilter|PKSPIN Pin
+ks.h|NTSTATUS|KsGetFirstChild|PVOID Object
+ks.h|NTSTATUS|KsFilterGetChildPinCount|PKSFILTER Filter, ULONG PinId
+ks.h|NTSTATUS|KsFilterGetFirstChildPin|PKSFILTER Filter, ULONG PinId
+ks.h|NTSTATUS|KsGetNextSibling|PVOID Object
+ks.h|NTSTATUS|KsPinGetNextSiblingPin|PKSPIN Pin
+ks.h|NTSTATUS|KsGetDevice|PVOID Object
+ks.h|NTSTATUS|KsGetFilterFromIrp|PIRP Irp
+ks.h|NTSTATUS|KsGetPinFromIrp|PIRP Irp
+ks.h|NTSTATUS|KsGetNodeIdFromIrp|PIRP Irp
+ks.h|NTSTATUS|KsAcquireControl|PVOID Object
+ks.h|NTSTATUS|KsReleaseControl|PVOID Object
+ks.h|NTSTATUS|KsAddItemToObjectBag|KSOBJECT_BAG ObjectBag, PVOID Item, PFNKSFREE Free
+ks.h|NTSTATUS|KsRemoveItemFromObjectBag|KSOBJECT_BAG ObjectBag, PVOID Item, BOOLEAN Free
+ks.h|NTSTATUS|KsAllocateObjectBag|PKSDEVICE Device, KSOBJECT_BAG* ObjectBag
+ks.h|NTSTATUS|KsFreeObjectBag|KSOBJECT_BAG ObjectBag
+ks.h|NTSTATUS|KsCopyObjectBagItems|KSOBJECT_BAG ObjectBagDestination, KSOBJECT_BAG ObjectBagSource
+ks.h|NTSTATUS|_KsEdit|KSOBJECT_BAG ObjectBag, PVOID* PointerToPointerToItem, ULONG NewSize, ULONG OldSize, ULONG Tag
+ks.h|NTSTATUS|KsRegisterFilterWithNoKSPins|PDEVICE_OBJECT DeviceObject, GUID* InterfaceClassGUID, ULONG PinCount, BOOL* PinDirection, KSPIN_MEDIUM* MediumList, GUID* CategoryList
+ks.h|NTSTATUS|KsFilterCreatePinFactory|PKSFILTER Filter, *const PinDescriptor, PULONG PinID
+ks.h|NTSTATUS|KsFilterCreateNode|PKSFILTER Filter, *const NodeDescriptor, PULONG NodeID
+ks.h|NTSTATUS|KsFilterAddTopologyConnections|PKSFILTER Filter, ULONG NewConnectionsCount, *const NewTopologyConnections
+ks.h|NTSTATUS|KsPinGetConnectedPinInterface|PKSPIN Pin, GUID* InterfaceId, PVOID* Interface
+ks.h|NTSTATUS|KsPinGetConnectedPinFileObject|PKSPIN Pin
+ks.h|NTSTATUS|KsPinGetConnectedPinDeviceObject|PKSPIN Pin
+ks.h|NTSTATUS|KsPinGetConnectedFilterInterface|PKSPIN Pin, GUID* InterfaceId, PVOID* Interface
+ks.h|NTSTATUS|KsPinGetReferenceClockInterface|PKSPIN Pin, PIKSREFERENCECLOCK* Interface
+ks.h|NTSTATUS|KsPinSetPinClockTime|PKSPIN Pin, LONGLONG Time
+ks.h|NTSTATUS|KsPinSubmitFrame|PKSPIN Pin, PVOID Data, ULONG Size, PKSSTREAM_HEADER StreamHeader, PVOID Context
+ks.h|NTSTATUS|KsPinSubmitFrameMdl|PKSPIN Pin, PMDL Mdl, PKSSTREAM_HEADER StreamHeader, PVOID Context
+ks.h|NTSTATUS|KsPinRegisterFrameReturnCallback|PKSPIN Pin, PFNKSPINFRAMERETURN FrameReturn
+ks.h|NTSTATUS|KsPinRegisterIrpCompletionCallback|PKSPIN Pin, PFNKSPINIRPCOMPLETION IrpCompletion
+ks.h|NTSTATUS|KsPinRegisterHandshakeCallback|PKSPIN Pin, PFNKSPINHANDSHAKE Handshake
+ks.h|NTSTATUS|KsFilterRegisterPowerCallbacks|PKSFILTER Filter, PFNKSFILTERPOWER Sleep, PFNKSFILTERPOWER Wake
+ks.h|NTSTATUS|KsPinRegisterPowerCallbacks|PKSPIN Pin, PFNKSPINPOWER Sleep, PFNKSPINPOWER Wake
+ks.h|NTSTATUS|KsRegisterAggregatedClientUnknown|PVOID Object, PUNKNOWN ClientUnknown
+ks.h|NTSTATUS|KsGetOuterUnknown|PVOID Object
+ks.h|NTSTATUS|KsCreateClock2|HANDLE ConnectionHandle, PKSCLOCK_CREATE ClockCreate, PHANDLE ClockHandle
 ksproxy.h|HRESULT|KsResolveRequiredAttributes|PKSDATARANGE DataRange, PKSMULTIPLE_ITEM Attributes
 ksproxy.h|HRESULT|KsOpenDefaultDevice|REFGUID Category, ACCESS_MASK Access, PHANDLE DeviceHandle
 ksproxy.h|HRESULT|KsSynchronousDeviceControl|HANDLE Handle, ULONG IoControl, PVOID InBuffer, ULONG InLength, PVOID OutBuffer, ULONG OutLength, PULONG BytesReturned
@@ -3983,6 +4209,26 @@ mssip.h|BOOL|CryptSIPAddProvider|SIP_ADD_NEWPROVIDER* psNewProv
 mssip.h|BOOL|CryptSIPRemoveProvider|GUID* pgProv
 mssip.h|BOOL|CryptSIPGetCaps|SIP_SUBJECTINFO* pSubjInfo, SIP_CAP_SET* pCaps
 mssip.h|BOOL|CryptSIPGetSealedDigest|SIP_SUBJECTINFO* pSubjectInfo, BYTE* pSig, DWORD dwSig, BYTE* pbDigest, DWORD* pcbDigest
+mstcpip.h|NTSTATUS|RtlIpv4AddressToStringA|in_addr* Addr, PSTR S
+mstcpip.h|NTSTATUS|RtlIpv4AddressToStringExA|in_addr* Address, USHORT Port, PSTR AddressString, PULONG AddressStringLength
+mstcpip.h|NTSTATUS|RtlIpv4AddressToStringW|in_addr* Addr, PWSTR S
+mstcpip.h|NTSTATUS|RtlIpv4AddressToStringExW|in_addr* Address, USHORT Port, PWSTR AddressString, PULONG AddressStringLength
+mstcpip.h|NTSTATUS|RtlIpv4StringToAddressA|PCSTR S, BOOLEAN Strict, PCSTR* Terminator, in_addr* Addr
+mstcpip.h|NTSTATUS|RtlIpv4StringToAddressExA|PCSTR AddressString, BOOLEAN Strict, in_addr* Address, PUSHORT Port
+mstcpip.h|NTSTATUS|RtlIpv4StringToAddressW|PCWSTR S, BOOLEAN Strict, LPCWSTR* Terminator, in_addr* Addr
+mstcpip.h|NTSTATUS|RtlIpv4StringToAddressExW|PCWSTR AddressString, BOOLEAN Strict, in_addr* Address, PUSHORT Port
+mstcpip.h|NTSTATUS|RtlIpv6AddressToStringA|in6_addr* Addr, PSTR S
+mstcpip.h|NTSTATUS|RtlIpv6AddressToStringExA|in6_addr* Address, ULONG ScopeId, USHORT Port, PSTR AddressString, PULONG AddressStringLength
+mstcpip.h|NTSTATUS|RtlIpv6AddressToStringW|in6_addr* Addr, PWSTR S
+mstcpip.h|NTSTATUS|RtlIpv6AddressToStringExW|in6_addr* Address, ULONG ScopeId, USHORT Port, PWSTR AddressString, PULONG AddressStringLength
+mstcpip.h|NTSTATUS|RtlIpv6StringToAddressA|PCSTR S, PCSTR* Terminator, in6_addr* Addr
+mstcpip.h|NTSTATUS|RtlIpv6StringToAddressExA|PCSTR AddressString, in6_addr* Address, PULONG ScopeId, PUSHORT Port
+mstcpip.h|NTSTATUS|RtlIpv6StringToAddressW|PCWSTR S, PCWSTR* Terminator, in6_addr* Addr
+mstcpip.h|NTSTATUS|RtlIpv6StringToAddressExW|PCWSTR AddressString, in6_addr* Address, PULONG ScopeId, PUSHORT Port
+mstcpip.h|NTSTATUS|RtlEthernetAddressToStringA|DL_EUI48* Addr, PSTR S
+mstcpip.h|NTSTATUS|RtlEthernetAddressToStringW|DL_EUI48* Addr, PWSTR S
+mstcpip.h|NTSTATUS|RtlEthernetStringToAddressA|PCSTR S, PCSTR* Terminator, DL_EUI48* Addr
+mstcpip.h|NTSTATUS|RtlEthernetStringToAddressW|PCWSTR S, LPCWSTR* Terminator, DL_EUI48* Addr
 MultiMon.h|HMONITOR|xMonitorFromWindow|HWND hWnd, WINDOWPLACEMENT wp
 MultiMon.h|BOOL|xGetMonitorInfo|HMONITOR hMonitor, RECT rcWork
 MultiMon.h|BOOL|xEnumDisplayMonitors|HDC hdcOptionalForPainting, LPCRECT lprcEnumMonitorsThatIntersect, MONITORENUMPROC lpfnEnumProc, RECT rcLimit
@@ -4090,6 +4336,10 @@ newdev.h|BOOL|DiUninstallDriverA|HWND hwndParent, LPCSTR InfPath, DWORD Flags, P
 newdev.h|BOOL|DiShowUpdateDevice|HWND hwndParent, HDEVINFO DeviceInfoSet, PSP_DEVINFO_DATA DeviceInfoData, DWORD Flags, PBOOL NeedReboot
 newdev.h|BOOL|DiRollbackDriver|HDEVINFO DeviceInfoSet, PSP_DEVINFO_DATA DeviceInfoData, HWND hwndParent, DWORD Flags, PBOOL NeedReboot
 newdev.h|BOOL|DiShowUpdateDriver|HWND hwndParent, PCWSTR FilePath, DWORD Flags, PBOOL NeedReboot
+ntdef.h|NTSTATUS|Int64ShllMod32|ULONGLONG Value, ULONG ShiftCount
+ntdef.h|NTSTATUS|Int64ShraMod32|LONGLONG Value, ULONG ShiftCount
+ntdef.h|NTSTATUS|Int64ShrlMod32|ULONGLONG Value, ULONG ShiftCount
+ntdef.h|NTSTATUS|EXCEPTION_ROUTINE|_EXCEPTION_RECORD* ExceptionRecord, PVOID EstablisherFrame, _CONTEXT* ContextRecord, PVOID DispatcherContext
 NtDsAPI.h|DWORD|DsBindW|LPCWSTR DomainControllerName, LPCWSTR DnsDomainName, HANDLE* phDS
 NtDsAPI.h|DWORD|DsBindA|LPCSTR DomainControllerName, LPCSTR DnsDomainName, HANDLE* phDS
 NtDsAPI.h|DWORD|DsBindWithCredW|LPCWSTR DomainControllerName, LPCWSTR DnsDomainName, RPC_AUTH_IDENTITY_HANDLE AuthIdentity, HANDLE* phDS
@@ -4171,6 +4421,80 @@ NtDsAPI.h|DWORD|DsAddSidHistoryW|HANDLE hDS, DWORD Flags, LPCWSTR SrcDomain, LPC
 NtDsAPI.h|DWORD|DsAddSidHistoryA|HANDLE hDS, DWORD Flags, LPCSTR SrcDomain, LPCSTR SrcPrincipal, LPCSTR SrcDomainController, RPC_AUTH_IDENTITY_HANDLE SrcDomainCreds, LPCSTR DstDomain, LPCSTR DstPrincipal
 NtDsAPI.h|DWORD|DsInheritSecurityIdentityW|HANDLE hDS, DWORD Flags, LPCWSTR SrcPrincipal, LPCWSTR DstPrincipal
 NtDsAPI.h|DWORD|DsInheritSecurityIdentityA|HANDLE hDS, DWORD Flags, LPCSTR SrcPrincipal, LPCSTR DstPrincipal
+ntlsa.h|NTSTATUS|LsaRegisterLogonProcess|PLSA_STRING LogonProcessName, PHANDLE LsaHandle, PLSA_OPERATIONAL_MODE SecurityMode
+ntlsa.h|NTSTATUS|LsaLogonUser|HANDLE LsaHandle, PLSA_STRING OriginName, SECURITY_LOGON_TYPE LogonType, ULONG AuthenticationPackage, PVOID AuthenticationInformation, ULONG AuthenticationInformationLength, PTOKEN_GROUPS LocalGroups, PTOKEN_SOURCE SourceContext, PVOID* ProfileBuffer, PULONG ProfileBufferLength, PLUID LogonId, PHANDLE Token, PQUOTA_LIMITS Quotas, PNTSTATUS SubStatus
+ntlsa.h|NTSTATUS|LsaLookupAuthenticationPackage|HANDLE LsaHandle, PLSA_STRING PackageName, PULONG AuthenticationPackage
+ntlsa.h|NTSTATUS|LsaFreeReturnBuffer|PVOID Buffer
+ntlsa.h|NTSTATUS|LsaCallAuthenticationPackage|HANDLE LsaHandle, ULONG AuthenticationPackage, PVOID ProtocolSubmitBuffer, ULONG SubmitBufferLength, PVOID* ProtocolReturnBuffer, PULONG ReturnBufferLength, PNTSTATUS ProtocolStatus
+ntlsa.h|NTSTATUS|LsaDeregisterLogonProcess|HANDLE LsaHandle
+ntlsa.h|NTSTATUS|LsaConnectUntrusted|PHANDLE LsaHandle
+ntlsa.h|NTSTATUS|LsaFreeMemory|PVOID Buffer
+ntlsa.h|NTSTATUS|LsaClose|LSA_HANDLE ObjectHandle
+ntlsa.h|NTSTATUS|LsaDelete|LSA_HANDLE ObjectHandle
+ntlsa.h|NTSTATUS|LsaQuerySecurityObject|LSA_HANDLE ObjectHandle, SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR* SecurityDescriptor
+ntlsa.h|NTSTATUS|LsaSetSecurityObject|LSA_HANDLE ObjectHandle, SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR SecurityDescriptor
+ntlsa.h|NTSTATUS|LsaChangePassword|PLSA_UNICODE_STRING ServerName, PLSA_UNICODE_STRING DomainName, PLSA_UNICODE_STRING AccountName, PLSA_UNICODE_STRING OldPassword, PLSA_UNICODE_STRING NewPassword
+ntlsa.h|NTSTATUS|LsaEnumerateLogonSessions|PULONG LogonSessionCount, PLUID* LogonSessionList
+ntlsa.h|NTSTATUS|LsaGetLogonSessionData|PLUID LogonId, PSECURITY_LOGON_SESSION_DATA* ppLogonSessionData
+ntlsa.h|NTSTATUS|LsaOpenPolicy|PLSA_UNICODE_STRING SystemName, PLSA_OBJECT_ATTRIBUTES ObjectAttributes, ACCESS_MASK DesiredAccess, PLSA_HANDLE PolicyHandle
+ntlsa.h|NTSTATUS|LsaOpenPolicySce|PLSA_UNICODE_STRING SystemName, PLSA_OBJECT_ATTRIBUTES ObjectAttributes, ACCESS_MASK DesiredAccess, PLSA_HANDLE PolicyHandle
+ntlsa.h|NTSTATUS|LsaSetCAPs|PLSA_UNICODE_STRING CAPDNs, ULONG CAPDNCount, ULONG Flags
+ntlsa.h|NTSTATUS|LsaGetAppliedCAPIDs|PLSA_UNICODE_STRING SystemName, PSID** CAPIDs, PULONG CAPIDCount
+ntlsa.h|NTSTATUS|LsaQueryCAPs|PSID* CAPIDs, ULONG CAPIDCount, PCENTRAL_ACCESS_POLICY* CAPs, PULONG CAPCount
+ntlsa.h|NTSTATUS|LsaQueryInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_INFORMATION_CLASS InformationClass, PVOID* Buffer
+ntlsa.h|NTSTATUS|LsaSetInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_INFORMATION_CLASS InformationClass, PVOID Buffer
+ntlsa.h|NTSTATUS|LsaQueryDomainInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_DOMAIN_INFORMATION_CLASS InformationClass, PVOID* Buffer
+ntlsa.h|NTSTATUS|LsaSetDomainInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_DOMAIN_INFORMATION_CLASS InformationClass, PVOID Buffer
+ntlsa.h|NTSTATUS|LsaRegisterPolicyChangeNotification|POLICY_NOTIFICATION_INFORMATION_CLASS InformationClass, HANDLE NotificationEventHandle
+ntlsa.h|NTSTATUS|LsaUnregisterPolicyChangeNotification|POLICY_NOTIFICATION_INFORMATION_CLASS InformationClass, HANDLE NotificationEventHandle
+ntlsa.h|NTSTATUS|LsaClearAuditLog|LSA_HANDLE PolicyHandle
+ntlsa.h|NTSTATUS|LsaCreateAccount|LSA_HANDLE PolicyHandle, PSID AccountSid, ACCESS_MASK DesiredAccess, PLSA_HANDLE AccountHandle
+ntlsa.h|NTSTATUS|LsaEnumerateAccounts|LSA_HANDLE PolicyHandle, PLSA_ENUMERATION_HANDLE EnumerationContext, PVOID* Buffer, ULONG PreferedMaximumLength, PULONG CountReturned
+ntlsa.h|NTSTATUS|LsaCreateTrustedDomain|LSA_HANDLE PolicyHandle, PLSA_TRUST_INFORMATION TrustedDomainInformation, ACCESS_MASK DesiredAccess, PLSA_HANDLE TrustedDomainHandle
+ntlsa.h|NTSTATUS|LsaEnumerateTrustedDomains|LSA_HANDLE PolicyHandle, PLSA_ENUMERATION_HANDLE EnumerationContext, PVOID* Buffer, ULONG PreferedMaximumLength, PULONG CountReturned
+ntlsa.h|NTSTATUS|LsaEnumeratePrivileges|LSA_HANDLE PolicyHandle, PLSA_ENUMERATION_HANDLE EnumerationContext, PVOID* Buffer, ULONG PreferedMaximumLength, PULONG CountReturned
+ntlsa.h|NTSTATUS|LsaLookupNames|LSA_HANDLE PolicyHandle, ULONG Count, PLSA_UNICODE_STRING Names, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_SID* Sids
+ntlsa.h|NTSTATUS|LsaLookupNames2|LSA_HANDLE PolicyHandle, ULONG Flags, ULONG Count, PLSA_UNICODE_STRING Names, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_SID2* Sids
+ntlsa.h|NTSTATUS|LsaLookupSids|LSA_HANDLE PolicyHandle, ULONG Count, PSID* Sids, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_NAME* Names
+ntlsa.h|NTSTATUS|LsaLookupSids2|LSA_HANDLE PolicyHandle, ULONG LookupOptions, ULONG Count, PSID* Sids, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_NAME* Names
+ntlsa.h|NTSTATUS|LsaCreateSecret|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING SecretName, ACCESS_MASK DesiredAccess, PLSA_HANDLE SecretHandle
+ntlsa.h|NTSTATUS|LsaOpenAccount|LSA_HANDLE PolicyHandle, PSID AccountSid, ACCESS_MASK DesiredAccess, PLSA_HANDLE AccountHandle
+ntlsa.h|NTSTATUS|LsaEnumeratePrivilegesOfAccount|LSA_HANDLE AccountHandle, PPRIVILEGE_SET* Privileges
+ntlsa.h|NTSTATUS|LsaAddPrivilegesToAccount|LSA_HANDLE AccountHandle, PPRIVILEGE_SET Privileges
+ntlsa.h|NTSTATUS|LsaRemovePrivilegesFromAccount|LSA_HANDLE AccountHandle, BOOLEAN AllPrivileges, PPRIVILEGE_SET Privileges
+ntlsa.h|NTSTATUS|LsaGetQuotasForAccount|LSA_HANDLE AccountHandle, PQUOTA_LIMITS QuotaLimits
+ntlsa.h|NTSTATUS|LsaSetQuotasForAccount|LSA_HANDLE AccountHandle, PQUOTA_LIMITS QuotaLimits
+ntlsa.h|NTSTATUS|LsaGetSystemAccessAccount|LSA_HANDLE AccountHandle, PULONG SystemAccess
+ntlsa.h|NTSTATUS|LsaSetSystemAccessAccount|LSA_HANDLE AccountHandle, ULONG SystemAccess
+ntlsa.h|NTSTATUS|LsaOpenTrustedDomain|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid, ACCESS_MASK DesiredAccess, PLSA_HANDLE TrustedDomainHandle
+ntlsa.h|NTSTATUS|LsaQueryInfoTrustedDomain|LSA_HANDLE TrustedDomainHandle, TRUSTED_INFORMATION_CLASS InformationClass, PVOID* Buffer
+ntlsa.h|NTSTATUS|LsaSetInformationTrustedDomain|LSA_HANDLE TrustedDomainHandle, TRUSTED_INFORMATION_CLASS InformationClass, PVOID Buffer
+ntlsa.h|NTSTATUS|LsaOpenSecret|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING SecretName, ACCESS_MASK DesiredAccess, PLSA_HANDLE SecretHandle
+ntlsa.h|NTSTATUS|LsaSetSecret|LSA_HANDLE SecretHandle, PLSA_UNICODE_STRING CurrentValue, PLSA_UNICODE_STRING OldValue
+ntlsa.h|NTSTATUS|LsaQuerySecret|LSA_HANDLE SecretHandle, PLSA_UNICODE_STRING* CurrentValue, PLARGE_INTEGER CurrentValueSetTime, PLSA_UNICODE_STRING* OldValue, PLARGE_INTEGER OldValueSetTime
+ntlsa.h|NTSTATUS|LsaLookupPrivilegeValue|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING Name, PLUID Value
+ntlsa.h|NTSTATUS|LsaLookupPrivilegeName|LSA_HANDLE PolicyHandle, PLUID Value, PLSA_UNICODE_STRING* Name
+ntlsa.h|NTSTATUS|LsaLookupPrivilegeDisplayName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING Name, PLSA_UNICODE_STRING* DisplayName, PSHORT LanguageReturned
+ntlsa.h|NTSTATUS|LsaEnumerateAccountsWithUserRight|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING UserRight, PVOID* Buffer, PULONG CountReturned
+ntlsa.h|NTSTATUS|LsaEnumerateAccountRights|LSA_HANDLE PolicyHandle, PSID AccountSid, PLSA_UNICODE_STRING* UserRights, PULONG CountOfRights
+ntlsa.h|NTSTATUS|LsaAddAccountRights|LSA_HANDLE PolicyHandle, PSID AccountSid, PLSA_UNICODE_STRING UserRights, ULONG CountOfRights
+ntlsa.h|NTSTATUS|LsaRemoveAccountRights|LSA_HANDLE PolicyHandle, PSID AccountSid, BOOLEAN AllRights, PLSA_UNICODE_STRING UserRights, ULONG CountOfRights
+ntlsa.h|NTSTATUS|LsaOpenTrustedDomainByName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, ACCESS_MASK DesiredAccess, PLSA_HANDLE TrustedDomainHandle
+ntlsa.h|NTSTATUS|LsaQueryTrustedDomainInfo|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid, TRUSTED_INFORMATION_CLASS InformationClass, PVOID* Buffer
+ntlsa.h|NTSTATUS|LsaSetTrustedDomainInformation|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid, TRUSTED_INFORMATION_CLASS InformationClass, PVOID Buffer
+ntlsa.h|NTSTATUS|LsaDeleteTrustedDomain|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid
+ntlsa.h|NTSTATUS|LsaQueryTrustedDomainInfoByName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, TRUSTED_INFORMATION_CLASS InformationClass, PVOID* Buffer
+ntlsa.h|NTSTATUS|LsaSetTrustedDomainInfoByName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, TRUSTED_INFORMATION_CLASS InformationClass, PVOID Buffer
+ntlsa.h|NTSTATUS|LsaEnumerateTrustedDomainsEx|LSA_HANDLE PolicyHandle, PLSA_ENUMERATION_HANDLE EnumerationContext, PVOID* Buffer, ULONG PreferedMaximumLength, PULONG CountReturned
+ntlsa.h|NTSTATUS|LsaCreateTrustedDomainEx|LSA_HANDLE PolicyHandle, PTRUSTED_DOMAIN_INFORMATION_EX TrustedDomainInformation, PTRUSTED_DOMAIN_AUTH_INFORMATION AuthenticationInformation, ACCESS_MASK DesiredAccess, PLSA_HANDLE TrustedDomainHandle
+ntlsa.h|NTSTATUS|LsaQueryForestTrustInformation|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, PLSA_FOREST_TRUST_INFORMATION* ForestTrustInfo
+ntlsa.h|NTSTATUS|LsaSetForestTrustInformation|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, PLSA_FOREST_TRUST_INFORMATION ForestTrustInfo, BOOLEAN CheckOnly, PLSA_FOREST_TRUST_COLLISION_INFORMATION* CollisionInfo
+ntlsa.h|NTSTATUS|LsaForestTrustFindMatch|LSA_HANDLE PolicyHandle, ULONG Type, PLSA_UNICODE_STRING Name, PLSA_UNICODE_STRING* Match
+ntlsa.h|NTSTATUS|LsaStorePrivateData|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING KeyName, PLSA_UNICODE_STRING PrivateData
+ntlsa.h|NTSTATUS|LsaRetrievePrivateData|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING KeyName, PLSA_UNICODE_STRING* PrivateData
+ntlsa.h|NTSTATUS|LsaNtStatusToWinError|NTSTATUS Status
+ntlsa.h|NTSTATUS|LsaSetPolicyReplicationHandle|PLSA_HANDLE PolicyHandle
+ntlsa.h|NTSTATUS|LsaGetDeviceRegistrationInfo|PLSA_REGISTRATION_INFO* RegistrationInfo
 NTMSAPI.h|HANDLE|OpenNtmsSessionW|LPCWSTR lpServer, LPCWSTR lpApplication, DWORD dwOptions
 NTMSAPI.h|HANDLE|OpenNtmsSessionA|LPCSTR lpServer, LPCSTR lpApplication, DWORD dwOptions
 NTMSAPI.h|DWORD|CloseNtmsSession|HANDLE hSession
@@ -4253,6 +4577,72 @@ NTQuery.h|HRESULT|LoadIFilterEx|PCWSTR pwcsPath, DWORD dwFlags, REFIID riid, voi
 NTQuery.h|HRESULT|BindIFilterFromStorage|IStorage* pStg, IUnknown* pUnkOuter, void** ppIUnk
 NTQuery.h|HRESULT|BindIFilterFromStream|IStream* pStm, IUnknown* pUnkOuter, void** ppIUnk
 NTQuery.h|HRESULT|SetCatalogState|const* pwcsCat, const* pwcsMachine, DWORD dwNewState, DWORD* pdwOldState
+NTSecAPI.h|NTSTATUS|LsaRegisterLogonProcess|PLSA_STRING LogonProcessName, PHANDLE LsaHandle, PLSA_OPERATIONAL_MODE SecurityMode
+NTSecAPI.h|NTSTATUS|LsaLogonUser|HANDLE LsaHandle, PLSA_STRING OriginName, SECURITY_LOGON_TYPE LogonType, ULONG AuthenticationPackage, PVOID AuthenticationInformation, ULONG AuthenticationInformationLength, PTOKEN_GROUPS LocalGroups, PTOKEN_SOURCE SourceContext, PVOID* ProfileBuffer, PULONG ProfileBufferLength, PLUID LogonId, PHANDLE Token, PQUOTA_LIMITS Quotas, PNTSTATUS SubStatus
+NTSecAPI.h|NTSTATUS|LsaLookupAuthenticationPackage|HANDLE LsaHandle, PLSA_STRING PackageName, PULONG AuthenticationPackage
+NTSecAPI.h|NTSTATUS|LsaFreeReturnBuffer|PVOID Buffer
+NTSecAPI.h|NTSTATUS|LsaCallAuthenticationPackage|HANDLE LsaHandle, ULONG AuthenticationPackage, PVOID ProtocolSubmitBuffer, ULONG SubmitBufferLength, PVOID* ProtocolReturnBuffer, PULONG ReturnBufferLength, PNTSTATUS ProtocolStatus
+NTSecAPI.h|NTSTATUS|LsaDeregisterLogonProcess|HANDLE LsaHandle
+NTSecAPI.h|NTSTATUS|LsaConnectUntrusted|PHANDLE LsaHandle
+NTSecAPI.h|NTSTATUS|LsaFreeMemory|PVOID Buffer
+NTSecAPI.h|NTSTATUS|LsaClose|LSA_HANDLE ObjectHandle
+NTSecAPI.h|NTSTATUS|LsaEnumerateLogonSessions|PULONG LogonSessionCount, PLUID* LogonSessionList
+NTSecAPI.h|NTSTATUS|LsaGetLogonSessionData|PLUID LogonId, PSECURITY_LOGON_SESSION_DATA* ppLogonSessionData
+NTSecAPI.h|NTSTATUS|LsaOpenPolicy|PLSA_UNICODE_STRING SystemName, PLSA_OBJECT_ATTRIBUTES ObjectAttributes, ACCESS_MASK DesiredAccess, PLSA_HANDLE PolicyHandle
+NTSecAPI.h|NTSTATUS|LsaSetCAPs|PLSA_UNICODE_STRING CAPDNs, ULONG CAPDNCount, ULONG Flags
+NTSecAPI.h|NTSTATUS|LsaGetAppliedCAPIDs|PLSA_UNICODE_STRING SystemName, PSID** CAPIDs, PULONG CAPIDCount
+NTSecAPI.h|NTSTATUS|LsaQueryCAPs|PSID* CAPIDs, ULONG CAPIDCount, PCENTRAL_ACCESS_POLICY* CAPs, PULONG CAPCount
+NTSecAPI.h|NTSTATUS|LsaQueryInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_INFORMATION_CLASS InformationClass, PVOID* Buffer
+NTSecAPI.h|NTSTATUS|LsaSetInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_INFORMATION_CLASS InformationClass, PVOID Buffer
+NTSecAPI.h|NTSTATUS|LsaQueryDomainInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_DOMAIN_INFORMATION_CLASS InformationClass, PVOID* Buffer
+NTSecAPI.h|NTSTATUS|LsaSetDomainInformationPolicy|LSA_HANDLE PolicyHandle, POLICY_DOMAIN_INFORMATION_CLASS InformationClass, PVOID Buffer
+NTSecAPI.h|NTSTATUS|LsaRegisterPolicyChangeNotification|POLICY_NOTIFICATION_INFORMATION_CLASS InformationClass, HANDLE NotificationEventHandle
+NTSecAPI.h|NTSTATUS|LsaUnregisterPolicyChangeNotification|POLICY_NOTIFICATION_INFORMATION_CLASS InformationClass, HANDLE NotificationEventHandle
+NTSecAPI.h|NTSTATUS|LsaEnumerateTrustedDomains|LSA_HANDLE PolicyHandle, PLSA_ENUMERATION_HANDLE EnumerationContext, PVOID* Buffer, ULONG PreferedMaximumLength, PULONG CountReturned
+NTSecAPI.h|NTSTATUS|LsaLookupNames|LSA_HANDLE PolicyHandle, ULONG Count, PLSA_UNICODE_STRING Names, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_SID* Sids
+NTSecAPI.h|NTSTATUS|LsaLookupNames2|LSA_HANDLE PolicyHandle, ULONG Flags, ULONG Count, PLSA_UNICODE_STRING Names, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_SID2* Sids
+NTSecAPI.h|NTSTATUS|LsaLookupSids|LSA_HANDLE PolicyHandle, ULONG Count, PSID* Sids, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_NAME* Names
+NTSecAPI.h|NTSTATUS|LsaLookupSids2|LSA_HANDLE PolicyHandle, ULONG LookupOptions, ULONG Count, PSID* Sids, PLSA_REFERENCED_DOMAIN_LIST* ReferencedDomains, PLSA_TRANSLATED_NAME* Names
+NTSecAPI.h|NTSTATUS|LsaEnumerateAccountsWithUserRight|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING UserRight, PVOID* Buffer, PULONG CountReturned
+NTSecAPI.h|NTSTATUS|LsaEnumerateAccountRights|LSA_HANDLE PolicyHandle, PSID AccountSid, PLSA_UNICODE_STRING* UserRights, PULONG CountOfRights
+NTSecAPI.h|NTSTATUS|LsaAddAccountRights|LSA_HANDLE PolicyHandle, PSID AccountSid, PLSA_UNICODE_STRING UserRights, ULONG CountOfRights
+NTSecAPI.h|NTSTATUS|LsaRemoveAccountRights|LSA_HANDLE PolicyHandle, PSID AccountSid, BOOLEAN AllRights, PLSA_UNICODE_STRING UserRights, ULONG CountOfRights
+NTSecAPI.h|NTSTATUS|LsaOpenTrustedDomainByName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, ACCESS_MASK DesiredAccess, PLSA_HANDLE TrustedDomainHandle
+NTSecAPI.h|NTSTATUS|LsaQueryTrustedDomainInfo|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid, TRUSTED_INFORMATION_CLASS InformationClass, PVOID* Buffer
+NTSecAPI.h|NTSTATUS|LsaSetTrustedDomainInformation|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid, TRUSTED_INFORMATION_CLASS InformationClass, PVOID Buffer
+NTSecAPI.h|NTSTATUS|LsaDeleteTrustedDomain|LSA_HANDLE PolicyHandle, PSID TrustedDomainSid
+NTSecAPI.h|NTSTATUS|LsaQueryTrustedDomainInfoByName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, TRUSTED_INFORMATION_CLASS InformationClass, PVOID* Buffer
+NTSecAPI.h|NTSTATUS|LsaSetTrustedDomainInfoByName|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, TRUSTED_INFORMATION_CLASS InformationClass, PVOID Buffer
+NTSecAPI.h|NTSTATUS|LsaEnumerateTrustedDomainsEx|LSA_HANDLE PolicyHandle, PLSA_ENUMERATION_HANDLE EnumerationContext, PVOID* Buffer, ULONG PreferedMaximumLength, PULONG CountReturned
+NTSecAPI.h|NTSTATUS|LsaCreateTrustedDomainEx|LSA_HANDLE PolicyHandle, PTRUSTED_DOMAIN_INFORMATION_EX TrustedDomainInformation, PTRUSTED_DOMAIN_AUTH_INFORMATION AuthenticationInformation, ACCESS_MASK DesiredAccess, PLSA_HANDLE TrustedDomainHandle
+NTSecAPI.h|NTSTATUS|LsaQueryForestTrustInformation|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, PLSA_FOREST_TRUST_INFORMATION* ForestTrustInfo
+NTSecAPI.h|NTSTATUS|LsaSetForestTrustInformation|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING TrustedDomainName, PLSA_FOREST_TRUST_INFORMATION ForestTrustInfo, BOOLEAN CheckOnly, PLSA_FOREST_TRUST_COLLISION_INFORMATION* CollisionInfo
+NTSecAPI.h|NTSTATUS|LsaForestTrustFindMatch|LSA_HANDLE PolicyHandle, ULONG Type, PLSA_UNICODE_STRING Name, PLSA_UNICODE_STRING* Match
+NTSecAPI.h|NTSTATUS|LsaStorePrivateData|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING KeyName, PLSA_UNICODE_STRING PrivateData
+NTSecAPI.h|NTSTATUS|LsaRetrievePrivateData|LSA_HANDLE PolicyHandle, PLSA_UNICODE_STRING KeyName, PLSA_UNICODE_STRING* PrivateData
+NTSecAPI.h|NTSTATUS|LsaNtStatusToWinError|NTSTATUS Status
+NTSecAPI.h|NTSTATUS|AuditSetSystemPolicy|PCAUDIT_POLICY_INFORMATION pAuditPolicy, ULONG dwPolicyCount
+NTSecAPI.h|NTSTATUS|AuditSetPerUserPolicy|PSID pSid, PCAUDIT_POLICY_INFORMATION pAuditPolicy, ULONG dwPolicyCount
+NTSecAPI.h|NTSTATUS|AuditQuerySystemPolicy|GUID* pSubCategoryGuids, ULONG dwPolicyCount, PAUDIT_POLICY_INFORMATION* ppAuditPolicy
+NTSecAPI.h|NTSTATUS|AuditQueryPerUserPolicy|PSID pSid, GUID* pSubCategoryGuids, ULONG dwPolicyCount, PAUDIT_POLICY_INFORMATION* ppAuditPolicy
+NTSecAPI.h|NTSTATUS|AuditEnumeratePerUserPolicy|PPOLICY_AUDIT_SID_ARRAY* ppAuditSidArray
+NTSecAPI.h|NTSTATUS|AuditComputeEffectivePolicyBySid|PSID pSid, GUID* pSubCategoryGuids, ULONG dwPolicyCount, PAUDIT_POLICY_INFORMATION* ppAuditPolicy
+NTSecAPI.h|NTSTATUS|AuditComputeEffectivePolicyByToken|HANDLE hTokenHandle, GUID* pSubCategoryGuids, ULONG dwPolicyCount, PAUDIT_POLICY_INFORMATION* ppAuditPolicy
+NTSecAPI.h|NTSTATUS|AuditEnumerateCategories|GUID** ppAuditCategoriesArray, PULONG pdwCountReturned
+NTSecAPI.h|NTSTATUS|AuditEnumerateSubCategories|GUID* pAuditCategoryGuid, BOOLEAN bRetrieveAllSubCategories, GUID** ppAuditSubCategoriesArray, PULONG pdwCountReturned
+NTSecAPI.h|NTSTATUS|AuditLookupCategoryNameW|GUID* pAuditCategoryGuid, PWSTR* ppszCategoryName
+NTSecAPI.h|NTSTATUS|AuditLookupCategoryNameA|GUID* pAuditCategoryGuid, PSTR* ppszCategoryName
+NTSecAPI.h|NTSTATUS|AuditLookupSubCategoryNameW|GUID* pAuditSubCategoryGuid, PWSTR* ppszSubCategoryName
+NTSecAPI.h|NTSTATUS|AuditLookupSubCategoryNameA|GUID* pAuditSubCategoryGuid, PSTR* ppszSubCategoryName
+NTSecAPI.h|NTSTATUS|AuditLookupCategoryIdFromCategoryGuid|GUID* pAuditCategoryGuid, PPOLICY_AUDIT_EVENT_TYPE pAuditCategoryId
+NTSecAPI.h|NTSTATUS|AuditLookupCategoryGuidFromCategoryId|POLICY_AUDIT_EVENT_TYPE AuditCategoryId, GUID* pAuditCategoryGuid
+NTSecAPI.h|NTSTATUS|AuditSetSecurity|SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR pSecurityDescriptor
+NTSecAPI.h|NTSTATUS|AuditQuerySecurity|SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR* ppSecurityDescriptor
+NTSecAPI.h|NTSTATUS|AuditSetGlobalSaclW|PCWSTR ObjectTypeName, PACL Acl
+NTSecAPI.h|NTSTATUS|AuditSetGlobalSaclA|PCSTR ObjectTypeName, PACL Acl
+NTSecAPI.h|NTSTATUS|AuditQueryGlobalSaclW|PCWSTR ObjectTypeName, PACL* Acl
+NTSecAPI.h|NTSTATUS|AuditQueryGlobalSaclA|PCSTR ObjectTypeName, PACL* Acl
+NTSecAPI.h|NTSTATUS|AuditFree|PVOID Buffer
 ole.h|OLESTATUS|OleDelete|LPOLEOBJECT
 ole.h|OLESTATUS|OleRelease|LPOLEOBJECT
 ole.h|OLESTATUS|OleSaveToStream|LPOLEOBJECT, LPOLESTREAM
@@ -5162,6 +5552,20 @@ roparameterizediid.h|PCSTR|RoParameterizedTypeExtraGetTypeSignature|ROPARAMIIDHA
 roregistrationapi.h|HRESULT|RoGetActivatableClassRegistration|HSTRING activatableClassId, PActivatableClassRegistration* activatableClassRegistration
 roregistrationapi.h|HRESULT|RoGetServerActivatableClasses|HSTRING serverName, HSTRING** activatableClassIds, DWORD* count
 RpcProxy.h|BOOL|DLLMAIN_ENTRY|HINSTANCE hinstDLL, DWORD fdwReason, STDAPICALLTYPE DLLREGISTERSERVER_ENTRYpProxyFileList, STDAPICALLTYPE DLLUNREGISTERSERVER_ENTRYpProxyFileList, CLSID PROXY_CLSID
+rtlsupportapi.h|NTSTATUS|RtlCaptureStackBackTrace|ULONG FramesToSkip, ULONG FramesToCapture, PVOID* BackTrace, PULONG BackTraceHash
+rtlsupportapi.h|NTSTATUS|RtlCaptureContext|PCONTEXT ContextRecord
+rtlsupportapi.h|NTSTATUS|RtlCaptureContext2|PCONTEXT ContextRecord
+rtlsupportapi.h|NTSTATUS|RtlUnwind|PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue
+rtlsupportapi.h|NTSTATUS|RtlAddGrowableFunctionTable|PVOID* DynamicTable, PRUNTIME_FUNCTION FunctionTable, ULONG EntryCount, ULONG MaximumEntryCount, ULONG_PTR RangeBase, ULONG_PTR RangeEnd
+rtlsupportapi.h|NTSTATUS|RtlGrowFunctionTable|PVOID DynamicTable, ULONG NewEntryCount
+rtlsupportapi.h|NTSTATUS|RtlDeleteGrowableFunctionTable|PVOID DynamicTable
+rtlsupportapi.h|NTSTATUS|RtlLookupFunctionEntry|ULONG64 ControlPc, PULONG64 ImageBase, PUNWIND_HISTORY_TABLE HistoryTable
+rtlsupportapi.h|NTSTATUS|RtlUnwindEx|PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue, PCONTEXT ContextRecord, PUNWIND_HISTORY_TABLE HistoryTable
+rtlsupportapi.h|NTSTATUS|RtlVirtualUnwind|ULONG HandlerType, ULONG64 ImageBase, ULONG64 ControlPc, PRUNTIME_FUNCTION FunctionEntry, PCONTEXT ContextRecord, PVOID* HandlerData, PULONG64 EstablisherFrame, PKNONVOLATILE_CONTEXT_POINTERS ContextPointers
+rtlsupportapi.h|NTSTATUS|RtlLookupFunctionEntryCHPE|ULONG_PTR ControlPc, PULONG_PTR ImageBase, PVOID HistoryTable
+rtlsupportapi.h|NTSTATUS|RtlRaiseException|PEXCEPTION_RECORD ExceptionRecord
+rtlsupportapi.h|NTSTATUS|RtlPcToFileHeader|PVOID PcValue, PVOID* BaseOfImage
+rtlsupportapi.h|NTSTATUS|RtlCompareMemory|VOID* Source1, VOID* Source2, SIZE_T Length
 RtmV2.h|DWORD|RtmRegisterEntity|PRTM_ENTITY_INFO RtmEntityInfo, PRTM_ENTITY_EXPORT_METHODS ExportMethods, RTM_EVENT_CALLBACK EventCallback, BOOL ReserveOpaquePointer, PRTM_REGN_PROFILE RtmRegProfile, PRTM_ENTITY_HANDLE RtmRegHandle
 RtmV2.h|DWORD|RtmDeregisterEntity|RTM_ENTITY_HANDLE RtmRegHandle
 RtmV2.h|DWORD|RtmGetRegisteredEntities|RTM_ENTITY_HANDLE RtmRegHandle, PUINT NumEntities, PRTM_ENTITY_HANDLE EntityHandles, PRTM_ENTITY_INFO EntityInfos
@@ -5829,6 +6233,9 @@ srpapi.h|HRESULT|SrpEnablePermissiveModeFileEncryption|PCWSTR enterpriseId
 srpapi.h|HRESULT|SrpDisablePermissiveModeFileEncryption|VOID
 srpapi.h|HRESULT|SrpGetEnterprisePolicy|HANDLE tokenHandle, ENTERPRISE_DATA_POLICIES* policyFlags
 srpapi.h|HRESULT|SrpDoesPolicyAllowAppExecution|PACKAGE_ID* packageId, BOOL* isAllowed
+sspi.h|NTSTATUS|SecMakeSPN|PUNICODE_STRING ServiceClass, PUNICODE_STRING ServiceName, PUNICODE_STRING InstanceName, USHORT InstancePort, PUNICODE_STRING Referrer, PUNICODE_STRING Spn, PULONG Length, BOOLEAN Allocate
+sspi.h|NTSTATUS|SecMakeSPNEx|PUNICODE_STRING ServiceClass, PUNICODE_STRING ServiceName, PUNICODE_STRING InstanceName, USHORT InstancePort, PUNICODE_STRING Referrer, PUNICODE_STRING TargetInfo, PUNICODE_STRING Spn, PULONG Length, BOOLEAN Allocate
+sspi.h|NTSTATUS|SecMakeSPNEx2|PUNICODE_STRING ServiceClass, PUNICODE_STRING ServiceName, PUNICODE_STRING InstanceName, USHORT InstancePort, PUNICODE_STRING Referrer, PUNICODE_STRING InTargetInfo, PUNICODE_STRING Spn, PULONG TotalSize, BOOLEAN Allocate, BOOLEAN IsTargetInfoMarshaled
 stralign.h|LPUWSTR|uaw_CharUpperW|LPUWSTR String
 stralign.h|int|uaw_lstrlenW|LPCUWSTR String
 stringapiset.h|int|CompareStringEx|LPCWSTR lpLocaleName, DWORD dwCmpFlags, LPCWCH lpString1, int cchCount1, LPCWCH lpString2, int cchCount2, LPNLSVERSIONINFO lpVersionInformation, LPVOID lpReserved, LPARAM lParam
@@ -5994,6 +6401,7 @@ sysinfoapi.h|HRESULT|GetIntegratedDisplaySize|double* sizeInInches
 sysinfoapi.h|BOOL|SetComputerNameA|LPCSTR lpComputerName
 sysinfoapi.h|BOOL|SetComputerNameW|LPCWSTR lpComputerName
 sysinfoapi.h|BOOL|SetComputerNameExA|COMPUTER_NAME_FORMAT NameType, LPCSTR lpBuffer
+sysinfoapi.h|NTSTATUS|VerSetConditionMask|ULONGLONG ConditionMask, ULONG TypeMask, UCHAR Condition
 systemtopologyapi.h|BOOL|GetNumaHighestNodeNumber|PULONG HighestNodeNumber
 systemtopologyapi.h|BOOL|GetNumaNodeProcessorMaskEx|USHORT Node, PGROUP_AFFINITY ProcessorMask
 systemtopologyapi.h|BOOL|GetNumaProximityNodeEx|ULONG ProximityId, PUSHORT NodeNumber
@@ -8631,6 +9039,55 @@ WinNls32.h|BOOL|IMPSetIMEW|IN HWND, IN LPIMEPROW
 WinNls32.h|UINT|WINNLSGetIMEHotkey|IN HWND
 WinNls32.h|BOOL|WINNLSEnableIME|IN HWND, IN BOOL
 WinNls32.h|BOOL|WINNLSGetEnableStatus|IN HWND
+winnt.h|NTSTATUS|Int64ShllMod32|ULONGLONG Value, DWORD ShiftCount
+winnt.h|NTSTATUS|Int64ShraMod32|LONGLONG Value, DWORD ShiftCount
+winnt.h|NTSTATUS|Int64ShrlMod32|ULONGLONG Value, DWORD ShiftCount
+winnt.h|NTSTATUS|EXCEPTION_ROUTINE|_EXCEPTION_RECORD* ExceptionRecord, PVOID EstablisherFrame, _CONTEXT* ContextRecord, PVOID DispatcherContext
+winnt.h|NTSTATUS|RtlUnwind2|FRAME_POINTERS TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue, PCONTEXT ContextRecord
+winnt.h|NTSTATUS|RtlCaptureStackBackTrace|DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash
+winnt.h|NTSTATUS|RtlCaptureContext|PCONTEXT ContextRecord
+winnt.h|NTSTATUS|RtlCaptureContext2|PCONTEXT ContextRecord
+winnt.h|NTSTATUS|RtlUnwind|PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue
+winnt.h|NTSTATUS|RtlAddGrowableFunctionTable|PVOID* DynamicTable, PRUNTIME_FUNCTION FunctionTable, DWORD EntryCount, DWORD MaximumEntryCount, ULONG_PTR RangeBase, ULONG_PTR RangeEnd
+winnt.h|NTSTATUS|RtlGrowFunctionTable|PVOID DynamicTable, DWORD NewEntryCount
+winnt.h|NTSTATUS|RtlDeleteGrowableFunctionTable|PVOID DynamicTable
+winnt.h|NTSTATUS|RtlLookupFunctionEntry|DWORD64 ControlPc, PDWORD64 ImageBase, PUNWIND_HISTORY_TABLE HistoryTable
+winnt.h|NTSTATUS|RtlUnwindEx|PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue, PCONTEXT ContextRecord, PUNWIND_HISTORY_TABLE HistoryTable
+winnt.h|NTSTATUS|RtlVirtualUnwind|DWORD HandlerType, DWORD64 ImageBase, DWORD64 ControlPc, PRUNTIME_FUNCTION FunctionEntry, PCONTEXT ContextRecord, PVOID* HandlerData, PDWORD64 EstablisherFrame, PKNONVOLATILE_CONTEXT_POINTERS ContextPointers
+winnt.h|NTSTATUS|RtlLookupFunctionEntryCHPE|ULONG_PTR ControlPc, PULONG_PTR ImageBase, PVOID HistoryTable
+winnt.h|NTSTATUS|RtlRaiseException|PEXCEPTION_RECORD ExceptionRecord
+winnt.h|NTSTATUS|RtlPcToFileHeader|PVOID PcValue, PVOID* BaseOfImage
+winnt.h|NTSTATUS|RtlCompareMemory|VOID* Source1, VOID* Source2, SIZE_T Length
+winnt.h|NTSTATUS|RtlInitializeSListHead|PSLIST_HEADER ListHead
+winnt.h|NTSTATUS|RtlFirstEntrySList|SLIST_HEADER* ListHead
+winnt.h|NTSTATUS|RtlInterlockedPopEntrySList|PSLIST_HEADER ListHead
+winnt.h|NTSTATUS|RtlInterlockedPushEntrySList|PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry
+winnt.h|NTSTATUS|RtlInterlockedPushListSListEx|PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, DWORD Count
+winnt.h|NTSTATUS|RtlInterlockedFlushSList|PSLIST_HEADER ListHead
+winnt.h|NTSTATUS|RtlQueryDepthSList|PSLIST_HEADER ListHead
+winnt.h|NTSTATUS|RtlGetReturnAddressHijackTarget|VOID
+winnt.h|NTSTATUS|VerSetConditionMask|ULONGLONG ConditionMask, DWORD TypeMask, BYTE Condition
+winnt.h|NTSTATUS|RtlGetProductInfo|DWORD OSMajorVersion, DWORD OSMinorVersion, DWORD SpMajorVersion, DWORD SpMinorVersion, PDWORD ReturnedProductType
+winnt.h|NTSTATUS|RTL_UMS_SCHEDULER_ENTRY_POINT|RTL_UMS_SCHEDULER_REASON Reason, ULONG_PTR ActivationPayload, PVOID SchedulerParam
+winnt.h|NTSTATUS|RtlCrc32|void* Buffer, size_t Size, DWORD InitialCrc
+winnt.h|NTSTATUS|RtlCrc64|void* Buffer, size_t Size, ULONGLONG InitialCrc
+winnt.h|NTSTATUS|RtlGetNonVolatileToken|PVOID NvBuffer, SIZE_T Size, PVOID* NvToken
+winnt.h|NTSTATUS|RtlFreeNonVolatileToken|PVOID NvToken
+winnt.h|NTSTATUS|RtlFlushNonVolatileMemory|PVOID NvToken, PVOID NvBuffer, SIZE_T Size, DWORD Flags
+winnt.h|NTSTATUS|RtlDrainNonVolatileFlush|PVOID NvToken
+winnt.h|NTSTATUS|RtlWriteNonVolatileMemory|PVOID NvToken, UNALIGNED* NvDestination, UNALIGNED* Source, SIZE_T Size, DWORD Flags
+winnt.h|NTSTATUS|RtlFillNonVolatileMemory|PVOID NvToken, UNALIGNED* NvDestination, SIZE_T Size, BYTE Value, DWORD Flags
+winnt.h|NTSTATUS|RtlFlushNonVolatileMemoryRanges|PVOID NvToken, PNV_MEMORY_RANGE NvRanges, SIZE_T NumRanges, DWORD Flags
+winnt.h|NTSTATUS|RtlInitializeCorrelationVector|PCORRELATION_VECTOR CorrelationVector, int Version, GUID* Guid
+winnt.h|NTSTATUS|RtlIncrementCorrelationVector|PCORRELATION_VECTOR CorrelationVector
+winnt.h|NTSTATUS|RtlExtendCorrelationVector|PCORRELATION_VECTOR CorrelationVector
+winnt.h|NTSTATUS|RtlValidateCorrelationVector|PCORRELATION_VECTOR Vector
+winnt.h|NTSTATUS|RtlRaiseCustomSystemEventTrigger|PCUSTOM_SYSTEM_EVENT_TRIGGER_CONFIG TriggerConfig
+winnt.h|NTSTATUS|RtlIsZeroMemory|PVOID Buffer, SIZE_T Length
+winnt.h|NTSTATUS|RtlNormalizeSecurityDescriptor|PSECURITY_DESCRIPTOR* SecurityDescriptor, DWORD SecurityDescriptorLength, PSECURITY_DESCRIPTOR* NewSecurityDescriptor, PDWORD NewSecurityDescriptorLength, BOOLEAN CheckOnly
+winnt.h|NTSTATUS|RtlGetDeviceFamilyInfoEnum|ULONGLONG* pullUAPInfo, DWORD* pulDeviceFamily, DWORD* pulDeviceForm
+winnt.h|NTSTATUS|RtlConvertDeviceFamilyInfoToString|PDWORD pulDeviceFamilyBufferSize, PDWORD pulDeviceFormBufferSize, PWSTR DeviceFamily, PWSTR DeviceForm
+winnt.h|NTSTATUS|RtlSwitchedVVI|PRTL_OSVERSIONINFOEXW VersionInfo, DWORD TypeMask, ULONGLONG ConditionMask
 winppi.h|HANDLE|GdiGetSpoolFileHandle|LPWSTR pwszPrinterName, LPDEVMODEW pDevmode, LPWSTR pwszDocName
 winppi.h|BOOL|GdiDeleteSpoolFileHandle|HANDLE SpoolFileHandle
 winppi.h|DWORD|GdiGetPageCount|HANDLE SpoolFileHandle
@@ -8965,6 +9422,39 @@ winsvc.h|DWORD|GetServiceRegistryStateKey|SERVICE_STATUS_HANDLE ServiceStatusHan
 winsvc.h|DWORD|GetServiceDirectory|SERVICE_STATUS_HANDLE hServiceStatus, SERVICE_DIRECTORY_TYPE eDirectoryType, PWCHAR lpPathBuffer, DWORD cchPathBufferLength, DWORD* lpcchRequiredBufferLength
 winsxs.h|HRESULT|CreateAssemblyNameObject|LPASSEMBLYNAME* ppAssemblyNameObj, LPCWSTR szAssemblyName, DWORD dwFlags, LPVOID pvReserved
 winsxs.h|HRESULT|CreateAssemblyCache|IAssemblyCache** ppAsmCache, DWORD dwReserved
+winternl.h|NTSTATUS|NtClose|HANDLE Handle
+winternl.h|NTSTATUS|NtCreateFile|PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, PLARGE_INTEGER AllocationSize, ULONG FileAttributes, ULONG ShareAccess, ULONG CreateDisposition, ULONG CreateOptions, PVOID EaBuffer, ULONG EaLength
+winternl.h|NTSTATUS|NtOpenFile|PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, ULONG ShareAccess, ULONG OpenOptions
+winternl.h|NTSTATUS|NtRenameKey|HANDLE KeyHandle, PUNICODE_STRING NewName
+winternl.h|NTSTATUS|NtNotifyChangeMultipleKeys|HANDLE MasterKeyHandle, ULONG Count, OBJECT_ATTRIBUTES SubordinateObjects[], HANDLE Event, PIO_APC_ROUTINE ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, ULONG CompletionFilter, BOOLEAN WatchTree, PVOID Buffer, ULONG BufferSize, BOOLEAN Asynchronous
+winternl.h|NTSTATUS|NtQueryMultipleValueKey|HANDLE KeyHandle, PKEY_VALUE_ENTRY ValueEntries, ULONG EntryCount, PVOID ValueBuffer, PULONG BufferLength, PULONG RequiredBufferLength
+winternl.h|NTSTATUS|NtSetInformationKey|HANDLE KeyHandle, KEY_SET_INFORMATION_CLASS KeySetInformationClass, PVOID KeySetInformation, ULONG KeySetInformationLength
+winternl.h|NTSTATUS|NtDeviceIoControlFile|HANDLE FileHandle, HANDLE Event, PIO_APC_ROUTINE ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, ULONG IoControlCode, PVOID InputBuffer, ULONG InputBufferLength, PVOID OutputBuffer, ULONG OutputBufferLength
+winternl.h|NTSTATUS|NtWaitForSingleObject|HANDLE Handle, BOOLEAN Alertable, PLARGE_INTEGER Timeout
+winternl.h|NTSTATUS|RtlIsNameLegalDOS8Dot3|PUNICODE_STRING Name, POEM_STRING OemName, PBOOLEAN NameContainsSpaces
+winternl.h|NTSTATUS|RtlNtStatusToDosError|NTSTATUS Status
+winternl.h|NTSTATUS|NtQueryInformationProcess|HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength
+winternl.h|NTSTATUS|NtQueryInformationThread|HANDLE ThreadHandle, THREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength, PULONG ReturnLength
+winternl.h|NTSTATUS|NtQueryObject|HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength
+winternl.h|NTSTATUS|NtQuerySystemInformation|SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength
+winternl.h|NTSTATUS|NtQuerySystemTime|PLARGE_INTEGER SystemTime
+winternl.h|NTSTATUS|RtlLocalTimeToSystemTime|PLARGE_INTEGER LocalTime, PLARGE_INTEGER SystemTime
+winternl.h|NTSTATUS|RtlTimeToSecondsSince1970|PLARGE_INTEGER Time, PULONG ElapsedSeconds
+winternl.h|NTSTATUS|RtlFreeAnsiString|PANSI_STRING AnsiString
+winternl.h|NTSTATUS|RtlFreeUnicodeString|PUNICODE_STRING UnicodeString
+winternl.h|NTSTATUS|RtlFreeOemString|POEM_STRING OemString
+winternl.h|NTSTATUS|RtlInitString|PSTRING DestinationString, PCSZ SourceString
+winternl.h|NTSTATUS|RtlInitStringEx|PSTRING DestinationString, PCSZ SourceString
+winternl.h|NTSTATUS|RtlInitAnsiString|PANSI_STRING DestinationString, PCSZ SourceString
+winternl.h|NTSTATUS|RtlInitAnsiStringEx|PANSI_STRING DestinationString, PCSZ SourceString
+winternl.h|NTSTATUS|RtlInitUnicodeString|PUNICODE_STRING DestinationString, PCWSTR SourceString
+winternl.h|NTSTATUS|RtlAnsiStringToUnicodeString|PUNICODE_STRING DestinationString, PCANSI_STRING SourceString, BOOLEAN AllocateDestinationString
+winternl.h|NTSTATUS|RtlUnicodeStringToAnsiString|PANSI_STRING DestinationString, PCUNICODE_STRING SourceString, BOOLEAN AllocateDestinationString
+winternl.h|NTSTATUS|RtlUnicodeStringToOemString|POEM_STRING DestinationString, PCUNICODE_STRING SourceString, BOOLEAN AllocateDestinationString
+winternl.h|NTSTATUS|RtlUnicodeToMultiByteSize|PULONG BytesInMultiByteString, PWCH UnicodeString, ULONG BytesInUnicodeString
+winternl.h|NTSTATUS|RtlCharToInteger|PCSZ String, ULONG Base, PULONG Value
+winternl.h|NTSTATUS|RtlConvertSidToUnicodeString|PUNICODE_STRING UnicodeString, PSID Sid, BOOLEAN AllocateDestinationString
+winternl.h|NTSTATUS|RtlUniform|PULONG Seed
 WinTrust.h|LONG|WinVerifyTrust|HWND hwnd, GUID* pgActionID, LPVOID pWVTData
 WinTrust.h|HRESULT|WinVerifyTrustEx|HWND hwnd, GUID* pgActionID, WINTRUST_DATA* pWinTrustData
 WinTrust.h|void|WintrustGetRegPolicyFlags|DWORD* pdwPolicyFlags

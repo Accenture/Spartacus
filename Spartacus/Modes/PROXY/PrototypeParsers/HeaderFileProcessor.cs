@@ -49,6 +49,7 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
 
             prototypes.AddRange(ExtractPrototypes_STDAPI(fileContents));
             prototypes.AddRange(ExtractPrototypes_WINAPI(fileContents));
+            prototypes.AddRange(ExtractPrototypes_NTAPI(fileContents));
 
             return prototypes;
         }
@@ -61,6 +62,98 @@ namespace Spartacus.Modes.PROXY.PrototypeParsers
                 line = line.Substring(0, p).Trim();
             }
             return line;
+        }
+
+        protected List<RawFunctionPrototype> ExtractPrototypes_NTAPI(string[] fileContents)
+        {
+            // This function is a copy of the _STDAPI one, I'll refactor in the future.
+            List<RawFunctionPrototype> prototypes = new();
+
+            List<string> prototype = new();
+            string returnType = "";
+
+            for (int i = 0; i < fileContents.Length; i++)
+            {
+                string line = fileContents[i].Trim();
+
+                if (line.StartsWith("#") || line.StartsWith("//"))
+                {
+                    // Line is a comment or a #define etc expression.
+                    continue;
+                }
+
+                // Remove any inline-comments.
+                line = RemoveInlineComment(line);
+
+                if (line.StartsWith("NTAPI"))
+                {
+                    if (line == "NTAPI")
+                    {
+                        /*
+                         * Probably looks like this:
+                         * 
+                            STDAPI
+                            RoReportFailedDelegate(
+                                _In_ IUnknown* punkDelegate,
+                                _In_ IRestrictedErrorInfo* pRestrictedErrorInfo
+                                );
+                         */
+
+                        returnType = "NTSTATUS";
+                        prototype = new();
+                        prototype.AddRange(PopulateRemainingPrototype(fileContents, i + 1));
+
+                        returnType = CleanReturnType(returnType);
+                        prototypes.Add(new RawFunctionPrototype { returnType = returnType, prototype = prototype });
+                    }
+                    else
+                    {
+                        /* 
+                            This can either start with STDAPI_ or with "STDAPI ", depending on the format. 
+
+                            One format:
+
+                            STDAPI_(VOID) AmsiCloseSession(
+                                _In_  HAMSICONTEXT amsiContext,
+                                _In_  HAMSISESSION amsiSession);
+
+                            Second format:
+
+                            STDAPI AmsiOpenSession(
+                                _In_  HAMSICONTEXT amsiContext,
+                                _Out_ HAMSISESSION* amsiSession);
+                         */
+                        Match match = Regex.Match(line, @"NTAPI_\((.*?)\)");
+                        prototype = new();
+                        if (match.Success)
+                        {
+                            returnType = match.Groups[1].Value.Trim();
+                            // Remove the return type from the string.
+                            line = line.Replace(match.Value, "").Trim();
+                        }
+                        else
+                        {
+                            returnType = "NTSTATUS";
+                            line = line.Replace("NTAPI", "").Trim();
+                        }
+
+                        if (!String.IsNullOrWhiteSpace(line))
+                        {
+                            prototype.Add(line.Trim());
+                        }
+
+                        if (!line.Trim().EndsWith(";"))
+                        {
+                            prototype.AddRange(PopulateRemainingPrototype(fileContents, i + 1));
+                        }
+
+                        returnType = CleanReturnType(returnType);
+                        prototypes.Add(new RawFunctionPrototype { returnType = returnType, prototype = prototype });
+                    }
+                }
+            }
+
+            return prototypes;
         }
 
         protected List<RawFunctionPrototype> ExtractPrototypes_STDAPI(string[] fileContents)
