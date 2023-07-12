@@ -183,6 +183,12 @@ Generate a function prototype database from existing *.h files, assisting in gen
 --mode proxy --action prototypes --path "C:\Program Files (x86)\Windows Kits" --csv C:\data\prototypes.csv --verbose
 ```
 
+List DLL's exports and check if each function has a pre-generated prototype.
+
+```
+--mode proxy --action exports --dll C:\Windows\System32\version.dll --dll C:\Windows\System32\amsi.dll --prototypes ./Assets/prototypes.csv
+```
+
 ## DLL Hijacking Detection
 
 Spartacus also has a `--detect` mode, which tries to identify active DLL proxying. The logic behind it is:
@@ -214,7 +220,7 @@ To use this feature, simply run Spartacus with `--detect`.
 | `proxy`           | `--dll`                   | Path to the DLL you want to proxy, and can include multiple instances of this argument. |
 | `proxy`           | `--overwrite`             | If the `--solution` path already exists, use this flag to overwrite it. |
 | `proxy`           | `--only`                  | Generate proxy functions only for functions defined in this variable. Values are comma separated like `'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA'`. |
-| `proxy`           | `--action`                | Default action is to generate a VS solution. `--action prototypes`, takes as input a Windows SDK folder and parses *.h files in order to generate a database of function prototypes. |
+| `proxy`           | `--action`                | Default action is to generate a VS solution. `--action prototypes`, takes as input a Windows SDK folder and parses *.h files in order to generate a database of function prototypes. `--action exports` displays a DLL's export functions and when complimented with `--prototypes` it will display if the function definition has been pre-generated. |
 | `proxy`           | `--path`                  | Currently only works with `--action prototypes` and is the location of a Windows SDK directory. |
 | `proxy`           | `--prototypes`            | Location of prototypes.csv (currently within the `./Assets` folder). |
 | `com`             | `--acl`                   | Enumerate local system for missing/misconfigured COM libraries and executables. |

@@ -26,6 +26,10 @@ namespace Spartacus.Modes.PROXY
                     PrototypeDatabaseGeneration prototypeGenerator = new();
                     prototypeGenerator.Run();
                     break;
+                case "exports":
+                    ExportsGeneration exportsGeneration = new();
+                    exportsGeneration.Run();
+                    break;
                 default:
                     ProxyGeneration proxyGenerator = new();
                     proxyGenerator.Run();
@@ -41,9 +45,39 @@ namespace Spartacus.Modes.PROXY
                 case "prototype":
                     SanitisePrototypeGenerationRuntimeData();
                     break;
+                case "exports":
+                    SanitiseExportsGenerationRuntimeData();
+                    break;
                 default:
                     SanitiseProxyGenerationRuntimeData();
                     break;
+            }
+        }
+
+        protected void SanitiseExportsGenerationRuntimeData()
+        {
+            if (RuntimeData.BatchDLLFiles.Count == 0)
+            {
+                throw new Exception("--dll is missing");
+            }
+            else
+            {
+                foreach (string dllFile in RuntimeData.BatchDLLFiles)
+                {
+                    if (!File.Exists(dllFile))
+                    {
+                        throw new Exception("--dll file does not exist: " + dllFile);
+                    }
+                }
+            }
+
+            // Check for prototypes path.
+            if (!String.IsNullOrEmpty(RuntimeData.PrototypesFile))
+            {
+                if (!File.Exists(RuntimeData.PrototypesFile))
+                {
+                    throw new Exception("--prototypes file does not exist: " + RuntimeData.PrototypesFile);
+                }
             }
         }
 

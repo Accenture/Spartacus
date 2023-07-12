@@ -22,7 +22,7 @@ namespace Spartacus.Modes.PROXY
 
         public void Run()
         {
-            ExistingFunctionPrototypes = LoadPrototypes();
+            ExistingFunctionPrototypes = Helper.LoadPrototypes(RuntimeData.PrototypesFile);
 
             foreach (string dllFile in RuntimeData.BatchDLLFiles)
             {
@@ -79,6 +79,8 @@ namespace Spartacus.Modes.PROXY
                 proxyFunctions = GetFunctionDefinitionsFromPrototypes(exportedFunctions, proxyFunctions);
             }
 
+            proxyFunctions = FilterProxyFunctions(proxyFunctions, RuntimeData.FunctionsToProxy);
+
             SolutionGenerator solutionGenerator = new();
             try
             {
@@ -99,6 +101,26 @@ namespace Spartacus.Modes.PROXY
             return true;
         }
 
+        private Dictionary<string, FunctionSignature> FilterProxyFunctions(Dictionary<string, FunctionSignature> proxyFunctions, List<string> onlyProxy)
+        {
+            if (onlyProxy.Count == 0)
+            {
+                return proxyFunctions;
+            }
+
+            Logger.Info("Filtering out functions selected for proxying...");
+            Dictionary<string, FunctionSignature> finalFunctions = new();
+            foreach (KeyValuePair<string, FunctionSignature> function in proxyFunctions)
+            {
+                if (onlyProxy.Contains(function.Key.ToLower()))
+                {
+                    finalFunctions[function.Key] = function.Value;
+                }
+            }
+
+            return finalFunctions;
+        }
+
         private Dictionary<string, FunctionSignature> GetFunctionDefinitions(List<FileExport> exportedFunctions, string dllFile, string solutionPath)
         {
             Dictionary<string, FunctionSignature> functionDefinitions = new();
@@ -115,7 +137,7 @@ namespace Spartacus.Modes.PROXY
             List<FunctionSignature> loadedFunctions = LoadDllFunctionDefinitions(ghidraOutput);
 
             Logger.Verbose("Matching exported functions with loaded function definitions");
-            functionDefinitions = GetProxyFunctions(exportedFunctions, loadedFunctions, RuntimeData.FunctionsToProxy);
+            functionDefinitions = GetProxyFunctions(exportedFunctions, loadedFunctions);
 
             if (functionDefinitions.Count == 0)
             {
@@ -352,17 +374,11 @@ namespace Spartacus.Modes.PROXY
             return true;
         }
 
-        private Dictionary<string, FunctionSignature> GetProxyFunctions(List<FileExport> exportedFunctions, List<FunctionSignature> loadedFunctions, List<string> onlyProxyFunctions)
+        private Dictionary<string, FunctionSignature> GetProxyFunctions(List<FileExport> exportedFunctions, List<FunctionSignature> loadedFunctions)
         {
             Dictionary<string, FunctionSignature> proxyFunctions = new Dictionary<string, FunctionSignature>();
             foreach (FileExport exportedFunction in exportedFunctions)
             {
-                if (onlyProxyFunctions.Count > 0 && !onlyProxyFunctions.Contains(exportedFunction.Name.ToLower()))
-                {
-                    Logger.Verbose("Skipping function because it's not in the --only list: " + exportedFunction.Name);
-                    continue;
-                }
-
                 foreach (FunctionSignature function in loadedFunctions)
                 {
                     // We only need functions that don't have any "undefined" parameters.
@@ -396,18 +412,6 @@ namespace Spartacus.Modes.PROXY
                 }
             }
             return proxyFunctions;
-        }
-
-        private List<FunctionPrototype> LoadPrototypes()
-        {
-            if (String.IsNullOrEmpty(RuntimeData.PrototypesFile) || !File.Exists(RuntimeData.PrototypesFile))
-            {
-                return new();
-            }
-
-            Logger.Info("Loading external function prototypes from " + RuntimeData.PrototypesFile);
-            PrototypeDatabaseGeneration generator = new();
-            return generator.LoadPrototypesFromCSV(RuntimeData.PrototypesFile);
         }
     }
 }

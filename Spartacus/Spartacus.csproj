@@ -87,6 +87,7 @@
     <Compile Include="Modes\DETECT\ModeDetect.cs" />
     <Compile Include="Modes\DLL\ModeDLL.cs" />
     <Compile Include="Modes\ModeBase.cs" />
+    <Compile Include="Modes\PROXY\ExportsGeneration.cs" />
     <Compile Include="Modes\PROXY\ModeProxy.cs" />
     <Compile Include="Modes\PROXY\PrototypeDatabaseGeneration.cs" />
     <Compile Include="Modes\PROXY\PrototypeParsers\FunctionProcessor.cs" />
@@ -120,6 +121,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

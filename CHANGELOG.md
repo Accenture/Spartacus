@@ -1,5 +1,10 @@
 # Spartacus Changelog
 
+## v2.1.2
+
+* `[New]` Added `--action exports` to `--mode proxy` that lists a file's exports, functionality similar to `dumpbin.exe /exports`.
+* `[Fix]` Fixed `--only` parameter which was ignored when generating a proxy solution without using Ghidra.
+
 ## v2.1.1
 
 * `[Update]` Added support for `NTAPI` prototypes.

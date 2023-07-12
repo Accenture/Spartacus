@@ -1,4 +1,5 @@
-﻿using Spartacus.Properties;
+﻿using Spartacus.Modes.PROXY;
+using Spartacus.Properties;
 using Spartacus.Spartacus;
 using Spartacus.Spartacus.CommandLine;
 using System;
@@ -11,6 +12,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Spartacus.Modes.PROXY.PrototypeDatabaseGeneration;
 using static Spartacus.Spartacus.PEFileExports;
 
 namespace Spartacus.Utils
@@ -178,6 +180,18 @@ namespace Spartacus.Utils
             string pattern = @"([a-f0-9]{8}[-][a-f0-9]{4}[-][a-f0-9]{4}[-][a-f0-9]{4}[-][a-f0-9]{12})";
             MatchCollection matches = Regex.Matches(text.ToLower(), pattern);
             return matches.Count > 0 ? "{" + matches[0].ToString().ToUpper() + "}" : "";
+        }
+
+        public List<FunctionPrototype> LoadPrototypes(string inputFile)
+        {
+            if (String.IsNullOrEmpty(inputFile) || !File.Exists(inputFile))
+            {
+                return new();
+            }
+
+            Logger.Info("Loading external function prototypes from " + inputFile);
+            PrototypeDatabaseGeneration generator = new();
+            return generator.LoadPrototypesFromCSV(inputFile);
         }
     }
 }
