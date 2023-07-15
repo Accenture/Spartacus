@@ -21,6 +21,7 @@ namespace Spartacus.Modes.PROXY
             ExistingFunctionPrototypes = Helper.LoadPrototypes(RuntimeData.PrototypesFile);
 
             Logger.Info("Listing exports for " + RuntimeData.BatchDLLFiles.Count + " file(s)");
+
             foreach (string dllFile in RuntimeData.BatchDLLFiles)
             {
                 ListExports(dllFile);
@@ -43,7 +44,12 @@ namespace Spartacus.Modes.PROXY
                 string hasPrototype = ExistingFunctionPrototypes.Count > 0
                     ? ExistingFunctionPrototypes.Where(x => x.name == export.Name).ToList().Count > 0 ? "Yes" : "No"
                     : "N/A";
-                Logger.Info($"{export.Ordinal}\t{hasPrototype}\t\t{export.Name}", true, false);
+
+                string forwarded = export.Forward.Length > 0
+                    ? $" (forwarded to {export.Forward})"
+                    : "";
+
+                Logger.Info($"{export.Ordinal}\t{hasPrototype}\t\t{export.Name}{forwarded}", true, false);
             }
 
 

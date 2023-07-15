@@ -42,6 +42,7 @@ namespace Spartacus.Spartacus
         {
             public String Name;
             public Int16 Ordinal;
+            public String Forward;
         }
 
         public List<FileExport> Extract(string dllPath)
@@ -59,11 +60,12 @@ namespace Spartacus.Spartacus
             Int32 ExportOffset = (int)(VirtualAddress - SectionOffset);
             IMAGE_EXPORT_DIRECTORY ExportTable = GetImageExportDirectory(ExportOffset);
             string[] Functions = GetFunctionNames(ExportTable, SectionOffset);
+            string[] Forwards = GetForwards(ExportTable, SectionOffset);
             Int16[] Ordinals = GetOrdinals(ExportTable, SectionOffset);
 
             for (int i = 0; i < Functions.Length; i++)
             {
-                exports.Add(new FileExport { Name = Functions[i], Ordinal = Ordinals[i] });
+                exports.Add(new FileExport { Name = Functions[i], Ordinal = Ordinals[i], Forward = Forwards[i] });
             }
 
             reader.Close();
@@ -145,6 +147,37 @@ namespace Spartacus.Spartacus
             exportTable.AddressOfNames = reader.ReadUInt32();
             exportTable.AddressOfNameOrdinals = reader.ReadUInt32();
             return exportTable;
+        }
+
+        private string[] GetForwards(IMAGE_EXPORT_DIRECTORY ExportTable, Int32 SectionOffset)
+        {
+            int addressOfNamesOffset = (int)(ExportTable.AddressOfFunctions - SectionOffset);
+            string[] Functions = new string[ExportTable.NumberOfNames];
+
+            for (int i = 0; i < ExportTable.NumberOfNames; i++)
+            {
+                stream.Seek(addressOfNamesOffset, SeekOrigin.Begin);
+                Int32 nameOffset = reader.ReadInt32() - SectionOffset;
+                if (nameOffset < 0)
+                {
+                    Functions[i] = "";
+                    addressOfNamesOffset += 4;
+                    continue;
+                }
+
+                stream.Seek(nameOffset, SeekOrigin.Begin);
+                Functions[i] = "";
+                byte c;
+                do
+                {
+                    c = reader.ReadByte();
+                    Functions[i] += Encoding.ASCII.GetString(new byte[] { c });
+                } while (c != 0x00);
+                Functions[i] = Functions[i].Trim('\0');
+                addressOfNamesOffset += 4;
+            }
+
+            return Functions;
         }
 
         private string[] GetFunctionNames(IMAGE_EXPORT_DIRECTORY ExportTable, Int32 SectionOffset)
