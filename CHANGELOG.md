@@ -1,5 +1,10 @@
 # Spartacus Changelog
 
+## v2.1.3
+
+* `[Update]` Proxy `--action exports` now supports wildcard DLL paths like `--dll C:\Windows\System32\*.dll` and also displays forwarded functions.
+* `[Fix]` Rewrite PE file exporter from scratch.
+
 ## v2.1.2
 
 * `[New]` Added `--action exports` to `--mode proxy` that lists a file's exports, functionality similar to `dumpbin.exe /exports`.

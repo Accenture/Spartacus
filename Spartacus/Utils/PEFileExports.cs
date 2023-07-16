@@ -213,11 +213,7 @@ namespace Spartacus.Utils
 
         private List<FileExport> GenerateResult(uint[] ordinals, string[] functions, string[] forwards)
         {
-            if (ordinals == null || functions == null || forwards == null)
-            {
-                return new();
-            }
-            else if (ordinals.Length == 0 || functions.Length == 0 || forwards.Length == 0)
+            if (ordinals.Length == 0 || functions.Length == 0 || forwards.Length == 0)
             {
                 return new();
             }
@@ -241,7 +237,8 @@ namespace Spartacus.Utils
                 output[i] = "";
                 // If the index[i] is within the boundaries of the export table (virtual address + size), extract the string. Otherwise
                 // it's a reference to a function offset rather than a forward.
-                if (index[i] > 0 && index[i] >= exportDataTable.VirtualAddress && index[i] <= (exportDataTable.VirtualAddress + exportDataTable.Size))
+                bool betweenBounds = index[i] >= exportDataTable.VirtualAddress && index[i] <= (exportDataTable.VirtualAddress + exportDataTable.Size);
+                if (index[i] > 0 && betweenBounds)
                 {
                     output[i] = ReadString(index[i] - sectionBaseOffset);
                 }
@@ -266,14 +263,10 @@ namespace Spartacus.Utils
             List<byte> output = new();
             do
             {
-                byte c = reader.ReadByte();
-                if (c == 0x00)
-                {
-                    break;
-                }
-                output.Add(c);
-            } while (true);
-
+                output.Add(reader.ReadByte());
+            } while (output.Last() != 0x00);
+            output.RemoveAt(output.Count - 1);  // Last added byte was 0x00, remove it.
+            
             return Encoding.ASCII.GetString(output.ToArray());
         }
 
@@ -281,22 +274,14 @@ namespace Spartacus.Utils
         {
             uint[] output = new uint[size];
             stream.Seek(offset, SeekOrigin.Begin);
-            for (int i = 0; i < size; i++)
-            {
-                output[i] = reader.ReadUInt32();
-            }
-            return output;
+            return output.Select(o => reader.ReadUInt32()).ToArray();
         }
 
         private uint[] ExtractOrdinals(EXPORT_DIRECTORY_TABLE exportTable, uint sectionBaseOffset)
         {
             uint[] output = new uint[exportTable.NumberOfNamePointers];
             stream.Seek(exportTable.OrdinalTableRVA - sectionBaseOffset, SeekOrigin.Begin);
-            for (int i = 0; i < output.Length; i++)
-            {
-                output[i] = reader.ReadUInt16() + exportTable.OrdinalBase;
-            }
-            return output;
+            return output.Select(o => reader.ReadUInt16() + exportTable.OrdinalBase).ToArray();
         }
 
         private EXPORT_DIRECTORY_TABLE GetExportDirectoryTable(uint offset)
@@ -345,15 +330,13 @@ namespace Spartacus.Utils
 
         private IMAGE_FILE_HEADER GetImageFileHeader()
         {
-            IMAGE_FILE_HEADER header = new();
-
             // Get the PE location - https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#signature-image-only
             stream.Seek(SIZEOF_IMAGE_DOS_HEADER, SeekOrigin.Begin);
             uint executableHeaderOffset = reader.ReadUInt32() + 4;  // +4 as the first 4 bytes are PE\0\0
 
             // Navigate to that offset.
             stream.Seek(executableHeaderOffset, SeekOrigin.Begin);
-            return BytesToStructure<IMAGE_FILE_HEADER>(reader.ReadBytes(Marshal.SizeOf(header)));
+            return ReadStructFromStream<IMAGE_FILE_HEADER>();
         }
 
         private T ReadStructFromStream<T>()
