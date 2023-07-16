@@ -61,6 +61,20 @@ namespace Spartacus.Modes.PROXY
             }
             else
             {
+                // Export DLLs support wildcard paths, so you can add --dll "C:\Windows\System32\*.dll" and it will load all those DLLs.
+                List<string> wildcardPaths = RuntimeData.BatchDLLFiles.Where(dll => dll.ToLower().Contains("*.dll")).ToList();
+                foreach (string wildcardPath in wildcardPaths)
+                {
+                    // First we remove the found path from the list.
+                    RuntimeData.BatchDLLFiles.Remove(wildcardPath);
+                    string dllPath = Path.GetDirectoryName(wildcardPath);
+
+                    // Then we append the new results to the list.
+                    RuntimeData.BatchDLLFiles.AddRange(Directory.EnumerateFiles(dllPath, "*.dll").ToList());
+
+                    RuntimeData.BatchDLLFiles = RuntimeData.BatchDLLFiles.Distinct().ToList();
+                }
+
                 foreach (string dllFile in RuntimeData.BatchDLLFiles)
                 {
                     if (!File.Exists(dllFile))

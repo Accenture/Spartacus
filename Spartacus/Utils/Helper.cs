@@ -155,7 +155,8 @@ namespace Spartacus.Utils
             }
             catch (Exception ex)
             {
-                // Nothing.
+                Logger.Error("Could not get exports for file: " + DLL);
+                Logger.Error(ex.Message);
             }
 
             return exports;

@@ -206,8 +206,8 @@ namespace Spartacus.Utils
             }
             finally
             {
-                reader.Close();
-                stream.Close();
+                reader?.Close();
+                stream?.Close();
             }
         }
 
