@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Spartacus.Modes.PROXY.PrototypeDatabaseGeneration;
 using static Spartacus.Spartacus.Models.FunctionSignature;
-using static Spartacus.Spartacus.PEFileExports;
+using static Spartacus.Utils.PEFileExports;
 
 namespace Spartacus.Modes.PROXY
 {

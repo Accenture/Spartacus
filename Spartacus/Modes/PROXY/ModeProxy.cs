@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Spartacus.Spartacus.Models.FunctionSignature;
-using static Spartacus.Spartacus.PEFileExports;
 
 namespace Spartacus.Modes.PROXY
 {

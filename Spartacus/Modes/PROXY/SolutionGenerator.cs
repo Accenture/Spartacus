@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
-using static Spartacus.Spartacus.PEFileExports;
+using static Spartacus.Utils.PEFileExports;
 
 namespace Spartacus.Modes.PROXY
 {

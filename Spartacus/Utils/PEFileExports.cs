@@ -2,220 +2,378 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Spartacus.Spartacus
+namespace Spartacus.Utils
 {
     class PEFileExports
     {
-        /*
-         * Don't try and make sense of this file
-         * The PE Header read functionality was butchered to only obtain the relevant information.
-         */
-        private const int SIZEOF_IMAGE_DOS_HEADER = 64;
-        private const int SIZEOF_IMAGE_FILE_HEADER = 20;
-        private const int SIZEOF_IMAGE_NT_HEADERS32 = 248;
-        private const int SIZEOF_IMAGE_NT_HEADERS64 = 264;
-        private const int SIZEOF_IMAGE_EXPORT_DIRECTORY = 40;
-        private const int SIZEOF_IMAGE_SECTION_HEADER = 40;
+        public struct FileExport
+        {
+            public string Name;
+            public uint Ordinal;
+            public string Forward;
+        }
 
         private FileStream stream;
         private BinaryReader reader;
 
-        private struct IMAGE_EXPORT_DIRECTORY
+        private const uint SIZEOF_IMAGE_DOS_HEADER = 0x3c;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IMAGE_FILE_HEADER
         {
-            public UInt32 Characteristics;
-            public UInt32 TimeDateStamp;
-            public UInt16 MajorVersion;
-            public UInt16 MinorVersion;
-            public UInt32 Name;
-            public UInt32 Base;
-            public UInt32 NumberOfFunctions;
-            public UInt32 NumberOfNames;
-            public UInt32 AddressOfFunctions; // RVA from base of image
-            public UInt32 AddressOfNames; // RVA from base of image
-            public UInt32 AddressOfNameOrdinals; // RVA from base of image
+            public ushort Machine;
+            public ushort NumberOfSections;
+            public uint TimeDateStamp;
+            public uint PointerToSymbolTable;
+            public uint NumberOfSymbols;
+            public ushort SizeOfOptionalHeader;
+            public ushort Characteristics;
         }
 
-        public struct FileExport
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IMAGE_OPTIONAL_HEADER32
         {
-            public String Name;
-            public Int16 Ordinal;
-            public String Forward;
+            public ushort Magic;
+            public byte MajorLinkerVersion;
+            public byte MinorLinkerVersion;
+            public uint SizeOfCode;
+            public uint SizeOfInitializedData;
+            public uint SizeOfUninitializedData;
+            public uint AddressOfEntryPoint;
+            public uint BaseOfCode;
+            public uint BaseOfData;             // Only this is missing from the x64 structure.
+
+            public uint ImageBase;
+            public uint SectionAlignment;
+            public uint FileAlignment;
+            public ushort MajorOperatingSystemVersion;
+            public ushort MinorOperatingSystemVersion;
+            public ushort MajorImageVersion;
+            public ushort MinorImageVersion;
+            public ushort MajorSubsystemVersion;
+            public ushort MinorSubsystemVersion;
+            public uint Win32VersionValue;
+            public uint SizeOfImage;
+            public uint SizeOfHeaders;
+            public uint CheckSum;
+            public ushort Subsystem;
+            public ushort DllCharacteristics;
+            public uint SizeOfStackReserve;
+            public uint SizeOfStackCommit;
+            public uint SizeOfHeapReserve;
+            public uint SizeOfHeapCommit;
+            public uint LoaderFlags;
+            public uint NumberOfRvaAndSizes;
         }
 
-        public List<FileExport> Extract(string dllPath)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IMAGE_OPTIONAL_HEADER64
         {
-            List<FileExport> exports = new List<FileExport>();
+            public ushort Magic;
+            public byte MajorLinkerVersion;
+            public byte MinorLinkerVersion;
+            public uint SizeOfCode;
+            public uint SizeOfInitializedData;
+            public uint SizeOfUninitializedData;
+            public uint AddressOfEntryPoint;
+            public uint BaseOfCode;
 
-            stream = File.Open(dllPath, FileMode.Open, FileAccess.Read);
-            reader = new BinaryReader(stream, Encoding.ASCII, false);
+            public ulong ImageBase;
+            public uint SectionAlignment;
+            public uint FileAlignment;
+            public ushort MajorOperatingSystemVersion;
+            public ushort MinorOperatingSystemVersion;
+            public ushort MajorImageVersion;
+            public ushort MinorImageVersion;
+            public ushort MajorSubsystemVersion;
+            public ushort MinorSubsystemVersion;
+            public uint Win32VersionValue;
+            public uint SizeOfImage;
+            public uint SizeOfHeaders;
+            public uint CheckSum;
+            public ushort Subsystem;
+            public ushort DllCharacteristics;
+            public ulong SizeOfStackReserve;
+            public ulong SizeOfStackCommit;
+            public ulong SizeOfHeapReserve;
+            public ulong SizeOfHeapCommit;
+            public uint LoaderFlags;
+            public uint NumberOfRvaAndSizes;
+        }
 
-            Int32 newExecutableHeader = GetNewExecutableHeader();
-            bool x32 = Is32bit(newExecutableHeader);
-            Int32 NumberOfSections = GetNumberOfSections(newExecutableHeader);
-            UInt32 VirtualAddress = GetVirtualAddress(newExecutableHeader, x32);
-            Int32 SectionOffset = GetSectionOffset(newExecutableHeader, x32, NumberOfSections, VirtualAddress);
-            Int32 ExportOffset = (int)(VirtualAddress - SectionOffset);
-            IMAGE_EXPORT_DIRECTORY ExportTable = GetImageExportDirectory(ExportOffset);
-            string[] Functions = GetFunctionNames(ExportTable, SectionOffset);
-            string[] Forwards = GetForwards(ExportTable, SectionOffset);
-            Int16[] Ordinals = GetOrdinals(ExportTable, SectionOffset);
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IMAGE_DATA_DIRECTORY
+        {
+            public uint VirtualAddress;
+            public uint Size;
+        }
 
-            for (int i = 0; i < Functions.Length; i++)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IMAGE_HEADER_DIRECTORIES
+        {
+            public IMAGE_DATA_DIRECTORY ExportTable;
+            public IMAGE_DATA_DIRECTORY ImportTable;
+            public IMAGE_DATA_DIRECTORY ResourceTable;
+            public IMAGE_DATA_DIRECTORY ExceptionTable;
+            public IMAGE_DATA_DIRECTORY CertificateTable;
+            public IMAGE_DATA_DIRECTORY BaseRelocationTable;
+            public IMAGE_DATA_DIRECTORY Debug;
+            public IMAGE_DATA_DIRECTORY Architecture;
+            public IMAGE_DATA_DIRECTORY GlobalPtr;
+            public IMAGE_DATA_DIRECTORY TLSTable;
+            public IMAGE_DATA_DIRECTORY LoadConfigTable;
+            public IMAGE_DATA_DIRECTORY BoundImport;
+            public IMAGE_DATA_DIRECTORY IAT;
+            public IMAGE_DATA_DIRECTORY DelayImportDescriptor;
+            public IMAGE_DATA_DIRECTORY CLRRuntimeHeader;
+            public IMAGE_DATA_DIRECTORY ReservedMustBeZero;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IMAGE_SECTION_HEADER
+        {
+            // Don't want to enable unsafe code, so will split into 8 bytes.
+            public byte NameChar1;
+            public byte NameChar2;
+            public byte NameChar3;
+            public byte NameChar4;
+            public byte NameChar5;
+            public byte NameChar6;
+            public byte NameChar7;
+            public byte NameChar8;
+
+            public uint VirtualSize;
+            public uint VirtualAddress;
+            public uint SizeOfRawData;
+            public uint PointerToRawData;
+            public uint PointerToRelocations;
+            public uint PointerToLinenumbers;
+            public ushort NumberOfRelocations;
+            public ushort NumberOfLinenumbers;
+            public uint Characteristics;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct EXPORT_DIRECTORY_TABLE
+        {
+            public uint ExportFlags;
+            public uint TimeDateStamp;
+            public ushort MajorVersion;
+            public ushort MinorVersion;
+            public uint NameRVA;
+            public uint OrdinalBase;
+            public uint AddressTableEntries;
+            public uint NumberOfNamePointers;
+            public uint ExportAddressTableRVA;
+            public uint NamePointerRVA;
+            public uint OrdinalTableRVA;
+        }
+
+        public List<FileExport> Extract(string dllFile)
+        {
+            try
             {
-                exports.Add(new FileExport { Name = Functions[i], Ordinal = Ordinals[i], Forward = Forwards[i] });
+                stream = File.Open(dllFile, FileMode.Open, FileAccess.Read);
+                reader = new BinaryReader(stream, Encoding.ASCII, false);
+
+                IMAGE_FILE_HEADER header = GetImageFileHeader();
+                bool isPEPlus = IsPEPlus();
+                
+                if (isPEPlus)
+                {
+                    IMAGE_OPTIONAL_HEADER64 optionalHeader = ReadStructFromStream<IMAGE_OPTIONAL_HEADER64>();
+                }
+                else
+                {
+                    IMAGE_OPTIONAL_HEADER32 optionalHeader = ReadStructFromStream<IMAGE_OPTIONAL_HEADER32>();
+                }
+
+                IMAGE_HEADER_DIRECTORIES headerDirectories = ReadStructFromStream<IMAGE_HEADER_DIRECTORIES>();
+
+                uint sectionBaseOffset = GetSectionBaseOffset(headerDirectories, header.NumberOfSections);
+
+                EXPORT_DIRECTORY_TABLE exportTable = GetExportDirectoryTable(headerDirectories.ExportTable.VirtualAddress - sectionBaseOffset);
+
+                uint[] exportOrdinals = ExtractOrdinals(exportTable, sectionBaseOffset);
+                string[] exportFunctions = ExtractFunctions(exportTable, sectionBaseOffset, headerDirectories.ExportTable);
+                string[] exportForwards = ExtractForwards(exportTable, sectionBaseOffset, headerDirectories.ExportTable);
+
+                return GenerateResult(exportOrdinals, exportFunctions, exportForwards);
+            }
+            finally
+            {
+                reader.Close();
+                stream.Close();
+            }
+        }
+
+        private List<FileExport> GenerateResult(uint[] ordinals, string[] functions, string[] forwards)
+        {
+            if (ordinals == null || functions == null || forwards == null)
+            {
+                return new();
+            }
+            else if (ordinals.Length == 0 || functions.Length == 0 || forwards.Length == 0)
+            {
+                return new();
             }
 
-            reader.Close();
-            stream.Close();
+            List<FileExport> exports = new();
+            for (int i = 0; i < ordinals.Length; i++)
+            {
+                exports.Add(new FileExport() { Ordinal = ordinals[i], Name = functions[i], Forward = forwards[i] });
+            }
 
             return exports;
         }
 
-        private Int32 GetNewExecutableHeader()
+        private string[] ExtractTable(EXPORT_DIRECTORY_TABLE exportTable, uint sectionBaseOffset, IMAGE_DATA_DIRECTORY exportDataTable, uint tableIndexOffset)
         {
-            // Get the file address of the new executable header - https://www.pinvoke.net/default.aspx/Structures.IMAGE_DOS_HEADER
-            stream.Seek(SIZEOF_IMAGE_DOS_HEADER - 4, SeekOrigin.Begin);
-            return reader.ReadInt32();
-        }
+            string[] output = new string[exportTable.NumberOfNamePointers];
+            uint[] index = ExtractTableIndex(tableIndexOffset - sectionBaseOffset, exportTable.NumberOfNamePointers);
 
-        private bool Is32bit(Int32 newExecutableHeader)
-        {
-            // Get the architecture - https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-image_file_header
-            stream.Seek(newExecutableHeader + 4, SeekOrigin.Begin);
-            return reader.ReadUInt16() == 0x014c;   // IMAGE_FILE_MACHINE_I386
-        }
-
-        private UInt16 GetNumberOfSections(Int32 newExecutableHeader)
-        {
-            stream.Seek(newExecutableHeader, SeekOrigin.Begin);
-            reader.ReadUInt32();    // Signature.
-            reader.ReadUInt16();    // Machine.
-            return reader.ReadUInt16();
-        }
-
-        private UInt32 GetVirtualAddress(Int32 newExecutableHeader, bool is32bit)
-        {
-            // Get the virtual address - IMAGE_NT_HEADERS32.IMAGE_OPTIONAL_HEADER32.IMAGE_DATA_DIRECTORY.VirtualAddress
-            stream.Seek(newExecutableHeader + 4 + SIZEOF_IMAGE_FILE_HEADER, SeekOrigin.Begin);
-            // 9 UInt16, 2 Bytes, 19 UInt32             - IMAGE_OPTIONAL_HEADER32
-            // 9 UInt16, 2 Bytes, 13 UInt32, 5 UInt64   - IMAGE_OPTIONAL_HEADER64
-            int skipBytesDependingOnMachine = is32bit ? ((2 * 9) + (2 * 1) + (19 * 4)) : ((2 * 9) + (2 * 1) + (13 * 4) + (5 * 8));
-            stream.Seek(skipBytesDependingOnMachine, SeekOrigin.Current);
-            return reader.ReadUInt32();
-        }
-
-        private Int32 GetSectionOffset(Int32 newExecutableHeader, bool is32bit, Int32 NumberOfSections, UInt32 VirtualAddress)
-        {
-            int sectionOffset = 0;
-            int sectionHeaderOffset = newExecutableHeader + (is32bit ? SIZEOF_IMAGE_NT_HEADERS32 : SIZEOF_IMAGE_NT_HEADERS64);
-            for (int i = 0; i < NumberOfSections; i++)
+            for (int i = 0; i < output.Length; i++)
             {
-                stream.Seek(sectionHeaderOffset, SeekOrigin.Begin);
-                reader.ReadBytes(8);    // char[] * 8
-                UInt32 sectionImageVirtualSize = reader.ReadUInt32();
-                UInt32 sectionImageVirtualAddress = reader.ReadUInt32();
-                reader.ReadUInt32();    // SizeOfRawData
-                UInt32 sectionImagePointerToRawData = reader.ReadUInt32();
-
-                if (VirtualAddress > sectionImageVirtualAddress && VirtualAddress < (sectionImageVirtualAddress + sectionImageVirtualSize))
+                output[i] = "";
+                // If the index[i] is within the boundaries of the export table (virtual address + size), extract the string. Otherwise
+                // it's a reference to a function offset rather than a forward.
+                if (index[i] > 0 && index[i] >= exportDataTable.VirtualAddress && index[i] <= (exportDataTable.VirtualAddress + exportDataTable.Size))
                 {
-                    sectionOffset = (int)(sectionImageVirtualAddress - sectionImagePointerToRawData);
+                    output[i] = ReadString(index[i] - sectionBaseOffset);
+                }
+            }
+
+            return output;
+        }
+
+        private string[] ExtractFunctions(EXPORT_DIRECTORY_TABLE exportTable, uint sectionBaseOffset, IMAGE_DATA_DIRECTORY exportDataTable)
+        {
+            return ExtractTable(exportTable, sectionBaseOffset, exportDataTable, exportTable.NamePointerRVA);
+        }
+
+        private string[] ExtractForwards(EXPORT_DIRECTORY_TABLE exportTable, uint sectionBaseOffset, IMAGE_DATA_DIRECTORY exportDataTable)
+        {
+            return ExtractTable(exportTable, sectionBaseOffset, exportDataTable, exportTable.ExportAddressTableRVA);
+        }
+
+        private string ReadString(uint offset)
+        {
+            stream.Seek(offset, SeekOrigin.Begin);
+            List<byte> output = new();
+            do
+            {
+                byte c = reader.ReadByte();
+                if (c == 0x00)
+                {
                     break;
                 }
+                output.Add(c);
+            } while (true);
 
-                sectionHeaderOffset += SIZEOF_IMAGE_SECTION_HEADER;
-            }
-            return sectionOffset;
+            return Encoding.ASCII.GetString(output.ToArray());
         }
 
-        private IMAGE_EXPORT_DIRECTORY GetImageExportDirectory(Int32 ExportOffset)
+        private uint[] ExtractTableIndex(uint offset, uint size)
         {
-            stream.Seek(ExportOffset, SeekOrigin.Begin);
-            IMAGE_EXPORT_DIRECTORY exportTable = new IMAGE_EXPORT_DIRECTORY();
-            exportTable.Characteristics = reader.ReadUInt32();
-            exportTable.TimeDateStamp = reader.ReadUInt32();
-            exportTable.MajorVersion = reader.ReadUInt16();
-            exportTable.MinorVersion = reader.ReadUInt16();
-            exportTable.Name = reader.ReadUInt32();
-            exportTable.Base = reader.ReadUInt32();
-            exportTable.NumberOfFunctions = reader.ReadUInt32();
-            exportTable.NumberOfNames = reader.ReadUInt32();
-            exportTable.AddressOfFunctions = reader.ReadUInt32();
-            exportTable.AddressOfNames = reader.ReadUInt32();
-            exportTable.AddressOfNameOrdinals = reader.ReadUInt32();
-            return exportTable;
-        }
-
-        private string[] GetForwards(IMAGE_EXPORT_DIRECTORY ExportTable, Int32 SectionOffset)
-        {
-            int addressOfNamesOffset = (int)(ExportTable.AddressOfFunctions - SectionOffset);
-            string[] Functions = new string[ExportTable.NumberOfNames];
-
-            for (int i = 0; i < ExportTable.NumberOfNames; i++)
+            uint[] output = new uint[size];
+            stream.Seek(offset, SeekOrigin.Begin);
+            for (int i = 0; i < size; i++)
             {
-                stream.Seek(addressOfNamesOffset, SeekOrigin.Begin);
-                Int32 nameOffset = reader.ReadInt32() - SectionOffset;
-                if (nameOffset < 0)
+                output[i] = reader.ReadUInt32();
+            }
+            return output;
+        }
+
+        private uint[] ExtractOrdinals(EXPORT_DIRECTORY_TABLE exportTable, uint sectionBaseOffset)
+        {
+            uint[] output = new uint[exportTable.NumberOfNamePointers];
+            stream.Seek(exportTable.OrdinalTableRVA - sectionBaseOffset, SeekOrigin.Begin);
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = reader.ReadUInt16() + exportTable.OrdinalBase;
+            }
+            return output;
+        }
+
+        private EXPORT_DIRECTORY_TABLE GetExportDirectoryTable(uint offset)
+        {
+            stream.Seek(offset, SeekOrigin.Begin);
+            return ReadStructFromStream<EXPORT_DIRECTORY_TABLE>();
+        }
+
+        private uint GetSectionBaseOffset(IMAGE_HEADER_DIRECTORIES headerDirectories, ushort numberOfSections)
+        {
+            IMAGE_SECTION_HEADER foundSection = new();
+
+            for (int i = 0; i < numberOfSections; i++)
+            {
+                IMAGE_SECTION_HEADER sectionHeader = ReadStructFromStream<IMAGE_SECTION_HEADER>();
+
+                // We want the section where the ExportTable's VirtualAddress is within its range.
+                if (headerDirectories.ExportTable.VirtualAddress < sectionHeader.VirtualAddress)
                 {
-                    Functions[i] = "";
-                    addressOfNamesOffset += 4;
+                    continue;
+                }
+                else if (headerDirectories.ExportTable.VirtualAddress > (sectionHeader.VirtualAddress + sectionHeader.VirtualSize))
+                {
                     continue;
                 }
 
-                stream.Seek(nameOffset, SeekOrigin.Begin);
-                Functions[i] = "";
-                byte c;
-                do
-                {
-                    c = reader.ReadByte();
-                    Functions[i] += Encoding.ASCII.GetString(new byte[] { c });
-                } while (c != 0x00);
-                Functions[i] = Functions[i].Trim('\0');
-                addressOfNamesOffset += 4;
+                foundSection = sectionHeader;
+                break;
             }
 
-            return Functions;
+            return foundSection.VirtualAddress - foundSection.PointerToRawData;
         }
 
-        private string[] GetFunctionNames(IMAGE_EXPORT_DIRECTORY ExportTable, Int32 SectionOffset)
+        private bool IsPEPlus()
         {
-            int addressOfNamesOffset = (int)(ExportTable.AddressOfNames - SectionOffset);
-            string[] Functions = new string[ExportTable.NumberOfNames];
-
-            for (int i = 0; i < ExportTable.NumberOfNames; i++)
-            {
-                stream.Seek(addressOfNamesOffset, SeekOrigin.Begin);
-                Int32 nameOffset = reader.ReadInt32() - SectionOffset;
-
-                stream.Seek(nameOffset, SeekOrigin.Begin);
-                Functions[i] = "";
-                byte c;
-                do
-                {
-                    c = reader.ReadByte();
-                    Functions[i] += Encoding.ASCII.GetString(new byte[] { c });
-                } while (c != 0x00);
-                Functions[i] = Functions[i].Trim('\0');
-                addressOfNamesOffset += 4;
-            }
-
-            return Functions;
+            /*
+             * We need to manually grab the next byte as that's the magic byte that defines if the
+             * file is PE or PE+, in order to grab the right data. But as the magic byte is also
+             * part of each structure, we'll have to move back to its original position before reading.
+             */
+            long c = stream.Position;
+            bool result = reader.ReadUInt16() == 0x20b;
+            stream.Seek(c, SeekOrigin.Begin);
+            return result;
         }
 
-        private Int16[] GetOrdinals(IMAGE_EXPORT_DIRECTORY ExportTable, Int32 SectionOffset)
+        private IMAGE_FILE_HEADER GetImageFileHeader()
         {
-            int ordinalOffset = (int)(ExportTable.AddressOfNameOrdinals - SectionOffset);
-            Int16[] ordinals = new short[ExportTable.NumberOfNames];
-            stream.Seek(ordinalOffset, SeekOrigin.Begin);
-            for (int i = 0; i < ExportTable.NumberOfNames; i++)
-            {
-                ordinals[i] = (Int16)(reader.ReadInt16() + ExportTable.Base);
-            }
+            IMAGE_FILE_HEADER header = new();
 
-            return ordinals;
+            // Get the PE location - https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#signature-image-only
+            stream.Seek(SIZEOF_IMAGE_DOS_HEADER, SeekOrigin.Begin);
+            uint executableHeaderOffset = reader.ReadUInt32() + 4;  // +4 as the first 4 bytes are PE\0\0
+
+            // Navigate to that offset.
+            stream.Seek(executableHeaderOffset, SeekOrigin.Begin);
+            return BytesToStructure<IMAGE_FILE_HEADER>(reader.ReadBytes(Marshal.SizeOf(header)));
+        }
+
+        private T ReadStructFromStream<T>()
+        {
+            return BytesToStructure<T>(reader.ReadBytes(Marshal.SizeOf(typeof(T))));
+        }
+
+        private T BytesToStructure<T>(byte[] data)
+        {
+            int size = Marshal.SizeOf(typeof(T));
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            try
+            {
+                Marshal.Copy(data, 0, ptr, size);
+                return (T)Marshal.PtrToStructure(ptr, typeof(T));
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
     }
 }
