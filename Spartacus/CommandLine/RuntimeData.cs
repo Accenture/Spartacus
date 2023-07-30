@@ -16,7 +16,21 @@ namespace Spartacus.Spartacus.CommandLine
             DETECT = 2,
             PROXY = 3,
             COM = 4,
+            SIGN = 5,
         };
+
+        public struct SignCertificate
+        {
+            public string Subject;
+            public string Issuer;
+            public DateTime NotBefore;
+            public DateTime NotAfter;
+            public string Password;
+            public string CopyFrom;
+            public string PFXFile;
+            public string Algorithm;
+            public string Timestamp;
+        }
 
         public static SpartacusMode Mode = SpartacusMode.NONE;
 
@@ -63,5 +77,7 @@ namespace Spartacus.Spartacus.CommandLine
         public static string Path = "";
 
         public static string PrototypesFile = "";
+
+        public static SignCertificate Certificate = new();
     }
 }

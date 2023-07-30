@@ -2,7 +2,7 @@
 using Spartacus.Modes.DETECT;
 using Spartacus.Modes.DLL;
 using Spartacus.Modes.PROXY;
-using Spartacus.ProcMon;
+using Spartacus.Modes.SIGN;
 using Spartacus.Properties;
 using System;
 using System.Collections.Generic;
@@ -39,6 +39,15 @@ namespace Spartacus.Spartacus.CommandLine
             { "action", "" },
             { "path", "" },
             { "prototypes", "" },
+            { "pfx", "" },
+            { "password", "" },
+            { "copy-from", "" },
+            { "not-before", "" },
+            { "not-after", "" },
+            { "subject", "" },
+            { "issuer", "" },
+            { "algorithm", "" },
+            { "timestamp", "" }
         };
 
         private Dictionary<string, List<string>> Arguments = new();
@@ -130,13 +139,13 @@ namespace Spartacus.Spartacus.CommandLine
                         }
                         break;
                     case "pmc":
-                        RuntimeData.PMCFile = argument.Value.First();
+                        RuntimeData.PMCFile = argument.Value.First().Trim();
                         break;
                     case "pml":
-                        RuntimeData.PMLFile = argument.Value.First();
+                        RuntimeData.PMLFile = argument.Value.First().Trim();
                         break;
                     case "csv":
-                        RuntimeData.CSVFile = argument.Value.First();
+                        RuntimeData.CSVFile = argument.Value.First().Trim();
                         break;
                     case "procmon":
                         RuntimeData.ProcMonExecutable = argument.Value.First();
@@ -170,10 +179,10 @@ namespace Spartacus.Spartacus.CommandLine
                         }
                         break;
                     case "solution":
-                        RuntimeData.Solution = argument.Value.First();
+                        RuntimeData.Solution = argument.Value.First().Trim();
                         break;
                     case "ghidra":
-                        RuntimeData.GhidraHeadlessPath = argument.Value.First();
+                        RuntimeData.GhidraHeadlessPath = argument.Value.First().Trim();
                         break;
                     case "only":
                         RuntimeData.FunctionsToProxy = argument.Value.First().Trim().Split(',').ToList();
@@ -197,13 +206,54 @@ namespace Spartacus.Spartacus.CommandLine
                         }
                         break;
                     case "action":
-                        RuntimeData.Action = argument.Value.First();
+                        RuntimeData.Action = argument.Value.First().Trim();
                         break;
                     case "path":
-                        RuntimeData.Path = argument.Value.First();
+                        RuntimeData.Path = argument.Value.First().Trim();
                         break;
                     case "prototypes":
-                        RuntimeData.PrototypesFile = argument.Value.First();
+                        RuntimeData.PrototypesFile = argument.Value.First().Trim();
+                        break;
+                    case "pfx":
+                        RuntimeData.Certificate.PFXFile = argument.Value.First().Trim();
+                        break;
+                    case "password":
+                        RuntimeData.Certificate.Password = argument.Value.First().Trim();
+                        break;
+                    case "copy-from":
+                        RuntimeData.Certificate.CopyFrom = argument.Value.First().Trim();
+                        break;
+                    case "not-before":
+                        try
+                        {
+                            RuntimeData.Certificate.NotBefore = DateTime.ParseExact(argument.Value.First().Trim(), "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        catch (Exception e)
+                        {
+                            // Nothing.
+                        }
+                        break;
+                    case "not-after":
+                        try
+                        {
+                            RuntimeData.Certificate.NotAfter = DateTime.ParseExact(argument.Value.First().Trim(), "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        catch (Exception e)
+                        {
+                            // Nothing.
+                        }
+                        break;
+                    case "subject":
+                        RuntimeData.Certificate.Subject = argument.Value.First().Trim();
+                        break;
+                    case "issuer":
+                        RuntimeData.Certificate.Issuer = argument.Value.First().Trim();
+                        break;
+                    case "algorithm":
+                        RuntimeData.Certificate.Algorithm = argument.Value.First().Trim();
+                        break;
+                    case "timestamp":
+                        RuntimeData.Certificate.Timestamp = argument.Value.First().Trim();
                         break;
                     default:
                         throw new Exception("Unknown argument: " + argument.Key);
@@ -235,6 +285,7 @@ namespace Spartacus.Spartacus.CommandLine
                 "detect" => RuntimeData.SpartacusMode.DETECT,
                 "proxy" => RuntimeData.SpartacusMode.PROXY,
                 "com" => RuntimeData.SpartacusMode.COM,
+                "sign" => RuntimeData.SpartacusMode.SIGN,
                 _ => RuntimeData.SpartacusMode.NONE,
             };
         }
@@ -247,24 +298,15 @@ namespace Spartacus.Spartacus.CommandLine
                 RuntimeData.Verbose = Logger.IsVerbose = Logger.IsDebug = true;
             }
 
-            switch (RuntimeData.Mode)
+            RuntimeData.ModeObject = RuntimeData.Mode switch
             {
-                case RuntimeData.SpartacusMode.DLL:
-                    RuntimeData.ModeObject = new ModeDLL();
-                    break;
-                case RuntimeData.SpartacusMode.DETECT:
-                    RuntimeData.ModeObject = new ModeDetect();
-                    break;
-                case RuntimeData.SpartacusMode.PROXY:
-                    RuntimeData.ModeObject = new ModeProxy();
-                    break;
-                case RuntimeData.SpartacusMode.COM:
-                    RuntimeData.ModeObject = new ModeCOM();
-                    break;
-                default:
-                    throw new Exception("--mode is not valid");
-            }
-
+                RuntimeData.SpartacusMode.DLL => new ModeDLL(),
+                RuntimeData.SpartacusMode.DETECT => new ModeDetect(),
+                RuntimeData.SpartacusMode.PROXY => new ModeProxy(),
+                RuntimeData.SpartacusMode.COM => new ModeCOM(),
+                RuntimeData.SpartacusMode.SIGN => new ModeSign(),
+                _ => throw new Exception("--mode is not valid"),
+            };
             RuntimeData.ModeObject.SanitiseAndValidateRuntimeData();
         }
     }
