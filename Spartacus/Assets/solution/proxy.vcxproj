@@ -148,8 +148,10 @@
       <ModuleDefinitionFile>%_PROJECTNAME_%.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>powershell.exe -c "(Get-ChildItem '$(TargetPath)').LastWriteTime = (Get-ChildItem '%_SOURCEDLL_%').LastWriteTime
-powershell.exe -c (Get-ChildItem '$(TargetPath)').CreationTime = (Get-ChildItem '%_SOURCEDLL_%').CreationTime"</Command>
+      <Command>
+        powershell.exe -c "(Get-ChildItem '$(TargetPath)').LastWriteTime = (Get-ChildItem '%_SOURCEDLL_%').LastWriteTime"
+        powershell.exe -c "(Get-ChildItem '$(TargetPath)').CreationTime = (Get-ChildItem '%_SOURCEDLL_%').CreationTime"
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
