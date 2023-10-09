@@ -12,6 +12,7 @@ When a process that is vulnerable to DLL Hijacking is asking for a DLL to be loa
 * Automatically generate Visual Studio solutions for vulnerable DLLs.
 * Able to process large PML files and store all events of interest output into a CSV file. Local benchmark processed a 3GB file with 8 million events in 45 seconds.
 * Supports scanning for both DLL and COM hijacking vulnerabilities.
+* Supports generating self-signed certificates and signing DLL files.
 * By utilising [Ghidra](https://github.com/NationalSecurityAgency/ghidra) functionality, extract export function signatures and execute your payload via individually proxied functions instead of running everything from `DllMain`. This technique was inspired and implemented from the walkthrough described at https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain, by [Shantanu Khandelwal](https://twitter.com/shantanukhande).
 * `[Defence]` Monitoring mode trying to identify running applications proxying calls, as in "DLL Hijacking in progress". This is just to get any low hanging fruit and should not be relied upon.
 
@@ -25,6 +26,8 @@ When a process that is vulnerable to DLL Hijacking is asking for a DLL to be loa
         * [Usage](#com-hijacking-usage)
     * [DLL Proxy Generation](#dll-proxy-generation)
         * [Usage](#dll-proxy-generation-usage)
+    * [Signing DLL Files](#signing-dll-files)
+        * [Usage](#usage-for-signing-dll-files)
     * [DLL Hijacking Detection](#dll-hijacking-detection)
 * [Command Line Arguments](#command-line-arguments)
 * [Contributions](#contributions)
@@ -187,6 +190,24 @@ List DLL's exports and check if each function has a pre-generated prototype.
 
 ```
 --mode proxy --action exports --dll C:\Windows\System32\version.dll --dll C:\Windows\System32\amsi.dll --prototypes ./Assets/prototypes.csv
+```
+
+## Signing DLL Files
+
+Spartacus now supports generating self-signed certificates (while copying attributes from existing files), and signing DLL files.
+
+### Usage for Signing DLL Files
+
+Create a signing certificate, using properties from `C:\Windows\System32\version.dll` (has to be signed DLL).
+
+```
+--mode sign --action generate --pfx "C:\Output\certificate.pfx" --password "Welcome1" --not-before "2022-12-31 00:00:55" --not-after "2026-01-01 00:00:01" --copy-from C:\Windows\System32\version.dll --verbose
+```
+
+Sign a DLL using an existing/generated certificate.
+
+```
+--mode sign --action sign --pfx "C:\Output\certificate.pfx" --password "Welcome1" --path "C:\Input\MyFakeVersion.dll" --algorithm SHA256 --verbose
 ```
 
 ## DLL Hijacking Detection
