@@ -1,5 +1,13 @@
 # Spartacus Changelog
 
+## v2.2.0
+
+* `[New]` Included `Examples.md` in the distribution archive.
+* `[New]` As command line arguments were becoming too much, created `CommandLineGenerator.html`.
+* `[New]` Implement the `sign` mode, to enable creating self-signed certificates and using any given certificate to sign an executable/DLL. The code was taken & customised from https://github.com/Danielku15/SigningServer, under MIT License - original author is Danielku15.
+* `[Fix]` Fixed PostBuildEvent in proxy.vcxproj, [PR](https://github.com/Accenture/Spartacus/pull/3) by https://github.com/Signum21.
+* `[Fix]` Fixed placeholder creation when DLL does not exist, [PR](https://github.com/Accenture/Spartacus/pull/6) by https://github.com/kost.
+
 ## v2.1.3
 
 * `[Update]` Proxy `--action exports` now supports wildcard DLL paths like `--dll C:\Windows\System32\*.dll` and also displays forwarded functions.

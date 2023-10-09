@@ -170,6 +170,7 @@ namespace Spartacus.Utils
                 RuntimeData.SpartacusMode.PROXY => @"help\proxy.txt",
                 RuntimeData.SpartacusMode.COM => @"help\com.txt",
                 RuntimeData.SpartacusMode.DETECT => @"help\detect.txt",
+                RuntimeData.SpartacusMode.SIGN => @"help\sign.txt",
                 _ => @"help\main.txt"
             };
 

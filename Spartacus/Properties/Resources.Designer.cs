@@ -122,7 +122,7 @@ namespace Spartacus.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode [dll|proxy|com|detect] [--help] [OPTIONS]
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode [dll|proxy|com|detect|sign] [--help] [OPTIONS]
         ///
         ///Supported Modes
         ///---------------
@@ -131,7 +131,7 @@ namespace Spartacus.Properties {
         ///proxy                   Generate Visual Studio solutions for DLL proxy files.
         ///com                     Identify COM hijacking vulnerabilities.
         ///detect                  Identify DLLs that are proxying calls (like &apos;DLL Hijacking in progress&apos;).
-        ///                        This isn&apos;t a feature to be relied upon, it&apos;s there to get the low hangi [rest of string was truncated]&quot;;.
+        ///                        This isn&apos;t a feature to be relied upon, it&apos;s there to get the low  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string help_main_txt {
             get {
@@ -151,6 +151,22 @@ namespace Spartacus.Properties {
         internal static string help_proxy_txt {
             get {
                 return ResourceManager.GetString("help\\proxy.txt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Spartacus.exe --mode sign [--help] [OPTIONS]
+        ///
+        ///--action [ACTION]       Specify the action to be executed:
+        ///                            generate: Generate a self-signed certificate (pfx).
+        ///                            sign: Sign an executable using a pfx file.
+        ///--subject               Specify the subject for the new certificate (CN=Spartacus,C=GB, etc).
+        ///--issuer                Specify the issuer for the new certificate (CN=Spartacus Issuer,C=GB, etc).
+        ///--copy-from             Specify a signed file to [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help_sign_txt {
+            get {
+                return ResourceManager.GetString("help\\sign.txt", resourceCulture);
             }
         }
         

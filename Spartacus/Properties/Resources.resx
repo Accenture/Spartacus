@@ -221,7 +221,7 @@ Parse an existing PML event log output, save output to CSV, and generate proxy D
     --mode dll --existing --pml C:\MyData\SomeBackup.pml --csv C:\Data\VulnerableDLLFiles.csv --solution C:\Data\Solutions --verbose</value>
   </data>
   <data name="help\main.txt" xml:space="preserve">
-    <value>Usage: Spartacus.exe --mode [dll|proxy|com|detect] [--help] [OPTIONS]
+    <value>Usage: Spartacus.exe --mode [dll|proxy|com|detect|sign] [--help] [OPTIONS]
 
 Supported Modes
 ---------------
@@ -231,6 +231,7 @@ proxy                   Generate Visual Studio solutions for DLL proxy files.
 com                     Identify COM hijacking vulnerabilities.
 detect                  Identify DLLs that are proxying calls (like 'DLL Hijacking in progress').
                         This isn't a feature to be relied upon, it's there to get the low hanging fruit.
+sign                    Generate self-signed certificates and use them to sign executables/DLLs.
 
 Global Options
 --------------
@@ -284,6 +285,28 @@ It is possible to input multiple DLLs at once.
 Generate a function prototype database from existing *.h files, assisting in generating proxy functions for ones that Ghidra was not able to extract its function definition.
 
     --mode proxy --action prototypes --path "C:\Program Files (x86)\Windows Kits" --csv C:\data\prototypes.csv --verbose</value>
+  </data>
+  <data name="help\sign.txt" xml:space="preserve">
+    <value>Usage: Spartacus.exe --mode sign [--help] [OPTIONS]
+
+--action [ACTION]       Specify the action to be executed:
+                            generate: Generate a self-signed certificate (pfx).
+                            sign: Sign an executable using a pfx file.
+--subject               Specify the subject for the new certificate (CN=Spartacus,C=GB, etc).
+--issuer                Specify the issuer for the new certificate (CN=Spartacus Issuer,C=GB, etc).
+--copy-from             Specify a signed file to copy the Subject/Issuer from.
+--not-before            Date from when the new certificate will be valid from, format is YYYY-MM-DD HH:MM:SS.
+--not-after             Expiration date for the new certificate, format is YYYY-MM-DD HH:MM:SS.
+--pfx                   When used with '--action generate' this is where the pfx file will be saved as.
+                        When used with '--action sign' this is where the pfx file will be loaded from.
+--overwrite             When used with '--action generate' this will indicate whether to rewrite the target
+                        file if it already exists.
+--password              Password for the pfx file (either to save or load, depending on the --action)
+--path [FILE]           Location of the executable/DLL file to be signed.
+--algorithm             When used with '--action sign', this argument will specify the signature algorithm.
+                        This can be one of: MD5, SHA1, SHA256, SHA384, SHA512.
+--timestamp             When used with '--action sign', this is where the Timestamp Server is specified.
+                        For example 'http://timestamp.sectigo.com' or 'http://timestamp.digicert.com'.</value>
   </data>
   <data name="solution\dllmain.cpp" xml:space="preserve">
     <value>#pragma once
@@ -605,8 +628,10 @@ EndGlobal</value>
       &lt;ModuleDefinitionFile&gt;%_PROJECTNAME_%.def&lt;/ModuleDefinitionFile&gt;
     &lt;/Link&gt;
     &lt;PostBuildEvent&gt;
-      &lt;Command&gt;powershell.exe -c (Get-ChildItem "$(TargetPath)").LastWriteTime = (Get-ChildItem "%_SOURCEDLL_%").LastWriteTime
-powershell.exe -c (Get-ChildItem "$(TargetPath)").CreationTime = (Get-ChildItem "%_SOURCEDLL_%").CreationTime&lt;/Command&gt;
+      &lt;Command&gt;
+        powershell.exe -c "(Get-ChildItem '$(TargetPath)').LastWriteTime = (Get-ChildItem '%_SOURCEDLL_%').LastWriteTime"
+        powershell.exe -c "(Get-ChildItem '$(TargetPath)').CreationTime = (Get-ChildItem '%_SOURCEDLL_%').CreationTime"
+      &lt;/Command&gt;
     &lt;/PostBuildEvent&gt;
   &lt;/ItemDefinitionGroup&gt;
   &lt;ItemGroup&gt;

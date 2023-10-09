@@ -151,6 +151,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)Assets" "$(ProjectDir)$(OutDir)Assets" /Y /I /E</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)Assets" "$(ProjectDir)$(OutDir)Assets" /Y /I /E
+copy "$(ProjectDir)..\CommandLineGenerator.html" "$(ProjectDir)$(OutDir)CommandLineGenerator.html"
+copy "$(ProjectDir)..\Examples.md" "$(ProjectDir)$(OutDir)Examples.md"</PostBuildEvent>
   </PropertyGroup>
 </Project>

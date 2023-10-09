@@ -201,7 +201,25 @@ Spartacus also has a `--detect` mode, which tries to identify active DLL proxyin
 
 To use this feature, simply run Spartacus with `--detect`.
 
+## Self-Signing Executables/DLLs
+
+Spartacus supports the `--sign` mode which allows you to both generate self-signed certificates, but also sign compiled DLLs with them.
+
+Generate a self-signed certificate, copying the Issuer/Subject from an existing file:
+
+```
+--mode sign --action generate --pfx "C:\Output\myCertificate.pfx" --password "Welcome1" --not-before "2023-01-01 00:00:04" --not-after "2025-01-01 00:00:42" --copy-from C:\Windows\System32\version.dll --verbose
+```
+
+And use that certificate to sign your compiled file:
+
+```
+--mode sign --action sign --pfx "C:\Output\myCertificate.pfx" --password "Welcome1" --path "C:\Projects\Spartacus-AMSI\amsi.dll" --algorithm SHA256 --verbose
+```
+
 # Command Line Arguments
+
+To make your life easier, use the [CommandLineGenerator.html](CommandLineGenerator.html) file.
 
 | Mode              | Argument                  | Description |
 | ----------------- | ------------------------- | ----------- |
@@ -218,12 +236,23 @@ To use this feature, simply run Spartacus with `--detect`.
 | `dll`             | `--all`                   | By default any DLLs in the Windows or Program Files directories will be skipped. Use this to include those directories in the output. |
 | `proxy`           | `--ghidra`                | Path to Ghidra's 'analyzeHeadless.bat' file. Used when you want to proxy specific functions rather than just `DllMain`. |
 | `proxy`           | `--dll`                   | Path to the DLL you want to proxy, and can include multiple instances of this argument. In addition, can also contain wildcards like `C:\Windows\System32\*.dll` - however all paths have to end in `*.dll`. |
-| `proxy`           | `--overwrite`             | If the `--solution` path already exists, use this flag to overwrite it. |
+| `proxy`, `sign`   | `--overwrite`             | If the `--solution` (proxy) or `--pfx` (sign) file already exists, use this flag to overwrite it. |
 | `proxy`           | `--only`                  | Generate proxy functions only for functions defined in this variable. Values are comma separated like `'WTSFreeMemory,WTSFreeMemoryExA,WTSSetUserConfigA'`. |
 | `proxy`           | `--action`                | Default action is to generate a VS solution. `--action prototypes`, takes as input a Windows SDK folder and parses *.h files in order to generate a database of function prototypes. `--action exports` displays a DLL's export functions and when complimented with `--prototypes` it will display if the function definition has been pre-generated. |
+| `sign`            | `--action`                | When using `--action` with the `sign` module, it takes one of two options, `generate` for creating a PFX and `sign` for signing a file. |
 | `proxy`           | `--path`                  | Currently only works with `--action prototypes` and is the location of a Windows SDK directory. |
 | `proxy`           | `--prototypes`            | Location of prototypes.csv (currently within the `./Assets` folder). |
 | `com`             | `--acl`                   | Enumerate local system for missing/misconfigured COM libraries and executables. |
+| `sign`            | `--subject`               | Used with `--action generate` to specify the certificate subject. |
+| `sign`            | `--issuer`                | Used with `--action generate` to specify the certificate's issuer. |
+| `sign`            | `--copy-from`             | Used with `--action generate` to specify an existing signed file to copy the Issuer and Subject from. |
+| `sign`            | `--not-before`            | Used with `--action generate` to define the date from when the new certificate will be valid from, format is YYYY-MM-DD HH:MM:SS. |
+| `sign`            | `--not-after`             | Used with `--action generate` to define the date from when the new certificate will be valid until, format is YYYY-MM-DD HH:MM:SS. |
+| `sign`            | `--pfx`                   | When used with `--action generate` this is where the pfx file will be saved as. When used with `--action sign` this is where the pfx file will be loaded from. |
+| `sign`            | `--password`              | When used with `--action generate` it defines the password for the `--pfx` file. |
+| `sign`            | `--path`                  | When used with `--action sign` it defines the location of the executable/DLL file to be signed. |
+| `sign`            | `--algorithm`             | When used with `--action sign` it defines the hashing algorithm that will be used for signing. Options are: MD5, SHA1, SHA256, SHA384, SHA512. |
+| `sign`            | `--timestamp`             | When used with `--action sign` it defines the Timestamp Server, like http://timestamp.sectigo.com or http://timestamp.digicert.com. |
 
 # Contributions
 Whether it's a typo, a bug, or a new feature, Spartacus is very open to contributions as long as we agree on the following:
@@ -236,3 +265,4 @@ Whether it's a typo, a bug, or a new feature, Spartacus is very open to contribu
 * https://www.redteam.cafe/red-team/dll-sideloading/dll-sideloading-not-by-dllmain
 * https://stmxcsr.com/persistence/com-hijacking.html
 * Icon for Spartacus is from [Helmet icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/helmet) | https://dariusdan.com/
+* https://github.com/Danielku15/SigningServer
