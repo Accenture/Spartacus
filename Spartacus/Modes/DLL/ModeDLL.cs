@@ -98,7 +98,14 @@ namespace Spartacus.Modes.DLL
 
                 if (String.IsNullOrEmpty(file.Value) || String.IsNullOrEmpty(dllFile) || !File.Exists(dllFile))
                 {
-                    File.Create(Path.Combine(solution, file.Key + "-file-not-found")).Dispose();
+                    try
+                    {
+                        File.Create(Path.Combine(solution, file.Key + "-file-not-found")).Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Warning(" - error creating", false, false);
+                    }
                     Logger.Warning(" - No DLL Found", true, false);
                     continue;
                 }
