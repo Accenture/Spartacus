@@ -1,5 +1,9 @@
 # Spartacus Changelog
 
+## v2.2.1
+
+* `[Update]` Added additional debug stacktrace statements when writing to CSV files.
+
 ## v2.2.0
 
 * `[New]` Included `Examples.md` in the distribution archive.
