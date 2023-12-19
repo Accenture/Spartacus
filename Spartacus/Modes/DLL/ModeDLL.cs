@@ -56,6 +56,10 @@ namespace Spartacus.Modes.DLL
                 } catch (Exception e)
                 {
                     Logger.Error(e.Message);
+                    if (RuntimeData.Debug)
+                    {
+                        Logger.Error(e.StackTrace);
+                    }
                     Logger.Warning("There was an error saving the output. In order to avoid losing the processed data");
                     Logger.Warning("we're going to give it another go. When you resolve the error described above");
                     Logger.Warning("hit ENTER and another attempt at saving the output will be made.", false, true);
@@ -445,6 +449,8 @@ namespace Spartacus.Modes.DLL
                 }
             } while (true);
             Logger.Info("", true, false);
+
+            Logger.Debug(String.Format("Identified final events: {0}", events.Count()));
 
             return events;
         }
