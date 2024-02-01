@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This repo is unmaintained, visit https://github.com/sadreck/Spartacus for the latest version.
+
 # Spartacus DLL/COM Hijacking Toolkit ![version](https://img.shields.io/github/v/tag/Accenture/Spartacus?label=version&style=flat-square)
 
 ## Why "Spartacus"?
